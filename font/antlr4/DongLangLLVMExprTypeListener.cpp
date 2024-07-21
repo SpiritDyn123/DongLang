@@ -197,14 +197,9 @@ void DongLangLLVMExprTypeListener::exitVar_arr_value(DongLangParser::Var_arr_val
 	}
 }
 
-
 void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionContext* ctx) {
 	//统计类型，自上而下
 	for (auto pCtx = ctx->parent; pCtx; pCtx = pCtx->parent) {
-		if (dynamic_cast<DongLangParser::StatementContext*>(pCtx)) {
-			break;
-		}
-
 		//call 函数类型涉及重载需要特殊处理
 		if (auto tCtx = dynamic_cast<DongLangParser::Call_exprContext*>(pCtx)) {
 			break;
@@ -224,11 +219,25 @@ void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionCon
 				<< endl;
 				*/
 			if (typeInfo) { //某些路径的expression需要特殊处理 1、callfun(expr) 2、assign=expr
-				if (tCtx->expression().size() <= 1) {
+				if (tCtx->expression().size() == 0) { // expression --> paran_expr -> id_primary -> expression
+
+				}
+				if (tCtx->expression().size() == 1 && !tCtx->COND_NOT()) {
 					mExprTypes[ctx] = typeInfo; //传递给child节点
 				}
-				else if (tCtx->COND_AND() || tCtx->COND_OR()) {
-					mExprTypes[ctx] = typeInfo; //传递给child节点
+			}
+
+			if (tCtx->COND_NOT() || tCtx->COND_AND() || tCtx->COND_OR()) {
+				mExprTypes[ctx] = DongLangTypeInfo::BitType; //传递给child节点
+			}
+
+			//三元
+			if (tCtx->threeOpr) {
+				if (ctx == tCtx->expression(0)) {
+					mExprTypes[ctx] = DongLangTypeInfo::BitType;
+				}
+				else {
+					if(typeInfo) mExprTypes[ctx] = typeInfo;
 				}
 			}
 			break;
@@ -240,7 +249,7 @@ void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionCon
 			for (auto ptCtx = tCtx->parent; ptCtx != NULL; ptCtx = ptCtx->parent) {
 				if (auto funcCtx = dynamic_cast<DongLangParser::Function_defContext*>(ptCtx)) {
 					auto funcVar = DongLangBaseAST::FindSymbol(funcCtx, SYMBOL_ID(funcCtx));
-					mExprTypes[ctx] = COPY_SP_TYPE_INFO(funcVar->getVarType());
+					mExprTypes[ctx] = funcVar->getVarType();
 					break;
 				}
 			}
@@ -262,29 +271,17 @@ void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionCon
 				return;
 			}
 
-			mExprTypes[ctx] = COPY_SP_TYPE_INFO(var->getVarType());
-			break;
-		}
-
-		//int var=expr;
-		if (auto tCtx = dynamic_cast<DongLangParser::Var_declaresContext*>(pCtx)) {
-
-			auto var = DongLangBaseAST::FindSymbol(tCtx, tCtx->vars()->var(0)->getText());
-			if (!var) {
-				DongLangBaseAST::llvmCtx->emitError("undefined var:" + tCtx->vars()->var(0)->getText());
-				return;
-			}
-
+			mExprTypes[ctx] = var->getVarType();
 			break;
 		}
 
 		//assign *arr[5] (+-*/)?= xxx
 		if (auto tCtx = dynamic_cast<DongLangParser::AssignContext*>(pCtx)) {
-			if (tCtx->expression() == pCtx) {
-				break;
+			// assign value: expression
+			if (!tCtx->opr) {
+				mExprTypes[ctx] = mAssignTypes[tCtx];
 			}
-
-			//tCtx->id_primary()里也包含expression
+			break;
 		}
 
 		// if cond
@@ -307,33 +304,35 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 	  * 自下而上的修正类型
 	  * paren_expr, expr opr expr
 	  */
-
-	if (dynamic_cast<DongLangParser::AssignContext*>(ctx->parent)) { //assign exit
-		return;
+	if (ctx->primary()) { // primary
 	}
-
-	if (ctx->expression().size() <= 1) {
+	else if (ctx->expression().size() == 1) {
+		auto cTypeInfo = mDefaultExprTypes[ctx->expression(0)];
 		if (ctx->COND_NOT()) {
-			mDefaultExprTypes[ctx] = DongLangTypeInfo::BoolType;
+			mDefaultExprTypes[ctx] = DongLangTypeInfo::BitType;
 		}
-		else if (ctx->NOT()) {
-			mDefaultExprTypes[ctx] = COPY_SP_TYPE_INFO(mDefaultExprTypes[ctx->expression(0)]);
+		else {
+			mDefaultExprTypes[ctx] = cTypeInfo;
 		}
 	}
 	else {
-		auto typeL = mDefaultExprTypes[ctx->expression(0)];
-		auto typeR = mDefaultExprTypes[ctx->expression(1)];
-		string expOpr = ctx->opr->getText();
+		auto exprLCtx = ctx->expression(0);
+		auto exprRCtx = ctx->expression(1);
+
+		string expOpr =  "+";
+		if (ctx->threeOpr) {
+			exprLCtx = ctx->expression(1);
+			exprRCtx = ctx->expression(2);
+		}
+		else {
+			 expOpr = ctx->opr->getText();
+		}
+		auto typeL = mDefaultExprTypes[exprLCtx];
+		auto typeR = mDefaultExprTypes[exprRCtx];
 
 		DongLangTypeInfo* transTypeInfo = NULL;
 		if (ctx->COND_AND() || ctx->COND_OR()) {
-			auto exprTypeInfo = ExprType(ctx);
-			if (exprTypeInfo) { // if or for
-				transTypeInfo = COPY_SP_TYPE_INFO(exprTypeInfo);
-			}
-			else {
-				transTypeInfo = DongLangTypeInfo::BoolType;
-			}
+			transTypeInfo = DongLangTypeInfo::BitType;
 		}
 		else {
 			transTypeInfo = SLSymbol::typeCheckTrans(typeL, typeR, expOpr, true, ctx->getText());
@@ -341,34 +340,22 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 				return;
 			}
 
-			transTypeInfo = COPY_SP_TYPE_INFO(transTypeInfo);
 			if (typeL->String() != typeR->String()) {
-				auto cmpIndex = typeL->String() == transTypeInfo->String() ? 1 : 0;
+				auto cmpIndex = (typeL->String() == transTypeInfo->String() ? 1 : 0) + (ctx->threeOpr ? 1 : 0);
 				auto cmpExprCtx = ctx->expression(cmpIndex);
-				if (transTypeInfo->isPoint()) { //指针
-					if (ctx->CMP_EQ() || ctx->CMP_NE()) { // == !=
-						if (cmpExprCtx->getText() != "0") {
-							lC.emitError(ctx->getText() + " point must use int NULL(0) value");
-						}
-						else {
-							mExprTypes[cmpExprCtx] = COPY_SP_TYPE_INFO(transTypeInfo);
-						}
+				if (transTypeInfo->isPoint() && (ctx->CMP_EQ() || ctx->CMP_NE())) { //指针 == !=
+					if (cmpExprCtx->getText() != "0") {
+						lC.emitError(ctx->getText() + " point must use int NULL(0) value");
 					}
 				}
 				else {
-					mExprTypes[cmpExprCtx] = COPY_SP_TYPE_INFO(transTypeInfo);
+					mExprTypes[cmpExprCtx] = transTypeInfo; //修正默认运算类型
 				}
 			}
 
 			if (ctx->CMP_EQ() || ctx->CMP_NE() || ctx->CMP_GT() || ctx->CMP_GE() || ctx->CMP_LT() || ctx->CMP_LE()) {
-				delete transTypeInfo;
 				auto exprTypeInfo = ExprType(ctx);
-				if (exprTypeInfo->String() == "bit") { // if or for
-					transTypeInfo = DongLangTypeInfo::BoolType;
-				}
-				else {
-					transTypeInfo = DongLangTypeInfo::BitType;
-				}
+				transTypeInfo = exprTypeInfo ? exprTypeInfo : DongLangTypeInfo::BitType;
 			}
 		}
 
@@ -390,7 +377,7 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 
 			auto sti = ti->String();
 			if (sti != "int" && sti != "byte" && sti != "bool") {
-				lC.emitError(ctx->getText() + " byte param type err:" + sti);
+				lC.emitError(ctx->getText() + " byte operation type err:" + sti);
 			}
 		}
 	}
@@ -402,7 +389,7 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 		",defaultTypeInfo:" <<  (defaultTypeInfo ? defaultTypeInfo->String() : "null") << 
 		endl;*/
 	if (!typeInfo) {
-		mExprTypes[ctx] = COPY_SP_TYPE_INFO(defaultTypeInfo);
+		mExprTypes[ctx] = defaultTypeInfo;
 		typeInfo = mExprTypes[ctx];
 	}
 
@@ -414,52 +401,31 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 }
 
 void DongLangLLVMExprTypeListener::enterAssign(DongLangParser::AssignContext* ctx) {
-	//统计类型，自上而下
-	for (auto pCtx = ctx->parent; pCtx; pCtx = pCtx->parent) {
-		if (dynamic_cast<DongLangParser::StatementContext*>(pCtx)) {
-			break;
-		}
 
-		if (dynamic_cast<DongLangParser::If_condContext*>(pCtx)) {
-			mAssignTypes[ctx] = DongLangTypeInfo::BitType;
-			break;
-		}
-
-		if (dynamic_cast<DongLangParser::For_condContext*>(pCtx)) {
-			mAssignTypes[ctx] = DongLangTypeInfo::BitType;
-			break;
-		}
-	}
 }
 
 void DongLangLLVMExprTypeListener::exitAssign(DongLangParser::AssignContext* ctx) {
-	if (!ctx->expression()) {
-		if (ctx->INCREMENT() || ctx->DECREMENT()) {
-			SLSymbol::typeCheckTrans(mAssignTypes[ctx], DongLangTypeInfo::IntType, ctx->INCREMENT() ? "+" : "-", true, ctx->getText());
-		}
-
+	//++,--
+	if (ctx->INCREMENT() || ctx->DECREMENT()) {
+		SLSymbol::typeCheckTrans(mAssignTypes[ctx], DongLangTypeInfo::IntType, ctx->INCREMENT() ? "+" : "-", true, ctx->getText());
 		return;
 	}
 
+	//没有赋值或者没有运算符
+	if (!ctx->expression() || !ctx->opr) {
+		return;
+	}
+
+	// id_primary (运算类opr)= expression
 	auto typeL = mAssignTypes[ctx];
 	auto exprCtx = ctx->expression();
 	auto typeR = mDefaultExprTypes[exprCtx];
 
-	if (!ctx->opr) {
-		mExprTypes[exprCtx] = COPY_SP_TYPE_INFO(typeL);
-	}
-	else { //带运算符
-		//类型检查
-		string expOpr = ctx->opr->getText();
-		DongLangTypeInfo* transTypeInfo = SLSymbol::typeCheckTrans(typeL, typeR, expOpr, true, ctx->getText());
-		if (!transTypeInfo) {
-			return;
-		}
-
-
-		if (!transTypeInfo->isPoint() && typeR->String() != transTypeInfo->String()) { //指针
-			mExprTypes[exprCtx] = COPY_SP_TYPE_INFO(transTypeInfo);
-		}
+	//类型检查
+	string expOpr = ctx->opr->getText();
+	DongLangTypeInfo* transTypeInfo = SLSymbol::typeCheckTrans(typeL, typeR, expOpr, true, ctx->getText());
+	if (!transTypeInfo) {
+		return;
 	}
 
 	//位运算解析
@@ -471,35 +437,31 @@ void DongLangLLVMExprTypeListener::exitAssign(DongLangParser::AssignContext* ctx
 
 			auto sti = ti->String();
 			if (sti != "int" && sti != "byte" && sti != "bool") {
-				lC.emitError(ctx->getText() + " byte param type err:" + sti);
+				lC.emitError(ctx->getText() + " byte operation type err:" + sti);
 			}
 		}
 	}
-	
 
-	//检查类型冲突
-	auto typeInfo = mExprTypes[exprCtx];
-	auto defaultTypeInfo = typeR;
-
-	if (!typeInfo) {
-		mExprTypes[exprCtx] = COPY_SP_TYPE_INFO(defaultTypeInfo);
-		typeInfo = mExprTypes[exprCtx];
+	if (typeR->String() != transTypeInfo->String() && !transTypeInfo->isPoint()) {
+		mExprTypes[exprCtx] = transTypeInfo;
 	}
 
-	if (SLSymbol::typeCheckTrans(typeInfo, defaultTypeInfo, "=", true, ctx->getText())) {
-		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
-			lC.emitError(ctx->parent->getText() + " point must use int NULL(0) value");
-		}
+}
+
+
+void DongLangLLVMExprTypeListener::enterVar_expression(DongLangParser::Var_expressionContext* ctx) {
+	auto typeInfo = DongLangTypeInfo::BitType;
+	if (dynamic_cast<DongLangParser::If_condContext*>(ctx->parent)) {
+		mVarExprTypes[ctx] = typeInfo;
 	}
 }
 
 void DongLangLLVMExprTypeListener::exitVar_expression(DongLangParser::Var_expressionContext* ctx) {
+	//var_expression 没有类型信息(不在 if里)
+	DongLangTypeInfo* typeInfo = mVarExprTypes[ctx];
 	//获取默认类型
 	DongLangTypeInfo* defaultTypeInfo = NULL;
-	if (auto varsCtx = ctx->vars()) {
-		defaultTypeInfo = DongLangBaseAST::FindSymbol(varsCtx, varsCtx->var(0)->IDENTIFIER()->getText())->getVarType();
-	}
-	else if(auto varsDecCtx = ctx->var_declares())  {
+	if (auto varsDecCtx = ctx->var_declares()) {
 		defaultTypeInfo = DongLangBaseAST::FindSymbol(varsDecCtx, varsDecCtx->vars()->var(0)->IDENTIFIER()->getText())->getVarType();
 	}
 	else {
@@ -507,42 +469,22 @@ void DongLangLLVMExprTypeListener::exitVar_expression(DongLangParser::Var_expres
 		defaultTypeInfo = AssignType(assignsCtx->assign(0));
 	}
 
-	//检查在if for里
-	auto pCtx = ctx->parent;
-	if (auto forCondCtx = dynamic_cast<DongLangParser::For_condContext*>(pCtx)) {
-		if (forCondCtx->expression()) {
-			return;
-		}
-	} else if (auto ifCondCtx = dynamic_cast<DongLangParser::If_condContext*>(pCtx)) {
-		if (ifCondCtx->expression()) {
-			return;
-		}
-
-		//检查一下如果是数组，必须包含expression
-		if (defaultTypeInfo->isArray()) {
-			lC.emitError("if cond var array must has cond expression:" + ctx->getText());
-			return;
-		}
-	}
-	else {
+	if (!typeInfo) {
+		mVarExprTypes[ctx] = defaultTypeInfo;
 		return;
 	}
 
-	DongLangTypeInfo* typeInfo = DongLangTypeInfo::BitType;
+	//检查一下如果是数组
+	/*if (defaultTypeInfo->isArray()) {
+		lC.emitError("array must has cond expression:" + ctx->getText());
+		return;
+	}
+	*/
 	if (SLSymbol::typeCheckTrans(typeInfo, defaultTypeInfo, "=", true, ctx->getText())) {
 		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
-			lC.emitError(pCtx->getText() + "var expression type err");
+			lC.emitError(ctx->parent->getText() + "var_expression type err");
 		}
 	}
-
-	mVarExprTypes[ctx] = typeInfo;
-}
-
-
-
-void DongLangLLVMExprTypeListener::enterPrimary(DongLangParser::PrimaryContext* ctx) {}
-void DongLangLLVMExprTypeListener::exitPrimary(DongLangParser::PrimaryContext* ctx) {
-	
 }
 
 void DongLangLLVMExprTypeListener::enterId_primary(DongLangParser::Id_primaryContext* ctx) {}
@@ -558,14 +500,10 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 			return;
 		}
 		
-		mIdPrimaryTypes[ctx] = COPY_SP_TYPE_INFO(symbol->getVarType());
+		mIdPrimaryTypes[ctx] = symbol->getVarType();
 	}
 
-	idTypeInfo = mIdPrimaryTypes[ctx];
-
-	//cout << "id_primary:" << ctx->getText() << ",call:" << ctx->call_expr() << endl;
-	idTypeInfo = COPY_SP_TYPE_INFO(idTypeInfo);
-
+	idTypeInfo = COPY_SP_TYPE_INFO(mIdPrimaryTypes[ctx]);
 
 	for (auto child : ctx->children) {
 		if (auto arrIndexCtx = dynamic_cast<DongLangParser::Array_indexContext*>(child)) {
@@ -607,23 +545,23 @@ void DongLangLLVMExprTypeListener::enterValue_primary(DongLangParser::Value_prim
 void DongLangLLVMExprTypeListener::exitValue_primary(DongLangParser::Value_primaryContext* ctx) {
 	auto pCtx = ctx->parent->parent; //->priamry->expression
 	auto exprCtx = (DongLangParser::ExpressionContext*)pCtx;
-	string primaryType;
+	DongLangTypeInfo* primaryTypeInfo = NULL;
 	if (ctx->num_primary()) {
-		primaryType = "int";
+		primaryTypeInfo = DongLangTypeInfo::IntType;
 		if (ctx->num_primary()->getText().find(".") != string::npos) {
-			primaryType = "float";
+			primaryTypeInfo = DongLangTypeInfo::FloatType;
 		}
 	}
 
 	if (ctx->bool_primary()) {
-		primaryType = "bool";
+		primaryTypeInfo = DongLangTypeInfo::BoolType;
 	}
 
 	if (ctx->str_primary()) {
-		primaryType = "string";
+		primaryTypeInfo = DongLangTypeInfo::StringType;
 	}
 
-	mDefaultExprTypes[exprCtx] = new DongLangTypeInfo(primaryType, {}, true);
+	mDefaultExprTypes[exprCtx] = primaryTypeInfo;
 }
 
 void DongLangLLVMExprTypeListener::enterParan_expr(DongLangParser::Paran_exprContext* ctx) {}
@@ -730,20 +668,20 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 
 	int ti = 0;
 	for (auto argT : callFunc->argType()) {
-		mExprTypes[exprCtxList[ti++]] = COPY_SP_TYPE_INFO(argT);
+		mExprTypes[exprCtxList[ti++]] = argT;
 	}
 
 	//varArg 就直接default?
 	for (; ti < argCount; ti++) {
 		auto exprCtx = exprCtxList[ti];
-		mExprTypes[exprCtx] = COPY_SP_TYPE_INFO(mDefaultExprTypes[exprCtx]);
+		mExprTypes[exprCtx] = mDefaultExprTypes[exprCtx];
 	}
 
 	mCallFuncSymbol[ctx] = callFunc;
 
 	//call_expr
 	auto pCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(ctx->parent);
-	mIdPrimaryTypes[pCtx] = COPY_SP_TYPE_INFO(callFunc->getVarType());
+	mIdPrimaryTypes[pCtx] = callFunc->getVarType();
 
 }
 

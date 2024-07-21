@@ -14,14 +14,14 @@ public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
-    T__14 = 15, T__15 = 16, FUNC = 17, RETURN = 18, VOID = 19, TRUE = 20, 
-    FALSE = 21, FOR = 22, BREAK = 23, CONTINUE = 24, IF = 25, ELSE = 26, 
-    ELIF = 27, POINTADDR = 28, COND_AND = 29, COND_OR = 30, COND_NOT = 31, 
-    POINT = 32, INCREMENT = 33, DECREMENT = 34, COND_SPE = 35, ADD = 36, 
-    SUB = 37, MUL = 38, DIV = 39, OR = 40, XOR = 41, NOT = 42, CMP_EQ = 43, 
-    CMP_NE = 44, CMP_GT = 45, CMP_LT = 46, CMP_GE = 47, CMP_LE = 48, SPACE = 49, 
-    LINE_COMMENT = 50, COMMENT = 51, IDENTIFIER = 52, NUMBER = 53, ALPHA_DIGIT = 54, 
-    ALPHA = 55, DIGIT = 56, NULL_ = 57, STRING_LITERAL = 58
+    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, FUNC = 19, RETURN = 20, 
+    VOID = 21, TRUE = 22, FALSE = 23, FOR = 24, BREAK = 25, CONTINUE = 26, 
+    IF = 27, ELSE = 28, ELIF = 29, POINTADDR = 30, COND_AND = 31, COND_OR = 32, 
+    COND_NOT = 33, POINT = 34, INCREMENT = 35, DECREMENT = 36, COND_SPE = 37, 
+    ADD = 38, SUB = 39, MUL = 40, DIV = 41, OR = 42, XOR = 43, NOT = 44, 
+    CMP_EQ = 45, CMP_NE = 46, CMP_GT = 47, CMP_LT = 48, CMP_GE = 49, CMP_LE = 50, 
+    SPACE = 51, LINE_COMMENT = 52, COMMENT = 53, IDENTIFIER = 54, NUMBER = 55, 
+    ALPHA_DIGIT = 56, ALPHA = 57, DIGIT = 58, NULL_ = 59, STRING_LITERAL = 60
   };
 
   explicit DongLangLexer(antlr4::CharStream *input);

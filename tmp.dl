@@ -17,9 +17,14 @@ func int main(){
 	bool ba ,bb;
 	//fnArr(arr1);
 
-	ba = (a||fa);
-	//if( a > fa || b || (a || fa) ) {
-	  if((a||b)) {
+	//ba = !!fa;
+	//if(!fa) {}
+	//ba = a || fa;
+	if(a) {
+	}
+	if(a||b) {
+	}
+	if((a||b)) {
 	}
 
 	return 0;

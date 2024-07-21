@@ -17,8 +17,7 @@ prog:(global_var_expression';'|function_def)*;
 //prog:(statement|function_def)*; //old ver
 
 
-statement : expression ';'
-    | var_expression ';' //定义
+statement: var_expression ';' //定义
     | ret_expression ';' //定义
     | if_expression        //if
     | for_expression        //for
@@ -56,6 +55,7 @@ expression: COND_NOT expression
     | expression opr=(CMP_EQ|CMP_NE|CMP_GT|CMP_GE|CMP_LT|CMP_LE) expression
     | expression opr=COND_AND expression
     | expression opr=COND_OR expression
+    | expression threeOpr='?' expression ':' expression //三元选择
     | primary
     ;
 
@@ -108,8 +108,7 @@ global_var_expression:
 */
 
 var_expression:
-    vars
-    | assigns
+    assigns
     | var_declares
     ;
 

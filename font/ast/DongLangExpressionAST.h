@@ -24,6 +24,7 @@ public:
 	DongLangExpressionAST(std::string op, 
 		DongLangBaseAST* lhs, 
 		DongLangBaseAST* rhs, 
+		DongLangBaseAST* exths,
 		DongLangTypeInfo* typeInfo,
 		DongLangTypeInfo* defaultTypeInfo);
 	virtual Value* genCode() override;
@@ -35,6 +36,7 @@ private:
 	std::string op;
 	DongLangBaseAST* lhs;
 	DongLangBaseAST* rhs;
+	DongLangBaseAST* exths;
 	DongLangTypeInfo* defaultTypeInfo;
 
 private:
@@ -59,6 +61,7 @@ private:
 	static Value* ifNotExpr(DongLangExpressionAST* ast);
 	static Value* ifAndExpr(DongLangExpressionAST*);
 	static Value* ifOrExpr(DongLangExpressionAST*);
+	static Value* ifThreeOrExpr(DongLangExpressionAST*);
 
 
 	//using  EXPRESSION_HANDLER = void(DongLangExpressionAST*);

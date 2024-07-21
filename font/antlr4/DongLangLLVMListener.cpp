@@ -89,13 +89,7 @@ void DongLangLLVMListener::enterStatement(DongLangParser::StatementContext* ctx)
 }
 
 void DongLangLLVMListener::exitStatement(DongLangParser::StatementContext* ctx) { 
-	antlr4::ParserRuleContext* child = ctx->expression();
-	if (child) {
-		mAsts[ctx] = mAsts[child];
-		return;
-	}
-
-	child = ctx->var_expression();
+	antlr4::ParserRuleContext* child = ctx->var_expression();
 	if (child) {
 		mAsts[ctx] = mAsts[child];
 		return;
@@ -169,14 +163,20 @@ void DongLangLLVMListener::exitExpression(DongLangParser::ExpressionContext* ctx
 	} else if (ctx->NOT()) {
 		opr = ctx->NOT()->getText();
 	}
-	else {
+	else if(ctx->opr) {
 		opr = ctx->opr->getText();
+	}
+	else {
+		opr = "?:";
 	}
 
 	DongLangBaseAST* rhs = NULL;
+	DongLangBaseAST* exths = NULL;
 	if (ctx->expression().size() > 1) {
 		rhs = mAsts[ctx->expression(1)];
-
+		if (ctx->threeOpr) {
+			exths = mAsts[ctx->expression(2)];
+		}
 		/*cout << "expression:" << ctx->getText() <<
 			",exprtypeInfo:" << etListener->ExprType(ctx)->String() <<
 			",defaultTypeInfo:" << etListener->ExprDefaultType(ctx)->String() <<
@@ -188,6 +188,7 @@ void DongLangLLVMListener::exitExpression(DongLangParser::ExpressionContext* ctx
 	mAsts[ctx] = new DongLangExpressionAST(opr,
 		mAsts[ctx->expression(0)],
 		rhs,
+		exths,
 		etListener->ExprType(ctx),
 		//etListener->ExprDefaultType(ctx),
 		etListener->ExprDefaultType(ctx));
@@ -203,10 +204,7 @@ void DongLangLLVMListener::enterIf_expression(DongLangParser::If_expressionConte
 }
 
 void DongLangLLVMListener::exitVar_expression(DongLangParser::Var_expressionContext* ctx) {
-	antlr4::ParserRuleContext* child = ctx->vars();
-	if (!child) {
-		child = ctx->var_declares();
-	}
+	antlr4::ParserRuleContext* child = ctx->var_declares();
 
 	if (!child) {
 		child = ctx->assigns();
@@ -351,11 +349,13 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 
 	DongLangBaseAST* idAst = NULL;
 	string id = "";
+	DongLangParser::ExpressionContext* paranExprCtx = NULL;
 	if (ctx->call_expr()) {
 		idAst = mAsts[ctx->call_expr()];
 	}
 	else if (ctx->paran_expr()) {
-		idAst = mAsts[ctx->paran_expr()->expression()];
+		paranExprCtx = ctx->paran_expr()->expression();
+		idAst = mAsts[paranExprCtx];
 	}
 	else if (ctx->IDENTIFIER()) {
 		id = ctx->IDENTIFIER()->getText();
@@ -376,17 +376,30 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 	}
 	else { //assign
 		auto assignCtx = dynamic_cast<DongLangParser::AssignContext*>(ctx->parent);
-		exprTypeInfo = etListener->AssignType(assignCtx);
-		exprDefaultTypeInfo = exprTypeInfo;
-		if ( assignCtx->expression() && assignCtx->opr || assignCtx->INCREMENT() || assignCtx->DECREMENT()) { // 存在运算符
-			auto assignTypeInfo = exprTypeInfo->isPoint() ? exprTypeInfo : (
-				assignCtx->opr ? etListener->ExprType(assignCtx->expression()) : SLSymbol::typeCheckTrans(exprTypeInfo, 
+		exprDefaultTypeInfo = etListener->AssignType(assignCtx);
+		if (auto varExprCtx = dynamic_cast<DongLangParser::Var_expressionContext*>(assignCtx->parent->parent)) {
+			exprTypeInfo = etListener->VarExprTypes(varExprCtx);
+		} else {
+			exprTypeInfo = exprDefaultTypeInfo;
+		}
+
+		if (assignCtx->expression() && assignCtx->opr || assignCtx->INCREMENT() || assignCtx->DECREMENT()) { // 存在运算符
+			auto assignTypeInfo = exprDefaultTypeInfo->isPoint() ? exprDefaultTypeInfo : (
+				assignCtx->opr ? etListener->ExprType(assignCtx->expression()) : SLSymbol::typeCheckTrans(exprDefaultTypeInfo,
 					DongLangTypeInfo::IntType, assignCtx->INCREMENT() ? "+" : "-"));
 			mAsts[assignCtx] =
 				new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, assignTypeInfo, exprDefaultTypeInfo, idTypeInfo);
 		}
 	}
 
+	/*if (paranExprCtx) {
+		cout << "tInfo:" << (exprTypeInfo ? exprTypeInfo->String() : "NULL")
+			<< ",defaultTInfo:" << (exprDefaultTypeInfo ? exprDefaultTypeInfo->String() : "NULL")
+			<< ",idTInfo:" << (idTypeInfo ? idTypeInfo->String() : "NULL")
+			<< ",paran_tinfo:" << (etListener->ExprType(paranExprCtx) ? etListener->ExprType(paranExprCtx)->String():"NULL")
+			<< ",paran_defaultTinfo:" << (etListener->ExprDefaultType(paranExprCtx) ? etListener->ExprDefaultType(paranExprCtx)->String():"NULL")
+			<< endl;
+	}*/
 	mAsts[ctx] = new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, exprTypeInfo, exprDefaultTypeInfo, idTypeInfo);
 
 }
@@ -579,6 +592,7 @@ void DongLangLLVMListener::exitAssigns(DongLangParser::AssignsContext* ctx) {
 				valueAst = new DongLangExpressionAST(child->opr->getText(),
 					mAsts[child],
 					valueAst,
+					NULL,
 					assignTypeInfo,
 					valueTypeInfo);
 
@@ -595,6 +609,7 @@ void DongLangLLVMListener::exitAssigns(DongLangParser::AssignsContext* ctx) {
 				mAsts[child],
 				new DongLangNumPrimaryAST("1", assignTypeInfo->isPoint() ? DongLangTypeInfo::IntType :
 					SLSymbol::typeCheckTrans(assignTypeInfo, DongLangTypeInfo::IntType, opr)),
+				NULL,
 				assignTypeInfo,
 				valueTypeInfo);
 

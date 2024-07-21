@@ -21,10 +21,11 @@ DongLangExpressionAST::MEXPRESSION_HANDLERS DongLangExpressionAST::mExpressionHa
 	{"!", ifNotExpr },
 	{"&&", ifAndExpr},
 	{"||", ifOrExpr},
+	{"?:", ifThreeOrExpr},
 };
 
 DongLangExpressionAST::DongLangExpressionAST(std::string op, DongLangBaseAST* lhs,
-	DongLangBaseAST* rhs, DongLangTypeInfo* typeInfo, DongLangTypeInfo* defaultTypeInfo): DongLangBaseAST(typeInfo),
+	DongLangBaseAST* rhs, DongLangBaseAST* exths, DongLangTypeInfo* typeInfo, DongLangTypeInfo* defaultTypeInfo): DongLangBaseAST(typeInfo),
 	defaultTypeInfo(defaultTypeInfo), 
 	trueBB(NULL),
 	falseBB(NULL),
@@ -32,6 +33,7 @@ DongLangExpressionAST::DongLangExpressionAST(std::string op, DongLangBaseAST* lh
 	this->op = op;
 	this->lhs = lhs;
 	this->rhs = rhs;
+	this->exths = exths;
 
 	this->lhs->setParent(this);
 	if (this->rhs) {
@@ -98,7 +100,7 @@ void DongLangExpressionAST::assetOpearation() {
 			return;
 		}
 	}
-	else if (op == "&&" || op == "||" ) {
+	else if (op == "&&" || op == "||" || "?:") {
 		if (lhsTs != "bool" && lhsTs != "bit") {
 			lC.emitError("expression assetOpearation:" + op + " error");
 			return;
@@ -115,15 +117,15 @@ DongLangExpressionAST* DongLangExpressionAST::createCmpAst(string op, vector<Don
 	assert(cAsts.size() > 0);
 
 	if (cAsts.size() > 1) {
-		auto exprAst = new DongLangExpressionAST(op, cAsts[0], cAsts[1], typeInfo, defaultTypeInfo);
+		auto exprAst = new DongLangExpressionAST(op, cAsts[0], cAsts[1], NULL, typeInfo, defaultTypeInfo);
 		for (int i = 2; i < cAsts.size(); i++) {
-			exprAst = new DongLangExpressionAST(op, exprAst, cAsts[i], typeInfo, NULL);
+			exprAst = new DongLangExpressionAST(op, exprAst, cAsts[i], NULL,typeInfo, NULL);
 		}
 
 		return exprAst;
 	}
 	else {
-		return new DongLangExpressionAST(op, cAsts[0], NULL, typeInfo, defaultTypeInfo);
+		return new DongLangExpressionAST(op, cAsts[0], NULL, NULL, typeInfo, defaultTypeInfo);
 	}
 }
 
@@ -418,6 +420,100 @@ Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
 }
 
 Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
+	DongLangExpressionAST* pAst = (DongLangExpressionAST*)(ast->getParent());
+	auto lhsAst = dynamic_cast<DongLangExpressionAST*>(ast->lhs);
+	auto rhsAst = dynamic_cast<DongLangExpressionAST*>(ast->rhs);
+
+	auto curBB = lB.GetInsertBlock();
+
+	ast->lhs->setFArg();
+	Value* lValue = ast->lhs->genCode();
+	auto cCurBB = CUR_BB;
+	if (cCurBB == curBB) { //说明lhs不是expression嵌套
+		ast->trueBB = BasicBlock::Create(lC, "", curBB->getParent());
+		ast->falseBB = BasicBlock::Create(lC, "", curBB->getParent());
+		ast->trueBB->moveAfter(ast->falseBB);
+
+		ast->phi = lB.CreatePHI(lValue->getType(), 0);
+
+		ast->phi->addIncoming(lValue, cCurBB);
+		BranchInst::Create(ast->trueBB, ast->falseBB, lValue, cCurBB);
+	}
+	else {
+		BasicBlock* cFirstBB = cCurBB->getPrevNode(); // 子block1
+		ast->falseBB = BasicBlock::Create(lC, "", cFirstBB->getParent()); //curBlock1
+		ast->falseBB->moveAfter(cFirstBB);
+		ast->trueBB = cCurBB; //子block2(endBB)
+
+		//查找子endBB里的phinode
+		Instruction* lastInst;
+		for (Instruction& inst : *cCurBB) {
+			lastInst = &inst;
+			if (PHINode* phi = dyn_cast<PHINode>(&inst)) {
+				ast->phi = phi;
+				break;
+			}
+		}
+
+		//获取start启动block
+		BasicBlock* startBB;
+		for (auto pi = pred_begin(cFirstBB), pe = pred_end(cFirstBB); pi != pe; ++pi) {
+			startBB = dyn_cast<BasicBlock>(*pi);
+		}
+
+		Value* cmpValue;
+		int instLen = startBB->size();
+		for (Instruction& inst : *startBB) {
+			lastInst = &inst;
+			instLen--;
+			if (instLen == 1) { //倒数第二条指令是赋值
+				cmpValue = &inst;
+			}
+		}
+
+		//判断子expr && 或者 ||
+		BranchInst* brInst = dyn_cast<BranchInst>(lastInst);
+		if (brInst->getSuccessor(1) != cFirstBB) { // == "&&"
+			lastInst->eraseFromParent();
+			ast->phi->removeIncomingValue(startBB);
+			BranchInst::Create(cFirstBB, ast->falseBB, cmpValue, startBB);
+		}
+
+		//修改子trueBB的br
+		instLen = cFirstBB->size();
+		for (Instruction& inst : *cFirstBB) {
+			lastInst = &inst;
+			instLen--;
+			if (instLen == 1) { //倒数第二条指令是赋值
+				cmpValue = &inst;
+			}
+		}
+		lastInst->eraseFromParent();
+
+		BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, cFirstBB);
+	}
+
+	lB.SetInsertPoint(ast->falseBB);
+	ast->rhs->setFArg();
+	Value* rValue = ast->rhs->genCode();
+	cCurBB = CUR_BB;
+	ast->phi->addIncoming(rValue, cCurBB);
+
+	if (ast->falseBB != cCurBB) { //expression嵌套
+		ast->trueBB->moveAfter(cCurBB);
+	}
+
+	lB.CreateBr(ast->trueBB);
+
+	lB.SetInsertPoint(ast->trueBB);
+	ast->phi->removeFromParent();
+	ast->phi->insertInto(ast->trueBB, ast->trueBB->end());
+
+	return ast->phi;
+}
+
+
+Value* DongLangExpressionAST::ifThreeOrExpr(DongLangExpressionAST* ast) {
 	DongLangExpressionAST* pAst = (DongLangExpressionAST*)(ast->getParent());
 	auto lhsAst = dynamic_cast<DongLangExpressionAST*>(ast->lhs);
 	auto rhsAst = dynamic_cast<DongLangExpressionAST*>(ast->rhs);

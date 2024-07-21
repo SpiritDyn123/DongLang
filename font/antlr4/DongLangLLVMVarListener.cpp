@@ -115,7 +115,7 @@ void DongLangLLVMVarListener::enterIf_cond(DongLangParser::If_condContext* ctx) 
 	//var 定义和expression条件检查
 	auto varExprCtx = ctx->var_expression();
 	if (varExprCtx) {
-		auto varsCtx = varExprCtx->vars();
+		DongLangParser::VarsContext* varsCtx = NULL;
 		if (varExprCtx->var_declares()) {
 			varsCtx = varExprCtx->var_declares()->vars();
 			//var 定义必须赋值
