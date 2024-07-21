@@ -17,14 +17,11 @@ func int main(){
 	bool ba ,bb;
 	//fnArr(arr1);
 
-	//ba = !!fa;
+	ba = !fa;
 	//if(!fa) {}
-	//ba = a || fa;
+	ba = a || fa;
 	if(a) {
-	}
-	if(a||b) {
-	}
-	if((a||b)) {
+	
 	}
 
 	return 0;

@@ -393,11 +393,12 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 	}
 
 	/*if (paranExprCtx) {
-		cout << "tInfo:" << (exprTypeInfo ? exprTypeInfo->String() : "NULL")
+		cout << "id_primary:" << ctx->getText()
+			<< ",tInfo:" << (exprTypeInfo ? exprTypeInfo->String() : "NULL")
 			<< ",defaultTInfo:" << (exprDefaultTypeInfo ? exprDefaultTypeInfo->String() : "NULL")
 			<< ",idTInfo:" << (idTypeInfo ? idTypeInfo->String() : "NULL")
-			<< ",paran_tinfo:" << (etListener->ExprType(paranExprCtx) ? etListener->ExprType(paranExprCtx)->String():"NULL")
-			<< ",paran_defaultTinfo:" << (etListener->ExprDefaultType(paranExprCtx) ? etListener->ExprDefaultType(paranExprCtx)->String():"NULL")
+			//<< ",paran_tinfo:" << (etListener->ExprType(paranExprCtx) ? etListener->ExprType(paranExprCtx)->String():"NULL")
+			//<< ",paran_defaultTinfo:" << (etListener->ExprDefaultType(paranExprCtx) ? etListener->ExprDefaultType(paranExprCtx)->String():"NULL")
 			<< endl;
 	}*/
 	mAsts[ctx] = new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, exprTypeInfo, exprDefaultTypeInfo, idTypeInfo);

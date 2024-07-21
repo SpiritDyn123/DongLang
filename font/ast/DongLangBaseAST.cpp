@@ -19,17 +19,19 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 	auto llType = typeInfo->LlvmType(&lB);
 	if (typeInfo->isPrimary() && t1S != t2S) {
 		Instruction::CastOps castT;
-		if (t1S == "bool" || t1S == "bit") {
-			Value* zeroValue = Constant::getNullValue(curValue->getType());
-			if (t2S == "float") {
-				curValue = lB.CreateFCmpUNE(curValue, zeroValue);
+		if (t1S == "bool" || t1S=="bit") {
+			if (t2S != "bit") {
+				Value* zeroValue = Constant::getNullValue(curValue->getType());
+				if (t2S == "float") {
+					curValue = lB.CreateFCmpUNE(curValue, zeroValue);
+				}
+				else {
+					curValue = lB.CreateICmpNE(curValue, zeroValue);
+				}
 			}
-			else {
-				curValue = lB.CreateICmpNE(curValue, zeroValue);
-			}
-
-			castT = Instruction::ZExt;
-			if (llType->isIntegerTy(1)) {
+			
+			if(t1S == "bool") {
+				castT = Instruction::ZExt;
 			}
 		}
 		else {
