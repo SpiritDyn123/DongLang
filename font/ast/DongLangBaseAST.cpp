@@ -17,50 +17,57 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 
 	//int <==> float trans
 	auto llType = typeInfo->LlvmType(&lB);
-	if (typeInfo->isPrimary() && t1S != t2S) {
-		Instruction::CastOps castT;
-		if (t1S == "bool" || t1S=="bit") {
-			if (t2S != "bit") {
-				Value* zeroValue = Constant::getNullValue(curValue->getType());
-				if (t2S == "float") {
-					curValue = lB.CreateFCmpUNE(curValue, zeroValue);
+	if (t1S != t2S) {
+		if (typeInfo->isPrimary()) {
+			Instruction::CastOps castT;
+			if (t1S == "bool" || t1S == "bit") {
+				if (t2S != "bit") {
+					Value* zeroValue = Constant::getNullValue(curValue->getType());
+					if (t2S == "float") {
+						curValue = lB.CreateFCmpUNE(curValue, zeroValue);
+					}
+					else {
+						curValue = lB.CreateICmpNE(curValue, zeroValue);
+					}
 				}
-				else {
-					curValue = lB.CreateICmpNE(curValue, zeroValue);
-				}
-			}
-			
-			if(t1S == "bool") {
-				castT = Instruction::ZExt;
-			}
-		}
-		else {
-			if (t1S == "int") {
-				if (t2S == "float") {
-					castT = Instruction::FPToSI;
-				}
-				else {
-					castT = Instruction::SExt;
-				}
-			}
-			else if (t1S == "float") {
-				castT = Instruction::SIToFP;
-			}
-			else if (t1S == "byte") {
-				if (t2S == "int") {
-					castT = Instruction::Trunc;
-				}
-				else {
-					castT = Instruction::FPToSI;
-				}
-			}
-		}
 
-		if (!llType->isIntegerTy(1)) {
-			curValue = lB.CreateCast(castT, curValue, llType);
+				if (t1S == "bool") {
+					castT = Instruction::ZExt;
+				}
+			}
+			else {
+				if (t1S == "int") {
+					if (t2S == "float") {
+						castT = Instruction::FPToSI;
+					}
+					else {
+						castT = Instruction::SExt;
+					}
+				}
+				else if (t1S == "float") {
+					castT = Instruction::SIToFP;
+				}
+				else if (t1S == "byte") {
+					if (t2S == "int") {
+						castT = Instruction::Trunc;
+					}
+					else {
+						castT = Instruction::FPToSI;
+					}
+				}
+			}
+
+			if (!llType->isIntegerTy(1)) {
+				curValue = lB.CreateCast(castT, curValue, llType);
+			}
+		}
+		else if (typeInfo->isPoint()) {
+			if (defaultTypeInfo->isArray()) {
+				curValue = lB.CreateGEP(defaultTypeInfo->LlvmType(&lB), curValue, {lB.getInt64(0), lB.getInt64(0)});
+			}
 		}
 	}
-
+	
 	if (leftValue) {
 		lB.CreateStore(curValue, leftValue);
 		curValue = leftValue;

@@ -163,6 +163,13 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 				opr == "-")) {
 				return transT;
 			}
+			else if (t2->isArray()) { // 数组和指针
+				auto tmpT2 = *t2;
+				tmpT2.pas[tmpT2.pas.size() - 1].pointOrArr = true;
+				if (t1S == tmpT2.String()) {
+					return transT;
+				}
+			}
 		} if (t2->isPoint()) {
 			if (t1S == "int" && (
 				t1->constant && (opr == "==" || opr == "!="))) {

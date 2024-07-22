@@ -153,7 +153,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 		}
 	}
 	else {
-		if (bSymbol && (!bLeftValue || getFArg())) {
+		if (bSymbol && !defaultTypeInfo->isArray() && (!bLeftValue || getFArg())) {
 			idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 		}
 	}

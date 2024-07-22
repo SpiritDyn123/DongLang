@@ -18,6 +18,7 @@ func int main(){
 	int *pa ;
 	int**ppa;
 	int[5] arr1;
+	pa = arr1;
 
 	pa += 5;
 	ppa += 5;
