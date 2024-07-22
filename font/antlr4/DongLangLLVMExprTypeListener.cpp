@@ -92,6 +92,13 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 	//cout << "enterVar_arr_value:" << ctx->getText() << endl;
 	//var_arr_value->var_arr_value, var
 	for (auto pCtx = ctx->parent; pCtx; pCtx = pCtx->parent) {
+		//var
+		if (auto tCtx = dynamic_cast<DongLangParser::VarContext*>(pCtx)) {
+			auto varSymbol = DongLangBaseAST::FindSymbol(tCtx, tCtx->IDENTIFIER()->getText());
+			mVarArrValueTypes[ctx] = COPY_SP_TYPE_INFO(varSymbol->getVarType());
+			break;
+		}
+
 		//call 函数类型涉及重载需要特殊处理
 		if (auto tCtx = dynamic_cast<DongLangParser::Var_arr_valueContext*>(pCtx)) {
 			auto cTypeInfo = COPY_SP_TYPE_INFO(mVarArrValueTypes[tCtx]); //传递给child节点
@@ -105,17 +112,8 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 			mVarArrValueTypes[ctx] = cTypeInfo;
 			break;
 		}
-
-
-		//var
-		if (auto tCtx = dynamic_cast<DongLangParser::VarContext*>(pCtx)) {
-			auto varSymbol = DongLangBaseAST::FindSymbol(tCtx, tCtx->IDENTIFIER()->getText());
-			mVarArrValueTypes[ctx] = COPY_SP_TYPE_INFO(varSymbol->getVarType());
-			break;
-		}
 	}
 
-	//cout << "===typeInfo:" << mVarArrValueTypes[ctx]->String() << endl;
 	if (ctx->expr_list()) {
 		auto cTypeInfo = COPY_SP_TYPE_INFO(mVarArrValueTypes[ctx]); //传递给child节点
 		int lastIndex = (int)cTypeInfo->pas.size() - 1;
@@ -123,6 +121,7 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 			DongLangBaseAST::llvmCtx->emitError("array value element expr: " + cTypeInfo->String() + " ,err:" + ctx->getText());
 			return;
 		}
+
 		cTypeInfo->DelPointArrayItem(PointOrArray(false));
 		for (auto expr : ctx->expr_list()->expression()) {
 			mExprTypes[expr] = cTypeInfo; //最底层传递给expression
@@ -193,7 +192,6 @@ void DongLangLLVMExprTypeListener::exitVar_arr_value(DongLangParser::Var_arr_val
 	if (auto tCtx = dynamic_cast<DongLangParser::VarContext*>(pCtx)) {
 		auto varSymbol = DongLangBaseAST::FindSymbol(tCtx, tCtx->IDENTIFIER()->getText());
 		*varSymbol->getVarType() = *typeInfo;
-
 	}
 }
 
@@ -237,7 +235,7 @@ void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionCon
 					mExprTypes[ctx] = DongLangTypeInfo::BitType;
 				}
 				else {
-					if(typeInfo) mExprTypes[ctx] = typeInfo;
+					//if(typeInfo) mExprTypes[ctx] = typeInfo; //exitExpression时候自动赋值
 				}
 			}
 			break;
@@ -319,10 +317,11 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 		auto exprLCtx = ctx->expression(0);
 		auto exprRCtx = ctx->expression(1);
 
-		string expOpr =  "+";
+		string expOpr;
 		if (ctx->threeOpr) {
 			exprLCtx = ctx->expression(1);
 			exprRCtx = ctx->expression(2);
+			expOpr = "=";
 		}
 		else {
 			 expOpr = ctx->opr->getText();
@@ -335,7 +334,7 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 			transTypeInfo = DongLangTypeInfo::BitType;
 		}
 		else {
-			transTypeInfo = SLSymbol::typeCheckTrans(typeL, typeR, expOpr, true, ctx->getText());
+			transTypeInfo = DongLangTypeInfo::typeCheckTrans(typeL, typeR, expOpr, true, ctx->getText());
 			if (!transTypeInfo) {
 				return;
 			}
@@ -343,19 +342,22 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 			if (typeL->String() != typeR->String()) {
 				auto cmpIndex = (typeL->String() == transTypeInfo->String() ? 1 : 0) + (ctx->threeOpr ? 1 : 0);
 				auto cmpExprCtx = ctx->expression(cmpIndex);
-				if (transTypeInfo->isPoint() && (ctx->CMP_EQ() || ctx->CMP_NE())) { //指针 == !=
-					if (cmpExprCtx->getText() != "0") {
-						lC.emitError(ctx->getText() + " point must use int NULL(0) value");
+
+				if (transTypeInfo->isPoint()) { //指针 == !=
+					if (ctx->CMP_EQ() || ctx->CMP_NE() || ctx->threeOpr) {
+						if (cmpExprCtx->getText() != "0") {
+							lC.emitError(ctx->getText() + " point must use int NULL(0) value");
+							return;
+						}
 					}
 				}
-				else {
-					mExprTypes[cmpExprCtx] = transTypeInfo; //修正默认运算类型
-				}
+
+				mExprTypes[cmpExprCtx] = transTypeInfo; //修正默认运算类型
 			}
 
 			if (ctx->CMP_EQ() || ctx->CMP_NE() || ctx->CMP_GT() || ctx->CMP_GE() || ctx->CMP_LT() || ctx->CMP_LE()) {
-				auto exprTypeInfo = ExprType(ctx);
-				transTypeInfo = exprTypeInfo ? exprTypeInfo : DongLangTypeInfo::BitType;
+				//auto exprTypeInfo = ExprType(ctx);
+				transTypeInfo = DongLangTypeInfo::BitType;
 			}
 		}
 
@@ -393,7 +395,7 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 		typeInfo = mExprTypes[ctx];
 	}
 
-	if (SLSymbol::typeCheckTrans(typeInfo, defaultTypeInfo, "=", true, ctx->getText())) {
+	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, "=", true, ctx->getText())) {
 		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
 			lC.emitError(ctx->parent->getText() + " point must use int NULL(0) value");
 		}
@@ -407,7 +409,7 @@ void DongLangLLVMExprTypeListener::enterAssign(DongLangParser::AssignContext* ct
 void DongLangLLVMExprTypeListener::exitAssign(DongLangParser::AssignContext* ctx) {
 	//++,--
 	if (ctx->INCREMENT() || ctx->DECREMENT()) {
-		SLSymbol::typeCheckTrans(mAssignTypes[ctx], DongLangTypeInfo::IntType, ctx->INCREMENT() ? "+" : "-", true, ctx->getText());
+		DongLangTypeInfo::typeCheckTrans(mAssignTypes[ctx], DongLangTypeInfo::IntType, ctx->INCREMENT() ? "+" : "-", true, ctx->getText());
 		return;
 	}
 
@@ -423,7 +425,7 @@ void DongLangLLVMExprTypeListener::exitAssign(DongLangParser::AssignContext* ctx
 
 	//类型检查
 	string expOpr = ctx->opr->getText();
-	DongLangTypeInfo* transTypeInfo = SLSymbol::typeCheckTrans(typeL, typeR, expOpr, true, ctx->getText());
+	DongLangTypeInfo* transTypeInfo = DongLangTypeInfo::typeCheckTrans(typeL, typeR, expOpr, true, ctx->getText());
 	if (!transTypeInfo) {
 		return;
 	}
@@ -480,7 +482,7 @@ void DongLangLLVMExprTypeListener::exitVar_expression(DongLangParser::Var_expres
 		return;
 	}
 	*/
-	if (SLSymbol::typeCheckTrans(typeInfo, defaultTypeInfo, "=", true, ctx->getText())) {
+	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, "=", true, ctx->getText())) {
 		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
 			lC.emitError(ctx->parent->getText() + "var_expression type err");
 		}
@@ -547,9 +549,9 @@ void DongLangLLVMExprTypeListener::exitValue_primary(DongLangParser::Value_prima
 	auto exprCtx = (DongLangParser::ExpressionContext*)pCtx;
 	DongLangTypeInfo* primaryTypeInfo = NULL;
 	if (ctx->num_primary()) {
-		primaryTypeInfo = DongLangTypeInfo::IntType;
+		primaryTypeInfo = DongLangTypeInfo::ConstIntType;
 		if (ctx->num_primary()->getText().find(".") != string::npos) {
-			primaryTypeInfo = DongLangTypeInfo::FloatType;
+			primaryTypeInfo = DongLangTypeInfo::ConstFloatType;
 		}
 	}
 
@@ -615,7 +617,7 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 			auto expectTStr = expectT->String(false);
 			auto argTStr = argT->String(false);
 			if (expectTStr != argTStr) {
-				if (SLSymbol::typeCheckTrans(argT, expectT, "=")) {
+				if (DongLangTypeInfo::typeCheckTrans(argT, expectT, "=")) {
 					matchEValue += (mStandEV-ti-1); //按照位置修正-1
 				}
 				else {

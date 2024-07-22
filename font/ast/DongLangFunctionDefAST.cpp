@@ -26,7 +26,11 @@ Value* DongLangFunctionDefAST::genCode() {
 	fArgTypes.clear();
 	for (auto& argT : args) {
 		argTypes.push_back(argT.typeInfo);
-		fArgTypes.push_back(argT.typeInfo->LlvmType(&lB));
+		auto fArgType = argT.typeInfo->LlvmType(&lB);
+		if (fArgType->isArrayTy()) {
+			fArgType = fArgType->getPointerTo();
+		}
+		fArgTypes.push_back(fArgType);
 	}
 
 	auto curScope = CurScope(ctx);
@@ -56,6 +60,7 @@ Value* DongLangFunctionDefAST::genCode() {
 			lB.CreateCall(lM.getFunction("global_main_init"));
 		}
 
+		bool hasRet = false;
 		for (auto expr : body) {
 			auto sv = expr->genCode();
 			if (auto smBB = dyn_cast<BasicBlock>(sv); smBB && smBB != entryBB) {
@@ -64,6 +69,18 @@ Value* DongLangFunctionDefAST::genCode() {
 					smBB->eraseFromParent();
 					break;
 				}
+			}
+			else if (dyn_cast<ReturnInst>(sv)) {
+				hasRet = true;
+			}
+		}
+
+		if (!hasRet) {
+			if (lRetType->isVoidTy()) {
+				lB.CreateRetVoid();
+			}
+			else {
+				lB.CreateRet(Constant::getNullValue(lRetType));
 			}
 		}
 	}

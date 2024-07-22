@@ -155,7 +155,9 @@ Value* DongLangExpressionAST::addExpr(DongLangExpressionAST* ast) {
 		retValue = lB.CreateAdd(lValue, rValue);
 	}
 	else if (lhsTypeInfo->isPoint()) {
-		retValue = lB.CreateGEP(lValue->getType(), lValue, { rValue });
+		DongLangTypeInfo ptrTypeInfo = *(ast->lhs->exprType());
+		ptrTypeInfo.DelPointArrayItem(PointOrArray(true));
+		retValue = lB.CreateGEP(ptrTypeInfo.LlvmType(&lB), lValue, {rValue});
 	}
 
 	return retValue;
@@ -180,8 +182,11 @@ Value* DongLangExpressionAST::subExpr(DongLangExpressionAST* ast) {
 		retValue = lB.CreateSub(lValue, rValue);
 	}
 	else if (lhsTypeInfo->isPoint()) {
+		DongLangTypeInfo ptrTypeInfo = *(ast->lhs->exprType());
+		ptrTypeInfo.DelPointArrayItem(PointOrArray(true));
+
 		rValue = lB.CreateSub(lB.getInt64(0), rValue);
-		retValue = lB.CreateGEP(lhsTypeInfo->LlvmType(&lB), lValue, {rValue});
+		retValue = lB.CreateGEP(ptrTypeInfo.LlvmType(&lB), lValue, {rValue});
 	}
 
 	return retValue;
@@ -328,10 +333,6 @@ Value* DongLangExpressionAST::ifNotExpr(DongLangExpressionAST* ast) {
 
 
 Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
-	DongLangExpressionAST* pAst = (DongLangExpressionAST*)(ast->getParent());
-	auto lhsAst = dynamic_cast<DongLangExpressionAST*>(ast->lhs);
-	auto rhsAst = dynamic_cast<DongLangExpressionAST*>(ast->rhs);
-
 	auto curBB = lB.GetInsertBlock();
 
 	ast->lhs->setFArg();
@@ -420,10 +421,6 @@ Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
 }
 
 Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
-	DongLangExpressionAST* pAst = (DongLangExpressionAST*)(ast->getParent());
-	auto lhsAst = dynamic_cast<DongLangExpressionAST*>(ast->lhs);
-	auto rhsAst = dynamic_cast<DongLangExpressionAST*>(ast->rhs);
-
 	auto curBB = lB.GetInsertBlock();
 
 	ast->lhs->setFArg();
@@ -514,94 +511,42 @@ Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
 
 
 Value* DongLangExpressionAST::ifThreeOrExpr(DongLangExpressionAST* ast) {
-	DongLangExpressionAST* pAst = (DongLangExpressionAST*)(ast->getParent());
-	auto lhsAst = dynamic_cast<DongLangExpressionAST*>(ast->lhs);
-	auto rhsAst = dynamic_cast<DongLangExpressionAST*>(ast->rhs);
+	auto condAst = ast->lhs;
+	auto lhsAst = ast->rhs;
+	auto rhsAst = ast->exths;
 
-	auto curBB = lB.GetInsertBlock();
+	auto curBB = CUR_BB;
 
-	ast->lhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	auto cCurBB = CUR_BB;
-	if (cCurBB == curBB) { //说明lhs不是expression嵌套
-		ast->trueBB = BasicBlock::Create(lC, "", curBB->getParent());
-		ast->falseBB = BasicBlock::Create(lC, "", curBB->getParent());
-		ast->trueBB->moveAfter(ast->falseBB);
+	ast->trueBB = BasicBlock::Create(lC, "", curBB->getParent());
+	ast->falseBB = BasicBlock::Create(lC, "", curBB->getParent());
+	auto endBB = BasicBlock::Create(lC, "", curBB->getParent());
 
-		ast->phi = lB.CreatePHI(lValue->getType(), 0);
+	ast->phi = lB.CreatePHI(LlvmType(lhsAst->exprType()), 2);
 
-		ast->phi->addIncoming(lValue, cCurBB);
-		BranchInst::Create(ast->trueBB, ast->falseBB, lValue, cCurBB);
-	}
-	else {
-		BasicBlock* cFirstBB = cCurBB->getPrevNode(); // 子block1
-		ast->falseBB = BasicBlock::Create(lC, "", cFirstBB->getParent()); //curBlock1
-		ast->falseBB->moveAfter(cFirstBB);
-		ast->trueBB = cCurBB; //子block2(endBB)
+	condAst->setFArg();
+	Value* cmpValue = condAst->genCode();
 
-		//查找子endBB里的phinode
-		Instruction* lastInst;
-		for (Instruction& inst : *cCurBB) {
-			lastInst = &inst;
-			if (PHINode* phi = dyn_cast<PHINode>(&inst)) {
-				ast->phi = phi;
-				break;
-			}
-		}
+	curBB = CUR_BB;
+	BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, CUR_BB);
 
-		//获取start启动block
-		BasicBlock* startBB;
-		for (auto pi = pred_begin(cFirstBB), pe = pred_end(cFirstBB); pi != pe; ++pi) {
-			startBB = dyn_cast<BasicBlock>(*pi);
-		}
-
-		Value* cmpValue;
-		int instLen = startBB->size();
-		for (Instruction& inst : *startBB) {
-			lastInst = &inst;
-			instLen--;
-			if (instLen == 1) { //倒数第二条指令是赋值
-				cmpValue = &inst;
-			}
-		}
-
-		//判断子expr && 或者 ||
-		BranchInst* brInst = dyn_cast<BranchInst>(lastInst);
-		if (brInst->getSuccessor(1) != cFirstBB) { // == "&&"
-			lastInst->eraseFromParent();
-			ast->phi->removeIncomingValue(startBB);
-			BranchInst::Create(cFirstBB, ast->falseBB, cmpValue, startBB);
-		}
-
-		//修改子trueBB的br
-		instLen = cFirstBB->size();
-		for (Instruction& inst : *cFirstBB) {
-			lastInst = &inst;
-			instLen--;
-			if (instLen == 1) { //倒数第二条指令是赋值
-				cmpValue = &inst;
-			}
-		}
-		lastInst->eraseFromParent();
-
-		BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, cFirstBB);
-	}
-
-	lB.SetInsertPoint(ast->falseBB);
-	ast->rhs->setFArg();
-	Value* rValue = ast->rhs->genCode();
-	cCurBB = CUR_BB;
-	ast->phi->addIncoming(rValue, cCurBB);
-
-	if (ast->falseBB != cCurBB) { //expression嵌套
-		ast->trueBB->moveAfter(cCurBB);
-	}
-
-	lB.CreateBr(ast->trueBB);
-
+	ast->trueBB->moveAfter(curBB);
 	lB.SetInsertPoint(ast->trueBB);
+	lhsAst->setFArg();
+	ast->phi->addIncoming(lhsAst->genCode(), ast->trueBB);
+	lB.CreateBr(endBB);
+
+	curBB = CUR_BB;
+	ast->falseBB->moveAfter(curBB);
+	lB.SetInsertPoint(ast->falseBB);
+	rhsAst->setFArg();
+	ast->phi->addIncoming(rhsAst->genCode(), ast->falseBB);
+	lB.CreateBr(endBB);
+
+	curBB = CUR_BB;
+	endBB->moveAfter(curBB);
+	lB.SetInsertPoint(endBB);
 	ast->phi->removeFromParent();
-	ast->phi->insertInto(ast->trueBB, ast->trueBB->end());
+	ast->phi->insertInto(endBB, endBB->end());
 
 	return ast->phi;
 }

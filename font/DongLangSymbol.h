@@ -8,57 +8,12 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include <regex>
+
+#include "DongLangType.h"
 using namespace llvm;
 using namespace std;
 
-
 class DongLangScope;
-
-struct PointOrArray {
-	bool pointOrArr;
-	int array_len;
-	PointOrArray(bool pointOrArr, int array_len = 0) : pointOrArr(pointOrArr), array_len(array_len) {}
-};
-struct DongLangTypeInfo {
-	string primary_type;
-	vector< PointOrArray> pas; //****[][][][][]
-	bool constant;
-	int size;
-	DongLangTypeInfo(string primary_type, vector< PointOrArray> pas = {}, bool constant = false) :
-		primary_type(primary_type),
-		pas(pas), constant(constant),size(0){}
-	string String(bool hasArrayLen = true);
-
-	Type* LlvmType(IRBuilder<>* llvmBuilder);
-	bool isPrimary() { return pas.size() == 0;}
-	bool isArray() { return pas.size() > 0 && !pas[pas.size() - 1].pointOrArr; }
-	bool isPoint() { return pas.size() > 0 && pas[pas.size() - 1].pointOrArr; }
-	void AddPointArrayItem(PointOrArray pa);
-	bool DelPointArrayItem(PointOrArray pa);
-	PointOrArray* getArrayPA(uint offset = 0);
-
-	static DongLangTypeInfo* IntType;
-	static DongLangTypeInfo* ByteType;
-	static DongLangTypeInfo* BoolType;
-	static DongLangTypeInfo* FloatType;
-	static DongLangTypeInfo* BitType;
-	static DongLangTypeInfo* StringType;
-};
-
-//struct DongLangVarTypeInfo {
-//	struct VarTypeItem {
-//		string varOpr; //*,&,[]
-//		int arrayIndex;
-//		VarTypeItem(string opr, int arrayIndex = 0): varOpr(opr), arrayIndex(arrayIndex) {}
-//	};
-//
-//	vector<VarTypeItem> vTypes;
-//	DongLangVarTypeInfo(DongLangTypeInfo *typeInfo, vector<VarTypeItem> vTypes) :
-//		vTypes(vTypes){}
-//
-//};
-
-
 class SLSymbol {
 public:
 	enum emSymbolType {
@@ -77,9 +32,6 @@ public:
 	void setScope(DongLangScope* s) { scope = s; }
 	emSymbolType type() const { return sType; };
 	DongLangTypeInfo* getVarType() const { return varType;  }
-
-	//static
-	static DongLangTypeInfo* typeCheckTrans(DongLangTypeInfo* t1, DongLangTypeInfo* t2, string opr = "", bool errReport = false, string reportStr = "");
 private:
 	string id;
 	emSymbolType sType;

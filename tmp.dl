@@ -1,28 +1,39 @@
-// eg: spiritlang
+// eg: donglang
 
 func int getV1() {
 	return 1;
 }
 
-func void fnArr(int[2] arr) {
+func int getInt() {
+}
+func void getVoid() {
+}
+func int* getPtr() {
+}
 
+func int[5] getArr(int a, int *p, int[5] arr) {
 }
 
 func int main(){
-	int *pa, pb;
-	float *fpa, fpb;
-	int[] arr1, arr2;
-    int a,b;
-	float fa, fb;
-	bool ba ,bb;
-	//fnArr(arr1);
+	int *pa ;
+	int**ppa;
+	int[5] arr1;
 
-	ba = !fa;
-	//if(!fa) {}
-	ba = a || fa;
-	if(a) {
+	pa += 5;
+	ppa += 5;
+
+	getArr(5, pa, arr1);
+
+	int[100] arr;
+
+	int sum = 0;
 	
+	for(int i = 1; i < 100;i++) {
+		sum+=i;
+		arr[i-1] = i;
 	}
+
+	printf("sum:%d arr[23]:%d\n", sum, arr[22]);
 
 	return 0;
 }

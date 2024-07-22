@@ -376,17 +376,14 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 	}
 	else { //assign
 		auto assignCtx = dynamic_cast<DongLangParser::AssignContext*>(ctx->parent);
-		exprDefaultTypeInfo = etListener->AssignType(assignCtx);
-		if (auto varExprCtx = dynamic_cast<DongLangParser::Var_expressionContext*>(assignCtx->parent->parent)) {
-			exprTypeInfo = etListener->VarExprTypes(varExprCtx);
-		} else {
-			exprTypeInfo = exprDefaultTypeInfo;
-		}
-
+		exprTypeInfo = etListener->AssignType(assignCtx);
+		exprDefaultTypeInfo = exprTypeInfo;
 		if (assignCtx->expression() && assignCtx->opr || assignCtx->INCREMENT() || assignCtx->DECREMENT()) { // ´æÔÚÔËËã·û
-			auto assignTypeInfo = exprDefaultTypeInfo->isPoint() ? exprDefaultTypeInfo : (
-				assignCtx->opr ? etListener->ExprType(assignCtx->expression()) : SLSymbol::typeCheckTrans(exprDefaultTypeInfo,
-					DongLangTypeInfo::IntType, assignCtx->INCREMENT() ? "+" : "-"));
+			auto assignTypeInfo = exprTypeInfo->isPoint() ?
+				exprTypeInfo : (
+					assignCtx->opr ? 
+					etListener->ExprType(assignCtx->expression()) : 
+					DongLangTypeInfo::typeCheckTrans(exprDefaultTypeInfo, DongLangTypeInfo::IntType, assignCtx->INCREMENT() ? "+" : "-"));
 			mAsts[assignCtx] =
 				new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, assignTypeInfo, exprDefaultTypeInfo, idTypeInfo);
 		}
@@ -575,44 +572,32 @@ void DongLangLLVMListener::exitAssigns(DongLangParser::AssignsContext* ctx) {
 	for (auto child : ctx->assign()) {
 		auto idAst = mAsts[child->id_primary()];
 		auto exprCtx = child->expression();
-		DongLangBaseAST* valueAst = NULL;
+		DongLangBaseAST* valueAst = exprCtx ? mAsts[exprCtx] : NULL;
 
 		bool isPrimary = exprCtx &&
 			exprCtx->primary() &&
 			exprCtx->primary()->value_primary();
 
-
-		if (exprCtx) {
-			valueAst = mAsts[exprCtx];
+		if (child->opr || child->INCREMENT() || child->DECREMENT()) {
+			string opr = child->opr ? child->opr->getText() : (child->INCREMENT() ? "+" : "-");
+			auto cTypeInfo = etListener->AssignType(child);
+			DongLangTypeInfo* defaultCTypeInfo = NULL;
 			if (child->opr) {
-				auto assignTypeInfo = etListener->AssignType(child);
-				auto valueTypeInfo = etListener->ExprType(exprCtx);
-				if (assignTypeInfo->isPoint()) {
-					valueTypeInfo = assignTypeInfo;
-				}
-				valueAst = new DongLangExpressionAST(child->opr->getText(),
-					mAsts[child],
-					valueAst,
-					NULL,
-					assignTypeInfo,
-					valueTypeInfo);
-
-				isPrimary = false;
+				defaultCTypeInfo = cTypeInfo->isPoint() ? cTypeInfo : etListener->ExprType(exprCtx);
 			}
-		}
-		else if(child->INCREMENT() || child->DECREMENT()) {
-			string opr = child->INCREMENT() ? "+" : "-";
-			auto assignTypeInfo = etListener->AssignType(child);
-			auto valueTypeInfo = assignTypeInfo->isPoint() ? assignTypeInfo : SLSymbol::typeCheckTrans(assignTypeInfo,
+			else {
+				defaultCTypeInfo = cTypeInfo->isPoint() ? cTypeInfo : DongLangTypeInfo::typeCheckTrans(cTypeInfo,
 					DongLangTypeInfo::IntType, opr);
+				valueAst = new DongLangNumPrimaryAST("1", cTypeInfo->isPoint() ? DongLangTypeInfo::IntType :
+					DongLangTypeInfo::typeCheckTrans(cTypeInfo, DongLangTypeInfo::IntType, opr));
+			}
 
 			valueAst = new DongLangExpressionAST(opr,
 				mAsts[child],
-				new DongLangNumPrimaryAST("1", assignTypeInfo->isPoint() ? DongLangTypeInfo::IntType :
-					SLSymbol::typeCheckTrans(assignTypeInfo, DongLangTypeInfo::IntType, opr)),
+				valueAst,
 				NULL,
-				assignTypeInfo,
-				valueTypeInfo);
+				cTypeInfo,
+				defaultCTypeInfo);
 
 			isPrimary = false;
 		}
