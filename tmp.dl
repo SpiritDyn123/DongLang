@@ -11,8 +11,9 @@ func void getVoid() {
 func int* getPtr() {
 }
 
-func int[] getArr(int a, int *p, int[5] arr, int[][2] aarr1) {
-	
+func int[] getArr(int *p, int[] arr, int[][2] aarr1) {
+	//int[2] rArr;
+	//return rArr;
 }
 
 func int main(){
@@ -22,11 +23,13 @@ func int main(){
 	int[1] arr1;
 	int[2][2] arr2;
 
+	//arr1 = pa;
 	pa = arr1;
 	a = **ppa;
 	a = ppa[1][1];
 	a = arr2[1][1];
 
-	getArr(a, pa, arr1, arr2);
+	getArr( arr1, pa, arr2);
+	printf("hello world a:%d\n", **ppa);
 	return 0;
 }

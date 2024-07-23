@@ -137,6 +137,7 @@
     <None Include="font\antlr4\gen\DongLangLexer.interp" />
     <None Include="font\antlr4\gen\DongLangLexer.tokens" />
     <None Include="font\antlr4\DongLang.g4" />
+    <None Include="tmp.dl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

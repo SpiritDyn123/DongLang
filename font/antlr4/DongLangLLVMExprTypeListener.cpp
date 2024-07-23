@@ -394,7 +394,8 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 		typeInfo = mExprTypes[ctx];
 	}
 
-	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, "=", true, ctx->getText())) {
+	bool isCallArg = dynamic_cast<DongLangParser::Call_exprContext*>(ctx->parent->parent);
+	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, isCallArg ? "call" : "=", true, ctx->getText())) {
 		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
 			lC.emitError(ctx->parent->getText() + " point must use int NULL(0) value");
 		}
@@ -595,6 +596,8 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 	dstFuncs.clear();
 	int maxEValue = 0;
 	const static int mStandEV = 100; //默认一个函数的参数不会超过这么多
+	string errArgDesc = "";
+	int lastMaxMatchValue = -1;
 	for (auto func : *funcList) {
 		//argCount
 		auto argTypes = func->argType();
@@ -620,6 +623,10 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 					matchEValue += (mStandEV-ti-1); //按照位置修正-1
 				}
 				else {
+					if (lastMaxMatchValue < matchEValue) {
+						lastMaxMatchValue = matchEValue;
+						errArgDesc = exprCtxList[ti]->getText();
+					}
 					matchEValue = -1; //参数对不上直接清零
 					break;
 				}
@@ -650,7 +657,7 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 
 	//1、参数不对函数
 	if (dstFuncs.size() == 0) {
-		DongLangBaseAST::llvmCtx->emitError("call param error function:" + fnName);
+		DongLangBaseAST::llvmCtx->emitError("call param error function:" + fnName + ",arg:" + errArgDesc);
 		return;
 	}
 
@@ -669,13 +676,13 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 
 	int ti = 0;
 	for (auto argT : callFunc->argType()) {
-		//mExprTypes[exprCtxList[ti++]] = argT;//exitExpression检查会报错
+		mExprTypes[exprCtxList[ti++]] = argT;//exitExpression检查会报错
 	}
 
 	//varArg 就直接default?
 	for (; ti < argCount; ti++) {
 		auto exprCtx = exprCtxList[ti];
-		//mExprTypes[exprCtx] = mDefaultExprTypes[exprCtx]; //exitExpression检查会报错
+		mExprTypes[exprCtx] = mDefaultExprTypes[exprCtx]; //exitExpression检查会报错
 	}
 
 	mCallFuncSymbol[ctx] = callFunc;

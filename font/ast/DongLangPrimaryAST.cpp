@@ -103,7 +103,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 			idValue = lB.CreateLoad(arrLLType, idValue);
 			tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
 			arrLLType = tmpTypeInfo.LlvmType(&lB);
-			idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });
+			idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { arrIndexV });
 		}
 		else {
 			idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });

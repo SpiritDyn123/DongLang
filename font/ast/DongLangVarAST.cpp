@@ -61,9 +61,12 @@ Value* DongLangVarDeclareAST::genCode() {
 		}
 	}
 	else {
+		Value* zeroInit = Constant::getNullValue(llType);
 		if (isGlobal) { //全局分配一个默认值
-			Value* zeroInit = Constant::getNullValue(llType);
 			((GlobalVariable*)idValue)->setInitializer((Constant*)zeroInit);
+		}
+		else {
+			lB.CreateStore(zeroInit, idValue); //默认值
 		}
 	}
 

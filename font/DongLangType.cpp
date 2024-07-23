@@ -173,19 +173,22 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 			}
 		}
 		else if (t1->isArray()) {
-			if (t2->isPoint()) { // 数组和指针
-				auto tmpT1 = *t1; // copy to use
-				tmpT1.pas[tmpT1.pas.size() - 1].pointOrArr = true;
-				if (t2S == tmpT1.String()) {
-					return transT;
+			if (opr == "call") {
+				if (t2->isPoint()) { // 数组和指针
+					auto tmpT1 = *t1; // copy to use
+					tmpT1.pas[tmpT1.pas.size() - 1].pointOrArr = true;
+					if (t2S == tmpT1.String()) {
+						return transT;
+					}
 				}
-			} else  if (t2->isArray() && opr == "call") { // 数组和数组 call时候
-				auto tmpT1 = *t1; // copy to use
-				auto tmpT2 = *t2; // copy to use
-				tmpT1.DelPointArrayItem(PointOrArray(false));
-				tmpT2.DelPointArrayItem(PointOrArray(false));
-				if (tmpT1.String() == tmpT2.String()) {
-					return transT;
+				else  if (t2->isArray()) { // 数组和数组 call时候
+					auto tmpT1 = *t1; // copy to use
+					auto tmpT2 = *t2; // copy to use
+					tmpT1.DelPointArrayItem(PointOrArray(false));
+					tmpT2.DelPointArrayItem(PointOrArray(false));
+					if (tmpT1.String() == tmpT2.String()) {
+						return transT;
+					}
 				}
 			}
 		}
