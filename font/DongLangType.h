@@ -21,11 +21,12 @@ struct DongLangTypeInfo {
 	string primary_type;
 	vector< PointOrArray> pas; //****[][][][][]
 	bool constant;
+	bool arrPtr;
 	int size;
-	DongLangTypeInfo(string primary_type, vector< PointOrArray> pas = {}, bool constant = false) :
+	DongLangTypeInfo(string primary_type, vector< PointOrArray> pas = {}, bool constant = false, bool arrPtr = false) :
 		primary_type(primary_type),
-		pas(pas), constant(constant),size(0){}
-	string String(bool hasArrayLen = true);
+		pas(pas), constant(constant), arrPtr(arrPtr), size(0){}
+	string String();
 
 	Type* LlvmType(IRBuilder<>* llvmBuilder);
 	bool isPrimary() { return pas.size() == 0;}

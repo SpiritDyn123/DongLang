@@ -63,7 +63,7 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 		}
 		else if (typeInfo->isPoint()) {
 			if (defaultTypeInfo->isArray()) {
-				curValue = lB.CreateGEP(defaultTypeInfo->LlvmType(&lB), curValue, {lB.getInt64(0), lB.getInt64(0)});
+				curValue = lB.CreateInBoundsGEP(defaultTypeInfo->LlvmType(&lB), curValue, {lB.getInt32(0), lB.getInt32(0)});
 			}
 		}
 	}

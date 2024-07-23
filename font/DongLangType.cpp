@@ -10,7 +10,7 @@
  DongLangTypeInfo* DongLangTypeInfo::BitType = new DongLangTypeInfo("bit");
  DongLangTypeInfo* DongLangTypeInfo::StringType = new DongLangTypeInfo("string");
 
-string DongLangTypeInfo::String(bool hasArrayLen) {
+string DongLangTypeInfo::String() {
 	string dd = primary_type;
 	for (auto i = pas.begin(); i != pas.end(); ++i) {
 		if (i->pointOrArr) {
@@ -18,12 +18,7 @@ string DongLangTypeInfo::String(bool hasArrayLen) {
 		}
 		else {
 			dd += "[";
-			//if (hasArrayLen){
-				//if (i->array_len > 0) {
-					dd += to_string(i->array_len);
-				//}
-			//}
-			
+			dd += to_string(i->array_len);
 			dd += "]";
 		}
 	}
@@ -106,25 +101,26 @@ void DongLangTypeInfo::AddPointArrayItem(PointOrArray pa) {
 }
 
 bool DongLangTypeInfo::DelPointArrayItem(PointOrArray pa) {
-	if (pa.pointOrArr) { //point倒序
-		for (auto it = pas.rbegin(); it != pas.rend(); ++it) {
-			if (it->pointOrArr) {
-				pas.erase(pas.begin() + pas.size() - 1 - distance(pas.rbegin(), it));
-				return true;
-			}
+	//优先数组
+	for (auto it = pas.begin(); it != pas.end(); ++it) {
+		if (!it->pointOrArr) {
+			this->arrPtr = pa.pointOrArr;
+			pas.erase(it);
+			return true;
 		}
 	}
-	else {
-		for (auto it = pas.begin(); it != pas.end(); ++it) {
-			if (!it->pointOrArr) {
-				pas.erase(it);
-				return true;
-			}
+
+	for (auto it = pas.rbegin(); it != pas.rend(); ++it) {
+		if (it->pointOrArr) {
+			this->arrPtr = !pa.pointOrArr;
+			pas.erase(pas.begin() + pas.size() - 1 - distance(pas.rbegin(), it));
+			return true;
 		}
 	}
 
 	return false;
 }
+
 PointOrArray* DongLangTypeInfo::getArrayPA(uint offset) {
 	for (auto it = pas.begin(); it != pas.end(); ++it, --offset) {
 		if (!it->pointOrArr && offset== 0) {
@@ -142,10 +138,15 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 	}
 
 	auto transT = t1;
-	auto t1S = t1->String(false);
-	auto t2S = t2->String(false);
+	auto t1S = t1->String();
+	auto t2S = t2->String();
 	if (t1S == t2S) {
-		if (opr != "=" || !t1->isArray() && !t2->isArray()) {
+		if (t1->isArray()) {
+			if (opr == "call") {//函数传参会自动转换为指针
+				return transT;
+			}
+		}
+		else {
 			return transT;
 		}
 	}
@@ -156,7 +157,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 				return transT;
 			}
 		}
-		else if (t1->isPoint()) {
+		else if (t1->isPoint() ) {
 			if (t2S == "int" && (
 				t2->constant && (opr == "=" || opr == "==" || opr == "!=") ||
 				opr == "+" ||
@@ -164,17 +165,28 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 				return transT;
 			}
 			else if (t2->isArray()) { // 数组和指针
-				auto tmpT2 = *t2;
+				auto tmpT2 = *t2; // copy to use
 				tmpT2.pas[tmpT2.pas.size() - 1].pointOrArr = true;
 				if (t1S == tmpT2.String()) {
 					return transT;
 				}
 			}
-		} if (t2->isPoint()) {
-			if (t1S == "int" && (
-				t1->constant && (opr == "==" || opr == "!="))) {
-				transT = t2;
-				return transT;
+		}
+		else if (t1->isArray()) {
+			if (t2->isPoint()) { // 数组和指针
+				auto tmpT1 = *t1; // copy to use
+				tmpT1.pas[tmpT1.pas.size() - 1].pointOrArr = true;
+				if (t2S == tmpT1.String()) {
+					return transT;
+				}
+			} else  if (t2->isArray() && opr == "call") { // 数组和数组 call时候
+				auto tmpT1 = *t1; // copy to use
+				auto tmpT2 = *t2; // copy to use
+				tmpT1.DelPointArrayItem(PointOrArray(false));
+				tmpT2.DelPointArrayItem(PointOrArray(false));
+				if (tmpT1.String() == tmpT2.String()) {
+					return transT;
+				}
 			}
 		}
 		else {
@@ -204,7 +216,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 	}
 
 	if (errReport) {
-		DongLangBaseAST::llvmCtx->emitError(reportStr + " opr=" + opr + " type trans error:" + 
+		DongLangBaseAST::llvmCtx->emitError(reportStr + " opr='" + opr + "' type trans error:" + 
 			t2S + "(constant:" + (t2->constant ? "true" : "false") + ")=>" + t1S);
 	}
 

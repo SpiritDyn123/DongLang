@@ -17,7 +17,13 @@ Value* DongLangCallExprAST::genCode() {
 	std::vector<Value*> fArgs(args.size());
 	for (auto i = 0; i < args.size(); i++) {
 		args[i]->setFArg();
-		fArgs[i] = args[i]->genCode();
+		auto value = args[i]->genCode();
+		auto argType = args[i]->exprType();
+		if (argType->isArray()) {
+			value = lB.CreateGEP(argType->LlvmType(&lB), value, {lB.getInt32(0), lB.getInt32(0)});
+		}
+
+		fArgs[i] = value;
 	}
 
 	auto* curBB = lB.GetInsertBlock();

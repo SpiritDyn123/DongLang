@@ -96,22 +96,19 @@ Value* DongLangIdPrimaryAST::genCode() {
 	auto tmpTypeInfo = *idTypeInfo;
 
 	//array
-	vector<Value*> indxValues;
-	indxValues.clear();
 	for (auto arrIndexAst : arrAsts) {
 		auto arrIndexV = arrIndexAst->genCode();
-		indxValues.push_back(arrIndexV);
-		tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
-	}
-
-	if (indxValues.size() > 0) {
-		indxValues.insert(indxValues.begin(), lB.getInt32(0));
-		auto idLLType = idTypeInfo->LlvmType(&lB);
-		if (dyn_cast<ArrayType>(idValue->getType())) {
-			//idValue = lB.CreateBitCast(idValue, idLLType->getPointerTo());
+		auto arrLLType = tmpTypeInfo.LlvmType(&lB);
+		if (arrLLType->isPointerTy()) {
+			idValue = lB.CreateLoad(arrLLType, idValue);
+			tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
+			arrLLType = tmpTypeInfo.LlvmType(&lB);
+			idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });
 		}
-
-		idValue = lB.CreateInBoundsGEP(idLLType, idValue, indxValues);
+		else {
+			idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });
+			tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
+		}
 	}
 
 	//point
@@ -122,8 +119,8 @@ Value* DongLangIdPrimaryAST::genCode() {
 		}
 	}
 
-	for (int i = 0; i < idTypeInfo->pas.size(); i++) {
-		if (idTypeInfo->pas[i].pointOrArr) {
+	for (int i = 0; i < tmpTypeInfo.pas.size(); i++) {
+		if (tmpTypeInfo.pas[i].pointOrArr) {
 			pointCnt--;
 		}
 	}
@@ -153,8 +150,11 @@ Value* DongLangIdPrimaryAST::genCode() {
 		}
 	}
 	else {
-		if (bSymbol && !defaultTypeInfo->isArray() && (!bLeftValue || getFArg())) {
-			idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
+		if (bSymbol && (!bLeftValue || getFArg())) {
+			auto llType = tmpTypeInfo.LlvmType(&lB);
+			if (!defaultTypeInfo->isArray()) {
+				idValue = lB.CreateLoad(llType, idValue);
+			}
 		}
 	}
 	

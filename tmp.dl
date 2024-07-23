@@ -11,30 +11,22 @@ func void getVoid() {
 func int* getPtr() {
 }
 
-func int[5] getArr(int a, int *p, int[5] arr) {
+func int[] getArr(int a, int *p, int[5] arr, int[][2] aarr1) {
+	
 }
 
 func int main(){
-	int *pa ;
-	int**ppa;
-	int[5] arr1;
+	int a, b;
+	int* pa, pb;
+	int** ppa, ppb;
+	int[1] arr1;
+	int[2][2] arr2;
+
 	pa = arr1;
+	a = **ppa;
+	a = ppa[1][1];
+	a = arr2[1][1];
 
-	pa += 5;
-	ppa += 5;
-
-	getArr(5, pa, arr1);
-
-	int[100] arr;
-
-	int sum = 0;
-	
-	for(int i = 1; i < 100;i++) {
-		sum+=i;
-		arr[i-1] = i;
-	}
-
-	printf("sum:%d arr[23]:%d\n", sum, arr[22]);
-
+	getArr(a, pa, arr1, arr2);
 	return 0;
 }

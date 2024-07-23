@@ -104,6 +104,7 @@
     <ClCompile Include="font\custom\Lexer.cpp" />
     <ClCompile Include="font\DongLangScope.cpp" />
     <ClCompile Include="font\DongLangSymbol.cpp" />
+    <ClCompile Include="font\DongLangType.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -128,6 +129,7 @@
     <ClInclude Include="font\ast\DongLangBaseAST.h" />
     <ClInclude Include="font\DongLangScope.h" />
     <ClInclude Include="font\DongLangSymbol.h" />
+    <ClInclude Include="font\DongLangType.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="font\antlr4\gen\DongLang.interp" />
@@ -135,7 +137,6 @@
     <None Include="font\antlr4\gen\DongLangLexer.interp" />
     <None Include="font\antlr4\gen\DongLangLexer.tokens" />
     <None Include="font\antlr4\DongLang.g4" />
-    <None Include="tmp.sl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

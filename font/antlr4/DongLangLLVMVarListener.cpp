@@ -29,7 +29,19 @@ void DongLangLLVMVarListener::exitFunction_def(DongLangParser::Function_defConte
 	auto curScope = DongLangBaseAST::CurScope(ctx);
 
 	for (auto argCtx : ctx->farg_list()->farg()) {
-		ANALYSE_POINT_ARRAY(argCtx)
+		int arrIndex = 0;
+		for (auto stypeChild : argCtx->type_type()->children) {
+			if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(stypeChild)) {
+				if (arrIndex > 0 && (!arrChild->NUMBER() || std::stoi(arrChild->NUMBER()->getText()) <= 0)) {
+					DongLangBaseAST::llvmCtx->emitError("function's return or arg array must has correct length:" + ctx->getText());
+					return;
+				}
+
+				arrIndex++;
+			}
+		}
+
+		ANALYSE_POINT_ARRAY(argCtx);
 
 		auto argId = argCtx->IDENTIFIER()->getText();
 		DongLangTypeInfo* spType = new DongLangTypeInfo(stype->primary_type()->getText(), pas);
@@ -49,8 +61,22 @@ void DongLangLLVMVarListener::exitFunction_def(DongLangParser::Function_defConte
 	vector<PointOrArray> retPas;
 	retPas.clear();
 	if (retTypeCtx->type_type() != NULL) {
+		int arrIndex = 0;
+		for (auto stypeChild : retTypeCtx->type_type()->children) {
+			if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(stypeChild)) {
+				if (arrIndex > 0 && (!arrChild->NUMBER() || std::stoi(arrChild->NUMBER()->getText()) <= 0)) {
+					DongLangBaseAST::llvmCtx->emitError("function's return or arg array must has correct length:" + ctx->getText());
+					return;
+				}
+
+				arrIndex++;
+			}
+		}
+
 		retPriType = retTypeCtx->type_type()->primary_type()->getText();
 		ANALYSE_POINT_ARRAY(retTypeCtx);
+
+
 		retPas = pas;
 	}
 	else {

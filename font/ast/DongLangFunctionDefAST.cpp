@@ -25,11 +25,18 @@ Value* DongLangFunctionDefAST::genCode() {
 	vector<Type*> fArgTypes;
 	fArgTypes.clear();
 	for (auto& argT : args) {
-		argTypes.push_back(argT.typeInfo);
-		auto fArgType = argT.typeInfo->LlvmType(&lB);
-		if (fArgType->isArrayTy()) {
-			fArgType = fArgType->getPointerTo();
+		auto argTypeInfo = argT.typeInfo;
+		argTypes.push_back(argTypeInfo);
+
+		llvm::Type* fArgType = argTypeInfo->LlvmType(&lB);
+		if (argTypeInfo->isArray()) { //数组转指针
+			fArgType = fArgType->getArrayElementType()->getPointerTo();
+			//auto tmpT = *argTypeInfo;
+			//tmpT.pas[tmpT.pas.size() - 1] = true;
+			//fArgType = tmpT.LlvmType(&lB);
 		}
+	
+
 		fArgTypes.push_back(fArgType);
 	}
 
@@ -47,6 +54,7 @@ Value* DongLangFunctionDefAST::genCode() {
 		arg.setName(argInfo.name);
 
 		auto symbol = FindSymbol(argInfo.ctx, argInfo.name);
+		//数组操作
 		symbol->setVal(&arg);
 		indx++;
 	}

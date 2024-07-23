@@ -99,7 +99,6 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 			break;
 		}
 
-		//call 函数类型涉及重载需要特殊处理
 		if (auto tCtx = dynamic_cast<DongLangParser::Var_arr_valueContext*>(pCtx)) {
 			auto cTypeInfo = COPY_SP_TYPE_INFO(mVarArrValueTypes[tCtx]); //传递给child节点
 			int lastIndex = (int)cTypeInfo->pas.size() - 1;
@@ -510,7 +509,7 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 	for (auto child : ctx->children) {
 		if (auto arrIndexCtx = dynamic_cast<DongLangParser::Array_indexContext*>(child)) {
 			if (!idTypeInfo->DelPointArrayItem(PointOrArray(false))) {
-				DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " type opr error");
+				DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " type:" + idTypeInfo->String() + "opr error");
 				return;
 			}
 		}
@@ -520,11 +519,11 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 		auto pointS = child->getText();
 		if (pointS == "*") {
 			if (!idTypeInfo->DelPointArrayItem(PointOrArray(true))) {
-				DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " type opr error");
+				DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " type:" + idTypeInfo->String() + " opr error");
 				return;
 			}
 		}
-		else {
+		else { // '&'
 			if (idTypeInfo->isArray()) {
 				DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " array cannot opr point");
 				return;
@@ -614,10 +613,10 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 		int matchEValue = 0;
 		for (auto argT : argTypes) {
 			auto expectT = mDefaultExprTypes[(exprCtxList[ti])];
-			auto expectTStr = expectT->String(false);
-			auto argTStr = argT->String(false);
+			auto expectTStr = expectT->String();
+			auto argTStr = argT->String();
 			if (expectTStr != argTStr) {
-				if (DongLangTypeInfo::typeCheckTrans(argT, expectT, "=")) {
+				if (DongLangTypeInfo::typeCheckTrans(argT, expectT, "call")) {
 					matchEValue += (mStandEV-ti-1); //按照位置修正-1
 				}
 				else {
@@ -670,13 +669,13 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 
 	int ti = 0;
 	for (auto argT : callFunc->argType()) {
-		mExprTypes[exprCtxList[ti++]] = argT;
+		//mExprTypes[exprCtxList[ti++]] = argT;//exitExpression检查会报错
 	}
 
 	//varArg 就直接default?
 	for (; ti < argCount; ti++) {
 		auto exprCtx = exprCtxList[ti];
-		mExprTypes[exprCtx] = mDefaultExprTypes[exprCtx];
+		//mExprTypes[exprCtx] = mDefaultExprTypes[exprCtx]; //exitExpression检查会报错
 	}
 
 	mCallFuncSymbol[ctx] = callFunc;
@@ -688,18 +687,6 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 }
 
 void DongLangLLVMExprTypeListener::enterArray_type(DongLangParser::Array_typeContext* ctx) {
-	for (auto pCtx = ctx->parent; pCtx; pCtx = pCtx->parent) {
-		if (dynamic_cast<DongLangParser::Type_type_voidContext*>(pCtx) ||
-			dynamic_cast<DongLangParser::FargContext*>(pCtx)) {
-			int arrLen = 0;
-			if (!ctx->NUMBER() || (arrLen = stoi(ctx->NUMBER()->getText())) <= 0) {
-				DongLangBaseAST::llvmCtx->emitError("function's return or arg  array must has correct length:" + ctx->getText());
-				return;
-			}
-
-			break;
-		}
-	}
 }
 
 void DongLangLLVMExprTypeListener::exitRet_expression(DongLangParser::Ret_expressionContext* ctx) {
