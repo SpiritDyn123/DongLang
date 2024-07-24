@@ -1,35 +1,22 @@
 // eg: donglang
 
-func int getV1() {
-	return 1;
-}
 
-func int getInt() {
-}
-func void getVoid() {
-}
-func int* getPtr() {
-}
-
-func int[] getArr(int *p, int[] arr, int[][2] aarr1) {
-	//int[2] rArr;
-	//return rArr;
+func int* getArr(int *p, int[] arr, int[][2] aarr1) {
+	int[2] rArr, rArr1;
+	return p ? p : rArr;
 }
 
 func int main(){
 	int a, b;
 	int* pa, pb;
 	int** ppa, ppb;
-	int[1] arr1;
+	int[5] arr1;
 	int[2][2] arr2;
 
-	//arr1 = pa;
-	pa = arr1;
-	a = **ppa;
-	a = ppa[1][1];
-	a = arr2[1][1];
-
-	getArr( arr1, pa, arr2);
-	printf("hello world a:%d\n", **ppa);
+	bool ba = arr1;
+	if(int[2] arr = {1,2}) {}
+	pa = getArr( pa, arr1, arr2);
+	getArr(arr1, pa, arr2);
+	printf("hello world a:%d\n", arr1[3], arr2[1][1]);
 	return 0;
 }

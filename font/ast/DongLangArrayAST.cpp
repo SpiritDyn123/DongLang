@@ -2,7 +2,7 @@
 #include "llvm/IR/Constants.h"
 
 Constant* DongLangArrayAST::genConstantValue() {
-	auto typeInfo = exprType();
+	auto typeInfo = spType;
 	auto arrT = LlvmType(typeInfo);
 
 	vector<Constant*> arrItemValues;
@@ -47,7 +47,7 @@ void DongLangArrayAST::genUnPrimaryArrayItem(bool isGlobal, DongLangBaseAST* ast
 			lB.SetInsertPoint(&entryBB);
 		}
 
-		auto typeInfo = exprType();
+		auto typeInfo = spType;
 		auto arrT = LlvmType(typeInfo);
 		Value* indexValuePtr = lB.CreateInBoundsGEP(arrT, arrValue, indxValues);
 		lB.CreateStore(idValue, indexValuePtr);
@@ -60,7 +60,7 @@ void DongLangArrayAST::genUnPrimaryArrayItem(bool isGlobal, DongLangBaseAST* ast
 }
 
 Value* DongLangArrayAST::genCode() {
-	auto typeInfo = exprType();
+	auto typeInfo = spType;
 	auto arrT = LlvmType(typeInfo);
 
 	if (!idSymbol) {
@@ -129,6 +129,5 @@ Value* DongLangArrayAST::genCode() {
 	}
 
 	idSymbol->setVal(arrValue);
-	
-	return NULL;
+	return arrValue;
 }

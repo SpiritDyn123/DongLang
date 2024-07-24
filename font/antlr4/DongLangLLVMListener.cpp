@@ -141,11 +141,12 @@ void DongLangLLVMListener::enterRet_expression(DongLangParser::Ret_expressionCon
 
 void DongLangLLVMListener::exitRet_expression(DongLangParser::Ret_expressionContext* ctx) { 
 	if (ctx->expression()) {
-		auto typeInfo = etListener->ExprType(ctx->expression(), true);
-		mAsts[ctx] = new DongLangRetExprAST(mAsts[ctx->expression()], typeInfo);
+		mAsts[ctx] = new DongLangRetExprAST(mAsts[ctx->expression()], 
+			etListener->ExprType(ctx->expression()), 
+			etListener->ExprDefaultType(ctx->expression()));
 	}
 	else {
-		mAsts[ctx] = new DongLangRetExprAST(NULL);
+		mAsts[ctx] = new DongLangRetExprAST();
 	}
 }
 
@@ -279,10 +280,12 @@ void DongLangLLVMListener::exitParan_expr(DongLangParser::Paran_exprContext* ctx
 void DongLangLLVMListener::enterCall_expr(DongLangParser::Call_exprContext* ctx) {}
 void DongLangLLVMListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) {
 	vector<DongLangBaseAST*> args;
+	vector<DongLangTypeInfo*> argDefaultTypes;
 	args.clear();
 	if (ctx->expr_list()) {
 		for (auto argCtx : ctx->expr_list()->expression()) {
 			args.push_back(mAsts[argCtx]);
+			argDefaultTypes.push_back(etListener->ExprDefaultType(argCtx));
 		}
 	}
 
@@ -301,7 +304,7 @@ void DongLangLLVMListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) 
 		}
 	}
 
-	mAsts[ctx] = new DongLangCallExprAST(funcSymbol, args, isGlobal, etListener->ExprType(exprCtx), etListener->ExprDefaultType(exprCtx));
+	mAsts[ctx] = new DongLangCallExprAST(funcSymbol, args, argDefaultTypes, isGlobal, etListener->ExprType(exprCtx), etListener->ExprDefaultType(exprCtx));
 }
 
 void DongLangLLVMListener::enterExpr_list(DongLangParser::Expr_listContext* ctx) { }
@@ -417,11 +420,28 @@ void DongLangLLVMListener::exitVar_value(DongLangParser::Var_valueContext* ctx) 
 	}
 }
 
+#define PRINT_VAR_TYPE 0
+
 void DongLangLLVMListener::enterVar_arr_value(DongLangParser::Var_arr_valueContext* ctx) { }
 void DongLangLLVMListener::exitVar_arr_value(DongLangParser::Var_arr_valueContext* ctx) {
 	vector<DongLangBaseAST*> arrAsts;
 	arrAsts.clear();
 	DongLangTypeInfo* typeInfo = etListener->VarArrValueType(ctx);
+
+	DongLangTypeInfo* varExprTypeInfo = NULL;
+	for (auto pCtx = ctx->parent; pCtx != NULL && !dynamic_cast<DongLangParser::Var_arr_valueContext*>(pCtx); pCtx = pCtx->parent) {
+		if (auto varExprCtx = dynamic_cast<DongLangParser::Var_expressionContext*>(ctx->parent)) {
+			varExprTypeInfo = etListener->VarExprTypes(varExprCtx);
+			break;
+		}
+	}
+
+#if PRINT_VAR_TYPE
+	if (varExprTypeInfo) {
+		cout << "exitVar_arr_value:" << ctx->getText() << ",varExprTypeInfo:" << varExprTypeInfo->String() << endl;
+	}
+#endif
+
 
 	string id = "";
 	if (auto varCtx = dynamic_cast<DongLangParser::VarContext*>(ctx->parent->parent)) {
@@ -451,7 +471,8 @@ void DongLangLLVMListener::exitVar_arr_value(DongLangParser::Var_arr_valueContex
 		}
 	}
 
-	mAsts[ctx] = new DongLangArrayAST(idSymbol, isPrimary, arrAsts, typeInfo);
+
+	mAsts[ctx] = new DongLangArrayAST(idSymbol, isPrimary, arrAsts, typeInfo, varExprTypeInfo);
 }
 
 void DongLangLLVMListener::enterVar(DongLangParser::VarContext* ctx) {
@@ -463,7 +484,6 @@ void DongLangLLVMListener::exitVar(DongLangParser::VarContext* ctx) {
 void DongLangLLVMListener::enterVars(DongLangParser::VarsContext* ctx) {
 }
 
-#define PRINT_VAR_TYPE 0
 
 void DongLangLLVMListener::exitVars(DongLangParser::VarsContext* ctx) {
 	bool isDeclare = dynamic_cast<DongLangParser::Var_declaresContext*>(ctx->parent) != NULL;
@@ -471,14 +491,14 @@ void DongLangLLVMListener::exitVars(DongLangParser::VarsContext* ctx) {
 		return;
 	}
 
-	DongLangTypeInfo* typeInfo = NULL;
+	DongLangTypeInfo* varExprTypeInfo = NULL;
 	if (auto pCtx = dynamic_cast<DongLangParser::Var_expressionContext*>(ctx->parent)) {
-		typeInfo = etListener->VarExprTypes(pCtx);
+		varExprTypeInfo = etListener->VarExprTypes(pCtx);
 	}
 
 #if PRINT_VAR_TYPE
-	if (typeInfo) {
-		cout << "exitVars:" << ctx->getText() << ",typeInfo:" << typeInfo->String() << endl;
+	if (varExprTypeInfo) {
+		cout << "exitVars:" << ctx->getText() << ",varExprTypeInfo:" << varExprTypeInfo->String() << endl;
 	}
 #endif
 
@@ -494,7 +514,7 @@ void DongLangLLVMListener::exitVars(DongLangParser::VarsContext* ctx) {
 		vars.push_back(new DongLangVarAST(ctx,
 			child->IDENTIFIER()->getText(),
 			value,
-			typeInfo,
+			varExprTypeInfo,
 			isPrimary));
 	}
 
@@ -513,14 +533,14 @@ void DongLangLLVMListener::exitVar_declares(DongLangParser::Var_declaresContext*
 	ANALYSE_POINT_ARRAY(ctx);
 	DongLangTypeInfo* spType = new DongLangTypeInfo(stype->primary_type()->getText(), pas);
 
-	DongLangTypeInfo* typeInfo = NULL;
+	DongLangTypeInfo* varExprTypeInfo = NULL;
 	if (auto pCtx = dynamic_cast<DongLangParser::Var_expressionContext*>(ctx->parent)) {
-		typeInfo = etListener->VarExprTypes(pCtx);
+		varExprTypeInfo = etListener->VarExprTypes(pCtx);
 	}
 
 #if PRINT_VAR_TYPE
-	if (typeInfo) {
-		cout << "exitVars:" << ctx->getText() << ",typeInfo:" << typeInfo->String() << endl;
+	if (varExprTypeInfo) {
+		cout << "exitVars_declare:" << ctx->getText() << ",varExprTypeInfo:" << varExprTypeInfo->String() << endl;
 	}
 #endif
 
@@ -535,7 +555,7 @@ void DongLangLLVMListener::exitVar_declares(DongLangParser::Var_declaresContext*
 			spType,
 			child->IDENTIFIER()->getText(),
 			valueAst,
-			isGlobal, typeInfo, isPrimary));
+			isGlobal, varExprTypeInfo, isPrimary));
 
 		//cout <<"exitVar_declares "<< ctx->type_type()->getText() << ":" << child->IDENTIFIER()->getText() << endl;
 	}
@@ -556,14 +576,14 @@ void DongLangLLVMListener::enterAssigns(DongLangParser::AssignsContext* ctx) {
 }
 
 void DongLangLLVMListener::exitAssigns(DongLangParser::AssignsContext* ctx) {
-	DongLangTypeInfo* typeInfo = NULL;
+	DongLangTypeInfo* varExprTypeInfo = NULL;
 	if (auto pCtx = dynamic_cast<DongLangParser::Var_expressionContext*>(ctx->parent)) {
-		typeInfo = etListener->VarExprTypes(pCtx);
+		varExprTypeInfo = etListener->VarExprTypes(pCtx);
 	}
 
 #if PRINT_VAR_TYPE
-	if (typeInfo) {
-		cout << "exitVars:" << ctx->getText() << ",typeInfo:" << typeInfo->String() << endl;
+	if (varExprTypeInfo) {
+		cout << "exitAssigns:" << ctx->getText() << ",varExprTypeInfo:" << varExprTypeInfo->String() << endl;
 	}
 #endif
 
@@ -602,7 +622,7 @@ void DongLangLLVMListener::exitAssigns(DongLangParser::AssignsContext* ctx) {
 			isPrimary = false;
 		}
 		
-		assigns.push_back(new DongLangAssignAST(idAst, valueAst, typeInfo, isPrimary));
+		assigns.push_back(new DongLangAssignAST(idAst, valueAst, varExprTypeInfo, isPrimary));
 	}
 
 	mAsts[ctx] = new DongLangVectorAST<DongLangAssignAST>(assigns);

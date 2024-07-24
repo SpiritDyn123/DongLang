@@ -61,15 +61,18 @@ void DongLangLLVMVarListener::exitFunction_def(DongLangParser::Function_defConte
 	vector<PointOrArray> retPas;
 	retPas.clear();
 	if (retTypeCtx->type_type() != NULL) {
-		int arrIndex = 0;
+		//int arrIndex = 0;
 		for (auto stypeChild : retTypeCtx->type_type()->children) {
 			if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(stypeChild)) {
-				if (arrIndex > 0 && (!arrChild->NUMBER() || std::stoi(arrChild->NUMBER()->getText()) <= 0)) {
+				/*if (arrIndex > 0 && (!arrChild->NUMBER() || std::stoi(arrChild->NUMBER()->getText()) <= 0)) {
 					DongLangBaseAST::llvmCtx->emitError("function's return or arg array must has correct length:" + ctx->getText());
 					return;
-				}
+				}*/
 
-				arrIndex++;
+				DongLangBaseAST::llvmCtx->emitError("function's return can not be array:" + ctx->getText());
+				return;
+
+				//arrIndex++;
 			}
 		}
 

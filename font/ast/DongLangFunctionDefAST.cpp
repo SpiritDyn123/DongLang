@@ -42,8 +42,11 @@ Value* DongLangFunctionDefAST::genCode() {
 
 	auto curScope = CurScope(ctx);
 	auto funcSymbol = curScope->FindFuncSymbol(fnName, argTypes, isVarArg);
-
 	auto lRetType = funcSymbol->getVarType()->LlvmType(&lB);
+	if (funcSymbol->getVarType()->isArray()) {
+		lRetType = lRetType->getArrayElementType()->getPointerTo();
+	}
+
 	auto fnType = FunctionType::get(lRetType, fArgTypes, funcSymbol->varArg());
 	auto fn = Function::Create(fnType, GlobalValue::ExternalLinkage, funcSymbol->ID(), &lM);
 

@@ -1,11 +1,6 @@
 #include "DongLangProgAST.h"
 #include "DongLangFunctionDefAST.h"
-
-#define CREAT_TEST_FUNC(fnName) vector<Type*> argTypes; \
-	FunctionType* tfnType = FunctionType::get(lB.getVoidTy(), argTypes, false); \
-	Function* tfn = Function::Create(tfnType, GlobalValue::ExternalLinkage, string(fnName), &lM); \
-	BasicBlock* entryBB = BasicBlock::Create(lC, string(fnName) + "_entry:", tfn); \
-	lB.SetInsertPoint(entryBB);
+#include "llvm/IR/Type.h"
 
 
 DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& pgLines) {
@@ -62,17 +57,33 @@ Value* DongLangProgAST::genCode() {
 }
 
 
+#define CREAT_TEST_FUNC(fnName) vector<Type*> argTypes; \
+	FunctionType* tfnType = FunctionType::get(lB.getVoidTy(), argTypes, false); \
+	Function* tfn = Function::Create(tfnType, GlobalValue::ExternalLinkage, string(fnName), &lM); \
+	BasicBlock* entryBB = BasicBlock::Create(lC, string(fnName) + "_entry:", tfn); \
+	lB.SetInsertPoint(entryBB);
+
+
 void DongLangProgAST::testStudy() {
 	//´´½¨main
 	CREAT_TEST_FUNC("main");
 
+	auto v1 = lB.CreateAlloca(lB.getInt32Ty());
+	auto v2 = lB.CreateAlloca(lB.getInt8Ty()->getPointerTo());
+	auto v3 = lB.CreateAlloca(ArrayType::get(lB.getInt32Ty(), 2));
+	for (auto v : { v1,v2,v3 }) {
+		cout << "type info:" << v->getType()->getTypeID() << "," << (PointerType*)(v->getType())->getTypeID()
+	
+			<< endl;
+	}
+	
 	//testSysFunctions();
 
 	//testGlobalVars();
 
 	//testIfAndFor();
 
-	testArrayAndStruct();
+	//testArrayAndStruct();
 	
 	//jit engine
 	

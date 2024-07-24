@@ -24,6 +24,8 @@ DongLangExpressionAST::MEXPRESSION_HANDLERS DongLangExpressionAST::mExpressionHa
 	{"?:", ifThreeOrExpr},
 };
 
+#define CREATE_PHI(llType, NUM)  lB.CreatePHI(llType->isArrayTy() ? llType->getPointerTo() : llType, NUM);
+
 DongLangExpressionAST::DongLangExpressionAST(std::string op, DongLangBaseAST* lhs,
 	DongLangBaseAST* rhs, DongLangBaseAST* exths, DongLangTypeInfo* typeInfo, DongLangTypeInfo* defaultTypeInfo): DongLangBaseAST(typeInfo),
 	defaultTypeInfo(defaultTypeInfo), 
@@ -342,7 +344,7 @@ Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
 		ast->trueBB = BasicBlock::Create(lC, "", curBB->getParent());
 		ast->falseBB = BasicBlock::Create(lC, "", curBB->getParent());
 
-		ast->phi = lB.CreatePHI(lValue->getType(), 0);
+		ast->phi = CREATE_PHI(lValue->getType(), 2);
 
 		ast->phi->addIncoming(lValue, cCurBB);
 		BranchInst::Create(ast->trueBB, ast->falseBB, lValue, cCurBB);
@@ -431,7 +433,7 @@ Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
 		ast->falseBB = BasicBlock::Create(lC, "", curBB->getParent());
 		ast->trueBB->moveAfter(ast->falseBB);
 
-		ast->phi = lB.CreatePHI(lValue->getType(), 0);
+		ast->phi = CREATE_PHI(lValue->getType(), 0); 
 
 		ast->phi->addIncoming(lValue, cCurBB);
 		BranchInst::Create(ast->trueBB, ast->falseBB, lValue, cCurBB);
@@ -521,7 +523,7 @@ Value* DongLangExpressionAST::ifThreeOrExpr(DongLangExpressionAST* ast) {
 	ast->falseBB = BasicBlock::Create(lC, "", curBB->getParent());
 	auto endBB = BasicBlock::Create(lC, "", curBB->getParent());
 
-	ast->phi = lB.CreatePHI(LlvmType(lhsAst->exprType()), 2);
+	ast->phi = CREATE_PHI(LlvmType(lhsAst->exprType()), 2);
 
 	condAst->setFArg();
 	Value* cmpValue = condAst->genCode();

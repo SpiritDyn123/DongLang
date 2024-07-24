@@ -19,7 +19,11 @@ DongLangVarDeclareAST::DongLangVarDeclareAST(antlr4Ctx ctx,
 Value* DongLangVarDeclareAST::genCode() {
 	//DongLangArrayAST 带值初始化自己完成
 	if (spType->isArray() && value != NULL) {
-		return value->genCode();
+		auto idValue = value->genCode();
+		if (idValue && getFArg()) {
+			idValue = TransValue(spType, idValue);
+		}
+		return idValue;
 	}
 
 	//查找变量
@@ -109,7 +113,7 @@ Value* DongLangVarAST::genCode() {
 	}
 
 	if (getFArg()) {
-		idValue = lB.CreateLoad(llType, idValue);
+		//数组不能赋值
 		idValue = TransValue(typeInfo, idValue);
 	}
 
@@ -140,9 +144,12 @@ Value* DongLangAssignAST::genCode() {
 	}
 	
 	if (getFArg()) {
-		auto typeInfo = idAst->exprType();
-		idValue = lB.CreateLoad(typeInfo->LlvmType(&lB), idValue);
-		idValue = TransValue(typeInfo, idValue);
+		DongLangTypeInfo idTypeInfo = *(idAst->exprType());
+		if (!idTypeInfo.isArray()) {
+			idValue = lB.CreateLoad(idTypeInfo.LlvmType(&lB), idValue);
+		}
+
+		idValue = TransValue(&idTypeInfo, idValue);
 	}
 
 	return  idValue;

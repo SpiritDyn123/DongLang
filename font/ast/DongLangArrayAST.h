@@ -29,7 +29,7 @@ var_arr_value:
 class DongLangArrayAST : public DongLangBaseAST {
 public:
 	DongLangArrayAST(SLSymbol*idSymbol, bool isPrimary, vector<DongLangBaseAST*>& arrAsts, 
-		DongLangTypeInfo* typeInfo) : DongLangBaseAST(typeInfo), idSymbol(idSymbol), 
+		DongLangTypeInfo* spType, DongLangTypeInfo* typeInfo) : DongLangBaseAST(typeInfo), spType(spType), idSymbol(idSymbol),
 		isPrimary(isPrimary), arrAsts(arrAsts) {}
 	bool primary() { return isPrimary;  }
 	virtual Value* genCode() override;
@@ -41,5 +41,6 @@ private:
 private:
 	SLSymbol* idSymbol;
 	bool isPrimary;
+	DongLangTypeInfo* spType;
 	vector<DongLangBaseAST*> arrAsts;
 };

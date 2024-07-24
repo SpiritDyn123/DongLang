@@ -2,14 +2,15 @@
 
 
 DongLangCallExprAST::DongLangCallExprAST(FuncSLSymbol* funcSymbol,
-	std::vector<DongLangBaseAST*>& args, bool isGlobal, DongLangTypeInfo* typeInfo, DongLangTypeInfo* defaultTypeInfo) :
-	DongLangBaseAST(typeInfo),
+	std::vector<DongLangBaseAST*>& args,
+	std::vector<DongLangTypeInfo*>& argDefaultTypes,
+	bool isGlobal, DongLangTypeInfo* typeInfo, 
+	DongLangTypeInfo* defaultTypeInfo) : DongLangBaseAST(typeInfo),
 	funcSymbol(funcSymbol),
+	args(args),
+	argDefaultTypes(argDefaultTypes),
 	isGlobal(isGlobal),
 	defaultTypeInfo(defaultTypeInfo) {
-	//copy
-	this->args.insert(this->args.begin(), args.begin(), args.end());
-
 }
 
 Value* DongLangCallExprAST::genCode() {
@@ -19,7 +20,7 @@ Value* DongLangCallExprAST::genCode() {
 		args[i]->setFArg();
 		auto value = args[i]->genCode();
 		auto argType = args[i]->exprType();
-		if (argType->isArray() && value->getType()->isArrayTy()) {
+		if (argType->isArray() && argDefaultTypes[i]->isArray()) {// value->getType()->isArrayTy()
 			value = lB.CreateGEP(argType->LlvmType(&lB), value, {lB.getInt32(0), lB.getInt32(0)});
 		}
 
@@ -48,6 +49,10 @@ Value* DongLangRetExprAST::genCode() {
 
 	expr->setFArg();
 	Value *retValue = expr->genCode();
+	auto retTypeInfo = expr->exprType();
+	if (retTypeInfo->isArray() && defaultTypeInfo->isArray()) { //&& retValue->getType()->isArrayTy()
+		retValue = lB.CreateGEP(retTypeInfo->LlvmType(&lB), retValue, { lB.getInt32(0), lB.getInt32(0) });
+	}
 
 	return llvmBuilder->CreateRet(retValue);
 }

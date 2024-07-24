@@ -142,7 +142,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 	auto t2S = t2->String();
 	if (t1S == t2S) {
 		if (t1->isArray()) {
-			if (opr == "call") {//函数传参会自动转换为指针
+			if (opr == "call" || opr == "ret" || opr == "three_op") {//函数传参会自动转换为指针
 				return transT;
 			}
 		}
@@ -153,7 +153,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 	else {
 		/* 赋值情况下可以给bool */
 		if (t1S == "bool" || t1S == "bit") {
-			if (opr == "=" && !t2->isArray()) {
+			if (opr == "=") {
 				return transT;
 			}
 		}
@@ -173,15 +173,15 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 			}
 		}
 		else if (t1->isArray()) {
-			if (opr == "call") {
+			if (opr == "call" || opr == "ret" || opr == "three_op") {
 				if (t2->isPoint()) { // 数组和指针
 					auto tmpT1 = *t1; // copy to use
 					tmpT1.pas[tmpT1.pas.size() - 1].pointOrArr = true;
 					if (t2S == tmpT1.String()) {
-						return transT;
+						return t2;
 					}
 				}
-				else  if (t2->isArray()) { // 数组和数组 call时候
+				else if (t2->isArray()) { // 数组和数组 call时候
 					auto tmpT1 = *t1; // copy to use
 					auto tmpT2 = *t2; // copy to use
 					tmpT1.DelPointArrayItem(PointOrArray(false));

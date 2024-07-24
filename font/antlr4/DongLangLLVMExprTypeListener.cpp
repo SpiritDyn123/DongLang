@@ -320,7 +320,7 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 		if (ctx->threeOpr) {
 			exprLCtx = ctx->expression(1);
 			exprRCtx = ctx->expression(2);
-			expOpr = "=";
+			expOpr = "three_op";
 		}
 		else {
 			 expOpr = ctx->opr->getText();
@@ -333,7 +333,7 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 			transTypeInfo = DongLangTypeInfo::BitType;
 		}
 		else {
-			transTypeInfo = DongLangTypeInfo::typeCheckTrans(typeL, typeR, expOpr, true, ctx->getText());
+			transTypeInfo = DongLangTypeInfo::typeCheckTrans(typeL, typeR, expOpr, true, ctx->parent->getText());
 			if (!transTypeInfo) {
 				return;
 			}
@@ -342,10 +342,10 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 				auto cmpIndex = (typeL->String() == transTypeInfo->String() ? 1 : 0) + (ctx->threeOpr ? 1 : 0);
 				auto cmpExprCtx = ctx->expression(cmpIndex);
 
-				if (transTypeInfo->isPoint()) { //指针 == !=
+				if (transTypeInfo->isPoint() || transTypeInfo->isArray()) { //指针 == !=
 					if (ctx->CMP_EQ() || ctx->CMP_NE() || ctx->threeOpr) {
-						if (cmpExprCtx->getText() != "0") {
-							lC.emitError(ctx->getText() + " point must use int NULL(0) value");
+						if (cmpExprCtx->primary() && cmpExprCtx->primary()->value_primary() && cmpExprCtx->getText() != "0") {
+							lC.emitError(ctx->getText() + +" opr='" + expOpr + "' point must use int NULL(0) value");
 							return;
 						}
 					}
@@ -386,18 +386,30 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 	//检查类型冲突
 	auto typeInfo = ExprType(ctx);
 	auto defaultTypeInfo = ExprDefaultType(ctx);
-	/*cout << ctx->getText() << ",typeInfo:" << (typeInfo ? typeInfo->String() : "null") << 
-		",defaultTypeInfo:" <<  (defaultTypeInfo ? defaultTypeInfo->String() : "null") << 
-		endl;*/
+	
 	if (!typeInfo) {
 		mExprTypes[ctx] = defaultTypeInfo;
 		typeInfo = mExprTypes[ctx];
 	}
 
-	bool isCallArg = dynamic_cast<DongLangParser::Call_exprContext*>(ctx->parent->parent);
-	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, isCallArg ? "call" : "=", true, ctx->getText())) {
+	/*cout << ctx->getText() << ",typeInfo:" << (typeInfo ? typeInfo->String() : "null") <<
+		",defaultTypeInfo:" <<  (defaultTypeInfo ? defaultTypeInfo->String() : "null") <<
+		endl;*/
+
+	string opr = "=";
+	if (dynamic_cast<DongLangParser::Ret_expressionContext*>(ctx->parent)) {
+		opr = "ret";
+	}
+	else if (dynamic_cast<DongLangParser::Call_exprContext*>(ctx->parent->parent)) {
+		opr = "call";
+	}
+	else if (auto pCtx = dynamic_cast<DongLangParser::ExpressionContext*>(ctx->parent); pCtx && pCtx->threeOpr && ctx != pCtx->expression(0)) {
+		opr = "three_op";
+	}
+
+	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, opr, true, ctx->getText())) {
 		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
-			lC.emitError(ctx->parent->getText() + " point must use int NULL(0) value");
+			lC.emitError(ctx->parent->getText() + " opr='" + opr  + "' point must use int NULL(0) value");
 		}
 	}
 }
