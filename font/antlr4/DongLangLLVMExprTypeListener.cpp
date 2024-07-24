@@ -88,6 +88,39 @@ FuncSLSymbol* DongLangLLVMExprTypeListener::CallFuncSLSymbol(antlr4::ParserRuleC
 	return NULL;
 }
 
+string DongLangLLVMExprTypeListener::getExprOpr(DongLangParser::ExpressionContext* exprCtx) {
+	string opr = "=";
+	antlr4::ParserRuleContext* lastCtx = exprCtx;
+	for (auto pCtx = exprCtx->parent; pCtx; lastCtx = (antlr4::ParserRuleContext*)pCtx, pCtx = pCtx->parent) {
+		if (dynamic_cast<DongLangParser::Paran_exprContext*>(pCtx) ||
+			dynamic_cast<DongLangParser::Expr_listContext*>(pCtx)) {
+			continue;
+		}
+
+		if (auto pExprCtx = dynamic_cast<DongLangParser::ExpressionContext*>(pCtx)) {
+			if (pExprCtx->opr) {
+				opr = (pExprCtx->COND_AND() || pExprCtx->COND_OR()) ? opr : pExprCtx->opr->getText();
+			}
+			else if (pExprCtx->threeOpr && lastCtx != pExprCtx->expression(0)) {
+				opr = "three_op";
+			}
+			else {
+				continue;
+			}
+		}else if (dynamic_cast<DongLangParser::Ret_expressionContext*>(pCtx)) {
+			opr = "ret";
+		}
+		else if (dynamic_cast<DongLangParser::Call_exprContext*>(pCtx)) {
+			opr = "call";
+		}
+		
+		break;
+	}
+	
+	
+	return opr;
+}
+
 void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_valueContext* ctx) {
 	//cout << "enterVar_arr_value:" << ctx->getText() << endl;
 	//var_arr_value->var_arr_value, var
@@ -392,20 +425,11 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 		typeInfo = mExprTypes[ctx];
 	}
 
+	string opr = getExprOpr(ctx);
+
 	/*cout << ctx->getText() << ",typeInfo:" << (typeInfo ? typeInfo->String() : "null") <<
 		",defaultTypeInfo:" <<  (defaultTypeInfo ? defaultTypeInfo->String() : "null") <<
 		endl;*/
-
-	string opr = "=";
-	if (dynamic_cast<DongLangParser::Ret_expressionContext*>(ctx->parent)) {
-		opr = "ret";
-	}
-	else if (dynamic_cast<DongLangParser::Call_exprContext*>(ctx->parent->parent)) {
-		opr = "call";
-	}
-	else if (auto pCtx = dynamic_cast<DongLangParser::ExpressionContext*>(ctx->parent); pCtx && pCtx->threeOpr && ctx != pCtx->expression(0)) {
-		opr = "three_op";
-	}
 
 	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, opr, true, ctx->getText())) {
 		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
@@ -488,12 +512,6 @@ void DongLangLLVMExprTypeListener::exitVar_expression(DongLangParser::Var_expres
 		return;
 	}
 
-	//检查一下如果是数组
-	/*if (defaultTypeInfo->isArray()) {
-		lC.emitError("array must has cond expression:" + ctx->getText());
-		return;
-	}
-	*/
 	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, "=", true, ctx->getText())) {
 		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
 			lC.emitError(ctx->parent->getText() + "var_expression type err");

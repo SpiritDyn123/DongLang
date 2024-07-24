@@ -16,6 +16,7 @@ public:
 	
 	FuncSLSymbol* CallFuncSLSymbol(antlr4::ParserRuleContext* callCtx);
 
+	string getExprOpr(DongLangParser::ExpressionContext* exprCtx);
 public:
 
 	void enterExpression(DongLangParser::ExpressionContext* ctx) override;

@@ -14,7 +14,7 @@ func int main(){
 	int[2][2] arr2;
 
 	bool ba = arr1;
-	if(int[2] arr = {1,2}) {}
+	if((arr1)){}
 	pa = getArr( pa, arr1, arr2);
 	getArr(arr1, pa, arr2);
 	printf("hello world a:%d\n", arr1[3], arr2[1][1]);
