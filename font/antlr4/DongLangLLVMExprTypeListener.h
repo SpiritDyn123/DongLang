@@ -14,7 +14,7 @@ public:
 	DongLangTypeInfo* VarExprTypes(DongLangParser::Var_expressionContext* ctx);
 
 	
-	FuncSLSymbol* CallFuncSLSymbol(antlr4::ParserRuleContext* callCtx);
+	FuncDLSymbol* CallFuncDLSymbol(antlr4::ParserRuleContext* callCtx);
 
 	string getExprOpr(DongLangParser::ExpressionContext* exprCtx);
 public:
@@ -54,5 +54,5 @@ private:
 	MTYPES mVarArrValueTypes;
 	MTYPES mAssignTypes;
 	MTYPES mVarExprTypes; //存储mAssignTypes的最终（官方）类型，类似mExprTypes之余mDefaultExprTypes
-	map< antlr4::ParserRuleContext*, FuncSLSymbol*> mCallFuncSymbol;
+	map< antlr4::ParserRuleContext*, FuncDLSymbol*> mCallFuncSymbol;
 };

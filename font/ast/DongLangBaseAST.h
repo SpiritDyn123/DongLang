@@ -48,10 +48,10 @@ public:
 	//Scope相关 (todo 以后改为stack mod)
 	static void AddScope(antlr4Ctx, bool isRoot = false, string name= "");
 	static DongLangScope* CurScope(antlr4Ctx);
-	static SLSymbol* FindSymbol(antlr4Ctx, string);
-	static SLSymbol* FindSymbol(antlr4Ctx, SYMBOL_ID id);
-	static FuncSLSymbol* FindFuncSymbol(antlr4Ctx, string id, vector<DongLangTypeInfo*> argTypes = {}, bool isVarArg = false);
-	static vector<FuncSLSymbol*>* FindFuncSymbolList(antlr4Ctx ctx, string baseId);
+	static DLSymbol* FindSymbol(antlr4Ctx, string);
+	static DLSymbol* FindSymbol(antlr4Ctx, SYMBOL_ID id);
+	static FuncDLSymbol* FindFuncSymbol(antlr4Ctx, string id, vector<DongLangTypeInfo*> argTypes = {}, bool isVarArg = false);
+	static vector<FuncDLSymbol*>* FindFuncSymbolList(antlr4Ctx ctx, string baseId);
 	static DongLangScope* RootScope() { return rootScope;  }
 
 	//类型系统

@@ -7,10 +7,64 @@
 #include "font/ast/DongLangVarAST.h"
 #include "font/ast/DongLangPrimaryAST.h"
 #include <memory>
-#include "DongLangLLVMListener.h"
 
 using namespace std;
-//=========================DongLangLLVMVarListener==============================
+
+DongLangTypeInfo* DongLangLLVMVarListener::analyseDLTypeInfo(DongLangParser::Type_typeContext* typeTypeCtx) {
+	DongLangTypeInfo ttypeInfo;
+	if (typeTypeCtx->IDENTIFIER()) {
+		auto curScope = DongLangBaseAST::CurScope(typeTypeCtx);
+		auto ttName = typeTypeCtx->IDENTIFIER()->getText();
+		auto symbol = curScope->FindSymbol(ttName);
+		if (!symbol || symbol->type() != DLSymbol::symbolType_Type) {
+			DongLangBaseAST::llvmCtx->emitError(typeTypeCtx->getText() + " no type name:" + ttName);
+			return NULL;
+		}
+
+		ttypeInfo = *(symbol->getVarType());
+	}
+	else {
+		ttypeInfo.primary_type = typeTypeCtx->primary_type()->getText();
+	}
+
+	for (auto paCtx : typeTypeCtx->children) {
+		if (paCtx->getText() == "*") {
+			ttypeInfo.pas.push_back(PointOrArray(true));
+		}
+		else if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(paCtx)) {
+			int array_len = arrChild->NUMBER() ? std::stoi(arrChild->NUMBER()->getText()) : -1;
+			if (arrChild->NUMBER() && array_len <= 0) {
+				DongLangBaseAST::llvmCtx->emitError(typeTypeCtx->getText() + " array length err");
+				return NULL;
+			}
+
+			ttypeInfo.pas.push_back(PointOrArray(false, array_len));
+		}
+	}
+
+	//检查指针
+	if (ttypeInfo.pas.size()) {
+		int paIndex = 0;
+		for (auto pa : ttypeInfo.pas) {
+			if (paIndex == 0 || pa.pointOrArr) {
+				paIndex++;
+				continue;
+			}
+
+			auto lastPa = ttypeInfo.pas[paIndex - 1];
+			if (!lastPa.pointOrArr && pa.array_len < 0) {// [][]
+				DongLangBaseAST::llvmCtx->emitError(typeTypeCtx->getText() + " type array length format err");
+				return NULL;
+			}
+
+			paIndex++;
+		}
+	}
+	
+
+	return new DongLangTypeInfo(ttypeInfo);
+}
+
 void DongLangLLVMVarListener::enterProg(DongLangParser::ProgContext * ctx) {
 	DongLangBaseAST::AddScope(ctx, true, "ROOT");
 }
@@ -29,98 +83,87 @@ void DongLangLLVMVarListener::exitFunction_def(DongLangParser::Function_defConte
 	auto curScope = DongLangBaseAST::CurScope(ctx);
 
 	for (auto argCtx : ctx->farg_list()->farg()) {
-		int arrIndex = 0;
-		for (auto stypeChild : argCtx->type_type()->children) {
-			if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(stypeChild)) {
-				if (arrIndex > 0 && (!arrChild->NUMBER() || std::stoi(arrChild->NUMBER()->getText()) <= 0)) {
-					DongLangBaseAST::llvmCtx->emitError("function's return or arg array must has correct length:" + ctx->getText());
-					return;
-				}
-
-				arrIndex++;
-			}
-		}
-
-		ANALYSE_POINT_ARRAY(argCtx);
-
 		auto argId = argCtx->IDENTIFIER()->getText();
-		DongLangTypeInfo* spType = new DongLangTypeInfo(stype->primary_type()->getText(), pas);
 		auto varSb = curScope->FindSymbol(argId);
 		if (varSb && varSb->getScope() == curScope) {
-			DongLangBaseAST::llvmCtx->emitError("repeated var declare:" + argId);
+			DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " repeated var declare:" + argId);
 			return;
 		}
+
+		auto typeInfo = analyseDLTypeInfo(argCtx->type_type());
 		
-		curScope->AddSymbol(argId, SYMBOL_ID(argCtx), VarSLSymbol::Create(argId, spType, NULL));
-		argTypes.push_back(spType);
+		curScope->AddSymbol(argId, SYMBOL_ID(argCtx), VarDLSymbol::Create(argId, typeInfo, NULL));
+		argTypes.push_back(typeInfo);
 	}
 
 	//return type
 	auto retTypeCtx = ctx->type_type_void();
-	string retPriType;
-	vector<PointOrArray> retPas;
-	retPas.clear();
+	DongLangTypeInfo* retTypeInfo;
 	if (retTypeCtx->type_type() != NULL) {
-		//int arrIndex = 0;
-		for (auto stypeChild : retTypeCtx->type_type()->children) {
-			if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(stypeChild)) {
-				/*if (arrIndex > 0 && (!arrChild->NUMBER() || std::stoi(arrChild->NUMBER()->getText()) <= 0)) {
-					DongLangBaseAST::llvmCtx->emitError("function's return or arg array must has correct length:" + ctx->getText());
-					return;
-				}*/
-
-				DongLangBaseAST::llvmCtx->emitError("function's return can not be array:" + ctx->getText());
-				return;
-
-				//arrIndex++;
-			}
+		int arrIndex = 0;
+		retTypeInfo = analyseDLTypeInfo(retTypeCtx->type_type());
+		if (retTypeInfo->isArray()) {
+			DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " function can not return array type");
+			return;
 		}
-
-		retPriType = retTypeCtx->type_type()->primary_type()->getText();
-		ANALYSE_POINT_ARRAY(retTypeCtx);
-
-
-		retPas = pas;
 	}
 	else {
-		retPriType = retTypeCtx->VOID()->getText();
+		retTypeInfo = new DongLangTypeInfo(retTypeCtx->VOID()->getText());
 	}
 
-	
 	//var arg
 	bool isVarArg = ctx->farg_list()->f_varargs();
 
 	auto funcScope = DongLangBaseAST::CurScope((DongLangBaseAST::antlr4Ctx)ctx->parent);
 	bool externC = ctx->externC();
 	if (auto funcSymbol = funcScope->FindFuncSymbol(fnName, argTypes, isVarArg)) {
-		DongLangBaseAST::llvmCtx->emitError("repeated function declare:" + funcSymbol->ID());
+		DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " repeated function declare:" + funcSymbol->ID());
 		return;
 	}
 
-	DongLangTypeInfo* spRetType = new DongLangTypeInfo(retPriType, retPas);
-	argTypes.insert(argTypes.begin(), spRetType);
+	argTypes.insert(argTypes.begin(), retTypeInfo);
 
-	funcScope->AddSymbol(fnName, SYMBOL_ID(ctx), FuncSLSymbol::Create(fnName, argTypes, NULL, externC, isVarArg));
+	funcScope->AddSymbol(fnName, SYMBOL_ID(ctx), FuncDLSymbol::Create(fnName, argTypes, NULL, externC, isVarArg));
+}
+
+void DongLangLLVMVarListener::enterGlobal_var_expression(DongLangParser::Global_var_expressionContext* ctx) {
+	if (ctx->var_declares()) {
+		return;
+	}
+
+	//分析 type 变量
+	string typeName = ctx->IDENTIFIER()->getText();
+	auto curScope = DongLangBaseAST::CurScope(ctx);
+	if (curScope->FindSymbol(typeName)) {
+		DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " type name symbol repeated:" + typeName);
+		return;
+	}
+
+	DongLangTypeInfo* typeInfo = analyseDLTypeInfo(ctx->type_type());
+	curScope->AddSymbol(typeName, SYMBOL_ID(ctx->type_type()), TypeDLSymbol::Create(typeName, typeInfo));
 }
 
 void DongLangLLVMVarListener::exitVar_declares(DongLangParser::Var_declaresContext* ctx) {
-	bool isGlobal = dynamic_cast<DongLangParser::Global_var_expressionContext*>(ctx->parent) != NULL;
-	vector<DongLangBaseAST*> vars;
-	vars.clear();
-
-	ANALYSE_POINT_ARRAY(ctx);
-	DongLangTypeInfo* spType = new DongLangTypeInfo(stype->primary_type()->getText(), pas);
+	DongLangTypeInfo* typeInfo = analyseDLTypeInfo(ctx->type_type());
 	auto curScope = DongLangBaseAST::CurScope(ctx);
 
-	for (auto child : ctx->vars()->var()) {
-		auto id = child->IDENTIFIER()->getText();
+	for (auto varCtx : ctx->vars()->var()) {
+		//检查如果是默认长度数组需要 立刻初始化
+		if (typeInfo->needInitial()) {
+			if (!varCtx->var_value()) {
+				DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " value need initialize");
+				return;
+			}
+		}
+
+		auto id = varCtx->IDENTIFIER()->getText();
 		auto varSb = curScope->FindSymbol(id);
 		if (varSb && varSb->getScope() == curScope) {
 			DongLangBaseAST::llvmCtx->emitError("repeated var declare:" + id);
 			return;
 		}
 
-		curScope->AddSymbol(id, SYMBOL_ID(child), VarSLSymbol::Create(id, spType, NULL));
+		curScope->AddSymbol(id, SYMBOL_ID(varCtx), VarDLSymbol::Create(id, typeInfo, NULL));
 	}
 }
 

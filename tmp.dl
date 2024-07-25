@@ -3,7 +3,7 @@
 
 func int* getArr(int *p, int[] arr, int[][2] aarr1) {
 	int[2] rArr, rArr1;
-	return p ? p : rArr;
+	return rArr ? p : rArr;
 }
 
 func int main(){
@@ -14,7 +14,7 @@ func int main(){
 	int[2][2] arr2;
 
 	bool ba = arr1;
-	if((arr1)){}
+	//if(*(arr1)){}
 	pa = getArr( pa, arr1, arr2);
 	getArr(arr1, pa, arr2);
 	printf("hello world a:%d\n", arr1[3], arr2[1][1]);

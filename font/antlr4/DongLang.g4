@@ -100,6 +100,7 @@ for_cond: expression |
 
 global_var_expression:
     var_declares
+    | TYPE IDENTIFIER (type_type|class_def)
     ;
 /*
     int a, b=2,c;
@@ -166,7 +167,7 @@ primary_type:
 array_type: '[' NUMBER? ']';
 
 type_type:
-     primary_type POINT* array_type* //指针,array
+     (primary_type | IDENTIFIER) (POINT|array_type)* //指针,array
     ;
 
 type_type_void:
@@ -201,6 +202,16 @@ var_declares:
    type_type vars
    ;
 
+//=================TODO template,class_def======================
+template:
+    '['IDENTIFIER*']'
+    ;
+
+class_def:
+    'class' '{'
+
+    '}'
+    ;
 //keywords
 
 FUNC: 'func';
@@ -222,6 +233,8 @@ POINT: FSTAR;
 INCREMENT: '++';
 DECREMENT : '--';
 COND_SPE: ';';
+NIL: 'NIL';
+TYPE: 'type';
 
 ADD: '+';
 SUB: '-';
@@ -245,8 +258,8 @@ COMMENT: '/*' .*? '*/'-> channel(HIDDEN);
 
 IDENTIFIER: ALPHA ALPHA_DIGIT*;
 NUMBER: ( [1-9]DIGIT* | '0' )('.'DIGIT+)?;
-//NUMBER: '-'? ( [1-9]DIGIT* | '0' )('.'DIGIT+)?;
-ALPHA_DIGIT: (ALPHA | DIGIT);
+INTEGER: [1-9]DIGIT*;
+ALPHA_DIGIT: (ALPHA | DIGIT| '_');
 ALPHA: [a-zA-Z];
 DIGIT: [0-9];
 NULL: 'NULL';

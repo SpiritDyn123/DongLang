@@ -28,7 +28,7 @@ var_arr_value:
 
 class DongLangArrayAST : public DongLangBaseAST {
 public:
-	DongLangArrayAST(SLSymbol*idSymbol, bool isPrimary, vector<DongLangBaseAST*>& arrAsts, 
+	DongLangArrayAST(DLSymbol*idSymbol, bool isPrimary, vector<DongLangBaseAST*>& arrAsts, 
 		DongLangTypeInfo* spType, DongLangTypeInfo* typeInfo) : DongLangBaseAST(typeInfo), spType(spType), idSymbol(idSymbol),
 		isPrimary(isPrimary), arrAsts(arrAsts) {}
 	bool primary() { return isPrimary;  }
@@ -39,7 +39,7 @@ private:
 	void genUnPrimaryArrayItem(bool isGlobal, DongLangBaseAST* ast, Value* arrValue, vector<int> indexs);
 
 private:
-	SLSymbol* idSymbol;
+	DLSymbol* idSymbol;
 	bool isPrimary;
 	DongLangTypeInfo* spType;
 	vector<DongLangBaseAST*> arrAsts;

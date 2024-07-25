@@ -79,7 +79,7 @@ DongLangTypeInfo* DongLangLLVMExprTypeListener::VarExprTypes(DongLangParser::Var
 	return NULL;
 }
 
-FuncSLSymbol* DongLangLLVMExprTypeListener::CallFuncSLSymbol(antlr4::ParserRuleContext* callCtx) {
+FuncDLSymbol* DongLangLLVMExprTypeListener::CallFuncDLSymbol(antlr4::ParserRuleContext* callCtx) {
 	auto it = mCallFuncSymbol.find(callCtx);
 	if (it != mCallFuncSymbol.end()) {
 		return it->second;
@@ -92,34 +92,63 @@ string DongLangLLVMExprTypeListener::getExprOpr(DongLangParser::ExpressionContex
 	string opr = "=";
 	antlr4::ParserRuleContext* lastCtx = exprCtx;
 	for (auto pCtx = exprCtx->parent; pCtx; lastCtx = (antlr4::ParserRuleContext*)pCtx, pCtx = pCtx->parent) {
-		if (dynamic_cast<DongLangParser::Paran_exprContext*>(pCtx) ||
-			dynamic_cast<DongLangParser::Expr_listContext*>(pCtx)) {
+		if (dynamic_cast<DongLangParser::Paran_exprContext*>(pCtx) || // paran
+			dynamic_cast<DongLangParser::Expr_listContext*>(pCtx) ||
+			dynamic_cast<DongLangParser::AssignContext*>(pCtx) ||
+			dynamic_cast<DongLangParser::AssignsContext*>(pCtx) ||
+			dynamic_cast<DongLangParser::Var_expressionContext*>(pCtx)) { // call
 			continue;
 		}
-
+		
 		if (auto pExprCtx = dynamic_cast<DongLangParser::ExpressionContext*>(pCtx)) {
 			if (pExprCtx->opr) {
 				opr = (pExprCtx->COND_AND() || pExprCtx->COND_OR()) ? opr : pExprCtx->opr->getText();
 			}
-			else if (pExprCtx->threeOpr && lastCtx != pExprCtx->expression(0)) {
-				opr = "three_op";
+			else if (pExprCtx->threeOpr ) {
+				if (lastCtx != pExprCtx->expression(0)) {
+					opr = "three_op";
+				}
+			}
+			else if(pExprCtx->COND_NOT()) {
+
 			}
 			else {
 				continue;
 			}
-		}else if (dynamic_cast<DongLangParser::Ret_expressionContext*>(pCtx)) {
+		}
+		else if (auto pIdPrimayCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(pCtx)) {
+			auto ptrAddrCtx = pIdPrimayCtx->id_primary_p_addrs();
+			if (ptrAddrCtx->POINT().size() == 0 && ptrAddrCtx->POINTADDR().size() == 0 && pIdPrimayCtx->array_index().size() == 0) {
+				continue;
+			}
+
+		}
+		else if (dynamic_cast<DongLangParser::Ret_expressionContext*>(pCtx)) {
 			opr = "ret";
 		}
 		else if (dynamic_cast<DongLangParser::Call_exprContext*>(pCtx)) {
 			opr = "call";
+		} 
+		else if (dynamic_cast<DongLangParser::If_condContext*>(pCtx) ||
+			dynamic_cast<DongLangParser::For_condContext*>(pCtx)) {
+			opr = "cond";
 		}
-		
 		break;
 	}
 	
 	
 	return opr;
 }
+
+#define CHECK_ARR_LEN(ctx, varTypeInfo) auto arrPa = varTypeInfo->getArrayPA(); \
+	int initialSize = ctx->var_arr_value().size() > 0 ? \
+	ctx->var_arr_value().size() : ctx->expr_list()->expression().size(); \
+	if (arrPa->array_len > 0 && initialSize > arrPa->array_len) { \
+		DongLangBaseAST::llvmCtx->emitError("array value size: " + to_string(arrPa->array_len) + " ,err:" + ctx->getText());\
+		return; \
+	} \
+	if (arrPa->array_len < 0) arrPa->array_len = initialSize;
+
 
 void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_valueContext* ctx) {
 	//cout << "enterVar_arr_value:" << ctx->getText() << endl;
@@ -128,7 +157,13 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 		//var
 		if (auto tCtx = dynamic_cast<DongLangParser::VarContext*>(pCtx)) {
 			auto varSymbol = DongLangBaseAST::FindSymbol(tCtx, tCtx->IDENTIFIER()->getText());
-			mVarArrValueTypes[ctx] = COPY_SP_TYPE_INFO(varSymbol->getVarType());
+
+			//修正一下长度
+			auto varTypeInfo = varSymbol->getVarType();
+
+			CHECK_ARR_LEN(ctx, varTypeInfo);
+
+			mVarArrValueTypes[ctx] = COPY_SP_TYPE_INFO(varTypeInfo);
 			break;
 		}
 
@@ -141,6 +176,9 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 			}
 
 			cTypeInfo->DelPointArrayItem(PointOrArray(false));
+
+			CHECK_ARR_LEN(ctx, cTypeInfo);
+
 			mVarArrValueTypes[ctx] = cTypeInfo;
 			break;
 		}
@@ -162,6 +200,9 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 }
 
 void DongLangLLVMExprTypeListener::exitVar_arr_value(DongLangParser::Var_arr_valueContext* ctx) {
+
+#if 0 //length 不修正了
+
 	vector< DongLangParser::Var_arr_valueContext*> arrCtxs;
 	arrCtxs.clear();
 	if (ctx->expr_list()) {
@@ -225,6 +266,7 @@ void DongLangLLVMExprTypeListener::exitVar_arr_value(DongLangParser::Var_arr_val
 		auto varSymbol = DongLangBaseAST::FindSymbol(tCtx, tCtx->IDENTIFIER()->getText());
 		*varSymbol->getVarType() = *typeInfo;
 	}
+#endif
 }
 
 void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionContext* ctx) {
@@ -622,7 +664,7 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 	int argCount = exprCtxList.size();
 
 	//int float可以转换
-	map<FuncSLSymbol*, int> dstFuncs;
+	map<FuncDLSymbol*, int> dstFuncs;
 	dstFuncs.clear();
 	int maxEValue = 0;
 	const static int mStandEV = 100; //默认一个函数的参数不会超过这么多
@@ -692,7 +734,7 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 	}
 
 	//2、函数有歧义
-	FuncSLSymbol* callFunc = NULL;
+	FuncDLSymbol* callFunc = NULL;
 	for (auto it = dstFuncs.begin(); it != dstFuncs.end();++it) {
 		if (maxEValue == it->second) {
 			if (callFunc) {
@@ -736,7 +778,7 @@ void DongLangLLVMExprTypeListener::exitRet_expression(DongLangParser::Ret_expres
 	//找到归属的function
 	for (auto ptCtx = ctx->parent; ptCtx != NULL; ptCtx = ptCtx->parent) {
 		if (auto funcCtx = dynamic_cast<DongLangParser::Function_defContext*>(ptCtx)) {
-			auto funcVar = (FuncSLSymbol *)DongLangBaseAST::FindSymbol(funcCtx, SYMBOL_ID(funcCtx));
+			auto funcVar = (FuncDLSymbol *)DongLangBaseAST::FindSymbol(funcCtx, SYMBOL_ID(funcCtx));
 			auto typeInfo = funcVar->getVarType();
 			if (typeInfo->String() != "void") {
 				DongLangBaseAST::llvmCtx->emitError("function's return type is not void:" + funcVar->Name());

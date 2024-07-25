@@ -123,7 +123,7 @@ DongLangScope* DongLangBaseAST::CurScope(antlr4Ctx ctx) {
 	return NULL;
 }
 
- SLSymbol* DongLangBaseAST::FindSymbol(antlr4Ctx ctx, string id) {
+ DLSymbol* DongLangBaseAST::FindSymbol(antlr4Ctx ctx, string id) {
 	 auto scope = CurScope(ctx);
 	 if (scope == NULL) {
 		 return NULL;
@@ -132,7 +132,7 @@ DongLangScope* DongLangBaseAST::CurScope(antlr4Ctx ctx) {
 	 return scope->FindSymbol(id);
 }
 
- SLSymbol* DongLangBaseAST::FindSymbol(antlr4Ctx ctx, SYMBOL_ID id) {
+ DLSymbol* DongLangBaseAST::FindSymbol(antlr4Ctx ctx, SYMBOL_ID id) {
 	 auto scope = CurScope(ctx);
 	 if (scope == NULL) {
 		 return NULL;
@@ -141,7 +141,7 @@ DongLangScope* DongLangBaseAST::CurScope(antlr4Ctx ctx) {
 	 return scope->FindSymbol(id);
  }
 
- FuncSLSymbol* DongLangBaseAST::FindFuncSymbol(antlr4Ctx ctx, string id, vector<DongLangTypeInfo*> argTypes, bool isVarArg) {
+ FuncDLSymbol* DongLangBaseAST::FindFuncSymbol(antlr4Ctx ctx, string id, vector<DongLangTypeInfo*> argTypes, bool isVarArg) {
 	 auto scope = CurScope(ctx);
 	 if (scope == NULL) {
 		 return NULL;
@@ -150,7 +150,7 @@ DongLangScope* DongLangBaseAST::CurScope(antlr4Ctx ctx) {
 	 return scope->FindFuncSymbol(id, argTypes, isVarArg);
  }
 
- vector<FuncSLSymbol*>* DongLangBaseAST::FindFuncSymbolList(antlr4Ctx ctx, string baseId) {
+ vector<FuncDLSymbol*>* DongLangBaseAST::FindFuncSymbolList(antlr4Ctx ctx, string baseId) {
 	 auto scope = CurScope(ctx);
 	 if (scope == NULL) {
 		 return NULL;

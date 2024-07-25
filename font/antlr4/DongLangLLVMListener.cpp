@@ -10,6 +10,8 @@
 #include "font/ast/DongLangCondAST.h"
 #include <memory>
 #include "font/antlr4/DongLangLLVMExprTypeListener.h"
+#include "DongLangLLVMVarListener.h"
+
 using namespace std;
 using namespace antlr4;
 
@@ -64,8 +66,7 @@ void DongLangLLVMListener::exitFunction_def(DongLangParser::Function_defContext*
 	vector<DongLangFunctionDefAST::ArgInfo> args;
 	args.clear();
 	for (auto argCtx : ctx->farg_list()->farg()) {
-		ANALYSE_POINT_ARRAY(argCtx)
-		DongLangTypeInfo* argType = new DongLangTypeInfo(stype->primary_type()->getText(), pas);
+		DongLangTypeInfo* argType = DongLangLLVMVarListener::analyseDLTypeInfo(argCtx->type_type());
 		args.push_back(DongLangFunctionDefAST::ArgInfo(argCtx->IDENTIFIER()->getText(), argCtx, argType));
 	}
 
@@ -290,7 +291,7 @@ void DongLangLLVMListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) 
 	}
 
 	string fnName = ctx->IDENTIFIER()->getText();
-	auto funcSymbol = etListener->CallFuncSLSymbol(ctx);
+	auto funcSymbol = etListener->CallFuncDLSymbol(ctx);
 
 	bool isGlobal = false;
 	auto exprCtx = dynamic_cast<DongLangParser::ExpressionContext*>(ctx->parent->parent->parent);//call_expr->primary->expression
@@ -448,7 +449,7 @@ void DongLangLLVMListener::exitVar_arr_value(DongLangParser::Var_arr_valueContex
 		id = varCtx->IDENTIFIER()->getText();
 	} 
 
-	SLSymbol* idSymbol = NULL;
+	DLSymbol* idSymbol = NULL;
 	if (id != "") {
 		idSymbol = DongLangBaseAST::FindSymbol(ctx, id);
 	}
@@ -527,11 +528,13 @@ void DongLangLLVMListener::enterVar_declares(DongLangParser::Var_declaresContext
 
 void DongLangLLVMListener::exitVar_declares(DongLangParser::Var_declaresContext* ctx) {
 	bool isGlobal = dynamic_cast<DongLangParser::Global_var_expressionContext *>(ctx->parent) != NULL;
+
+
+	DongLangTypeInfo* varTypeInfo = DongLangLLVMVarListener::analyseDLTypeInfo(ctx->type_type());
+
+
 	vector<DongLangBaseAST*> vars;
 	vars.clear();
-
-	ANALYSE_POINT_ARRAY(ctx);
-	DongLangTypeInfo* spType = new DongLangTypeInfo(stype->primary_type()->getText(), pas);
 
 	DongLangTypeInfo* varExprTypeInfo = NULL;
 	if (auto pCtx = dynamic_cast<DongLangParser::Var_expressionContext*>(ctx->parent)) {
@@ -552,7 +555,7 @@ void DongLangLLVMListener::exitVar_declares(DongLangParser::Var_declaresContext*
 			valueCtx->expression()->primary() &&
 			valueCtx->expression()->primary()->value_primary();
 		vars.push_back(new DongLangVarDeclareAST(ctx,
-			spType,
+			varTypeInfo,
 			child->IDENTIFIER()->getText(),
 			valueAst,
 			isGlobal, varExprTypeInfo, isPrimary));

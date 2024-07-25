@@ -1,7 +1,7 @@
 #include "DongLangExprAST.h"
 
 
-DongLangCallExprAST::DongLangCallExprAST(FuncSLSymbol* funcSymbol,
+DongLangCallExprAST::DongLangCallExprAST(FuncDLSymbol* funcSymbol,
 	std::vector<DongLangBaseAST*>& args,
 	std::vector<DongLangTypeInfo*>& argDefaultTypes,
 	bool isGlobal, DongLangTypeInfo* typeInfo, 

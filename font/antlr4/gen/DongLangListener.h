@@ -1,5 +1,5 @@
 
-// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -139,6 +139,12 @@ public:
 
   virtual void enterVar_declares(DongLangParser::Var_declaresContext *ctx) = 0;
   virtual void exitVar_declares(DongLangParser::Var_declaresContext *ctx) = 0;
+
+  virtual void enterTemplate(DongLangParser::TemplateContext *ctx) = 0;
+  virtual void exitTemplate(DongLangParser::TemplateContext *ctx) = 0;
+
+  virtual void enterClass_def(DongLangParser::Class_defContext *ctx) = 0;
+  virtual void exitClass_def(DongLangParser::Class_defContext *ctx) = 0;
 
 
 };

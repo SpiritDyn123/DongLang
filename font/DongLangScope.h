@@ -25,21 +25,21 @@ class DongLangScope {
 public:
 	DongLangScope(DongLangScope* parent, string name);
 	const string& getName() { return name;  }
-	bool checkVar(string id, SLSymbol* symbol);
-	bool AddSymbol(string id, SYMBOL_ID sId, SLSymbol* value);
-	SLSymbol* FindSymbol(string id);
-	SLSymbol* FindSymbol(SYMBOL_ID id);
+	bool checkVar(string id, DLSymbol* symbol);
+	bool AddSymbol(string id, SYMBOL_ID sId, DLSymbol* value);
+	DLSymbol* FindSymbol(string id);
+	DLSymbol* FindSymbol(SYMBOL_ID id);
 	void AddForInfo(DongLangScopeForInfo*);
 	DongLangScopeForInfo* getForInfo();
 
-	FuncSLSymbol* FindFuncSymbol(string id, vector<DongLangTypeInfo*> argTypes = {}, bool isVarArg = false);
-	vector<FuncSLSymbol*>* FindFuncSymbolList(string baseId);
+	FuncDLSymbol* FindFuncSymbol(string id, vector<DongLangTypeInfo*> argTypes = {}, bool isVarArg = false);
+	vector<FuncDLSymbol*>* FindFuncSymbolList(string baseId);
 
 	//symblMap type
-	using SymbolType = SLSymbol::emSymbolType;
-	typedef map<string, SLSymbol*> MTypeSymbols;
+	using SymbolType = DLSymbol::emSymbolType;
+	typedef map<string, DLSymbol*> MTypeSymbols;
 	using MSymbols = map<SymbolType, MTypeSymbols>;
-	using FuncList = vector<FuncSLSymbol*>;
+	using FuncList = vector<FuncDLSymbol*>;
 
 	
 private:
@@ -47,7 +47,7 @@ private:
 	string name;
 	MSymbols mSymbols;
 	map<string, FuncList> mFuncList;
-	map<SYMBOL_ID, SLSymbol*> mAllSymbols;
+	map<SYMBOL_ID, DLSymbol*> mAllSymbols;
 	DongLangScopeForInfo* forInfo;
 };
 

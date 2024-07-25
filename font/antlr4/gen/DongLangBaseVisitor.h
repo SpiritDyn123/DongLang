@@ -1,5 +1,5 @@
 
-// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -180,6 +180,14 @@ public:
   }
 
   virtual std::any visitVar_declares(DongLangParser::Var_declaresContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTemplate(DongLangParser::TemplateContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitClass_def(DongLangParser::Class_defContext *ctx) override {
     return visitChildren(ctx);
   }
 

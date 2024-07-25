@@ -1,6 +1,6 @@
 #include "font/DongLangScope.h"
 
-auto STVar = SLSymbol::symbolType_Var;
+auto STVar = DLSymbol::symbolType_Var;
 DongLangScope::DongLangScope(DongLangScope* parent, string name) {
 	this->parent = parent;
 	this->name = name;
@@ -12,7 +12,7 @@ DongLangScope::DongLangScope(DongLangScope* parent, string name) {
 	mSymbols[STVar].clear();
 }
 
-bool DongLangScope::checkVar(string id, SLSymbol* symbol) {
+bool DongLangScope::checkVar(string id, DLSymbol* symbol) {
 	auto& mVarSymbols = mSymbols[STVar];
 	if (mVarSymbols.find(id) != mVarSymbols.end()) {
 		return true;
@@ -21,7 +21,7 @@ bool DongLangScope::checkVar(string id, SLSymbol* symbol) {
 	return false;
 }
 
-bool DongLangScope::AddSymbol(string baseId, SYMBOL_ID sId, SLSymbol* symbol) {
+bool DongLangScope::AddSymbol(string baseId, SYMBOL_ID sId, DLSymbol* symbol) {
 	auto st = symbol->type();
 
 	if (mSymbols.find(st) == mSymbols.end()) {
@@ -41,13 +41,13 @@ bool DongLangScope::AddSymbol(string baseId, SYMBOL_ID sId, SLSymbol* symbol) {
 	}
 
 	//cout << this << " add symbol:" << symbol->ID() <<endl;
-	if (symbol->type() == SLSymbol::symbolType_Func) {
+	if (symbol->type() == DLSymbol::symbolType_Func) {
 		if (mFuncList.find(baseId) == mFuncList.end()) {
 			mFuncList[baseId] = FuncList();
 			mFuncList[baseId].clear();
 		}
 
-		FuncSLSymbol* funcS = (FuncSLSymbol*)symbol;
+		FuncDLSymbol* funcS = (FuncDLSymbol*)symbol;
 		//注意externC
 		if (!funcS->extC()) {
 			for (auto func : mFuncList.find(baseId)->second) {
@@ -56,7 +56,7 @@ bool DongLangScope::AddSymbol(string baseId, SYMBOL_ID sId, SLSymbol* symbol) {
 				}
 
 				//externC函数和正常函数 参数冲突
-				string fId = FuncSLSymbol::funcID(func->Name(), func->argType(), func->varArg());
+				string fId = FuncDLSymbol::funcID(func->Name(), func->argType(), func->varArg());
 				if (fId == symbol->ID()) {
 					return false;
 				}
@@ -75,7 +75,7 @@ bool DongLangScope::AddSymbol(string baseId, SYMBOL_ID sId, SLSymbol* symbol) {
 	return true;
 }
 
-SLSymbol* DongLangScope::FindSymbol(string id) {
+DLSymbol* DongLangScope::FindSymbol(string id) {
 	//cout << this << " find symbol:" << id << endl;
 	for (auto its = mSymbols.begin(); its != mSymbols.end(); ++its) {
 		auto it = its->second.find(id);
@@ -91,7 +91,7 @@ SLSymbol* DongLangScope::FindSymbol(string id) {
 	return parent->FindSymbol(id);
 }
 
-SLSymbol* DongLangScope::FindSymbol(SYMBOL_ID id) {
+DLSymbol* DongLangScope::FindSymbol(SYMBOL_ID id) {
 	auto it = mAllSymbols.find(id);
 	if (it != mAllSymbols.end()) {
 		return it->second;
@@ -104,11 +104,11 @@ SLSymbol* DongLangScope::FindSymbol(SYMBOL_ID id) {
 	return parent->FindSymbol(id);
 }
 
-FuncSLSymbol* DongLangScope::FindFuncSymbol(string id, 
+FuncDLSymbol* DongLangScope::FindFuncSymbol(string id, 
 	vector<DongLangTypeInfo*> argTypes, bool isVarArg) {
-	string fId = FuncSLSymbol::funcID(id, argTypes, isVarArg);
+	string fId = FuncDLSymbol::funcID(id, argTypes, isVarArg);
 
-	auto funcType = SLSymbol::symbolType_Func;
+	auto funcType = DLSymbol::symbolType_Func;
 	if (mSymbols.find(funcType) == mSymbols.end()) {
 		if (parent == NULL) {
 			return NULL;
@@ -121,13 +121,13 @@ FuncSLSymbol* DongLangScope::FindFuncSymbol(string id,
 	//externC模式查找
 	auto it = mFuncSymbols.find(id);
 	if (it != mFuncSymbols.end()) {
-		return (FuncSLSymbol*)it->second;
+		return (FuncDLSymbol*)it->second;
 	}
 
 	//正常模式查找
 	it = mFuncSymbols.find(fId);
 	if (it != mFuncSymbols.end()) {
-		return (FuncSLSymbol*)it->second;
+		return (FuncDLSymbol*)it->second;
 	}
 
 	if (parent == NULL) {
@@ -137,7 +137,7 @@ FuncSLSymbol* DongLangScope::FindFuncSymbol(string id,
 	return parent->FindFuncSymbol(id, argTypes, isVarArg);
 }
 
-vector<FuncSLSymbol*>* DongLangScope::FindFuncSymbolList(string baseId) {
+vector<FuncDLSymbol*>* DongLangScope::FindFuncSymbolList(string baseId) {
 	auto funcList = mFuncList.find(baseId);
 	if (funcList != mFuncList.end()) {
 		return &(funcList->second);

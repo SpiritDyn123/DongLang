@@ -13,6 +13,9 @@ public:
 	void enterFunction_def(DongLangParser::Function_defContext* ctx) override;
 	void exitFunction_def(DongLangParser::Function_defContext* ctx) override;
 
+	void enterGlobal_var_expression(DongLangParser::Global_var_expressionContext* ctx) override;
+
+
 	void exitVar_declares(DongLangParser::Var_declaresContext* ctx) override;
 
 	void enterIf_cond(DongLangParser::If_condContext* ctx) override;
@@ -26,4 +29,7 @@ public:
 	void enterFor_expression(DongLangParser::For_expressionContext* ctx) override;
 
 	void enterCond_statement(DongLangParser::Cond_statementContext* ctx) override;
+
+public:
+	static DongLangTypeInfo* analyseDLTypeInfo(DongLangParser::Type_typeContext* typeTypeCtx);
 };

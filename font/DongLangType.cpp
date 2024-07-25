@@ -67,54 +67,66 @@ Type* DongLangTypeInfo::LlvmType(IRBuilder<>* llvmBuilder) {
 		return NULL;
 	}
 
-	for (auto i = pas.begin(); i != pas.end(); ++i) {
-		if (i->pointOrArr) {
+	vector<PointOrArray> tmpArrPas;
+	tmpArrPas.clear();
+	for (auto it = pas.begin(); it != pas.end(); ++it) {
+		if (it->pointOrArr) {
+			if (tmpArrPas.size()) {
+				for (auto arrpa : tmpArrPas) {
+					lType = ArrayType::get(lType, arrpa.array_len);
+					size = size * arrpa.array_len;
+				}
+				tmpArrPas.clear();
+			}
+
 			lType = lType->getPointerTo();
+			size = 8;
 		}
 		else {
-			break;
+			tmpArrPas.insert(tmpArrPas.begin(), *it);	
 		}
 	}
 
-	for (auto i = pas.rbegin(); i != pas.rend(); ++i) {
-		if (i->pointOrArr) {
-			break;
-		}
-		else {
-			lType = ArrayType::get(lType, i->array_len);
-			size = size * i->array_len;
-		}
+	for (auto arrpa : tmpArrPas) {
+		lType = ArrayType::get(lType, arrpa.array_len);
+		size = size * arrpa.array_len;
 	}
 
 	// cout << "llvm_type(" << String() << "):" << lType->getTypeID() << endl;
 	return lType;
 }
 
-
-void DongLangTypeInfo::AddPointArrayItem(PointOrArray pa) {
-	if (pa.pointOrArr) {
-		pas.insert(pas.begin(), pa);
+bool DongLangTypeInfo::needInitial() {
+	if (!isArray()) {
+		return false;
 	}
-	else {
-		pas.push_back(pa);
-	}
-}
 
-bool DongLangTypeInfo::DelPointArrayItem(PointOrArray pa) {
-	//优先数组
-	for (auto it = pas.begin(); it != pas.end(); ++it) {
-		if (!it->pointOrArr) {
-			this->arrPtr = pa.pointOrArr;
-			pas.erase(it);
-			return true;
+	for (int i = pas.size() - 1; i >= 0; i--) {
+		if (pas[i].pointOrArr) {
+			return pas[i+1].array_len < 0;
 		}
 	}
 
-	for (auto it = pas.rbegin(); it != pas.rend(); ++it) {
-		if (it->pointOrArr) {
-			this->arrPtr = !pa.pointOrArr;
-			pas.erase(pas.begin() + pas.size() - 1 - distance(pas.rbegin(), it));
+	return pas[0].array_len < 0;;
+}
+
+
+void DongLangTypeInfo::AddPointArrayItem(PointOrArray pa) {
+	pas.insert(pas.begin(), pa);
+}
+
+bool DongLangTypeInfo::DelPointArrayItem(PointOrArray pa) {
+	for (int i = pas.size() - 1; i >= 0; i--) {
+		PointOrArray& pa = pas[i];
+		if (pa.pointOrArr || i == 0) {
+			pas.erase(pas.begin() + i);
 			return true;
+		}
+		else {
+			if (pas[i - 1].pointOrArr) {
+				pas.erase(pas.begin() + i);
+				return true;
+			}
 		}
 	}
 
@@ -122,15 +134,36 @@ bool DongLangTypeInfo::DelPointArrayItem(PointOrArray pa) {
 }
 
 PointOrArray* DongLangTypeInfo::getArrayPA(uint offset) {
-	for (auto it = pas.begin(); it != pas.end(); ++it, --offset) {
-		if (!it->pointOrArr && offset== 0) {
-			return &(*it);
+	if (!isArray()) {
+		return NULL;
+	}
+
+	vector<PointOrArray*> tmpArrPas;
+	tmpArrPas.clear();
+	for (int i = pas.size() - 1; i >= 0; i--) {
+		PointOrArray& pa = pas[i];
+		if (pa.pointOrArr) {
+			break;
+		}
+
+		tmpArrPas.push_back(&pa);
+	}
+
+	for (auto it = tmpArrPas.begin(); it != tmpArrPas.end(); ++it, --offset) {
+		if (offset== 0) {
+			return *it;
 		}
 	}
 
 	return  NULL;
 }
 
+bool DongLangTypeInfo::checkArrayOpr(string& opr) {
+	return opr == "call"		||
+		   opr == "ret"			||
+		   opr == "three_op"	||
+		   opr == "cond";
+}
 
 DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLangTypeInfo* t2, string opr, bool errReport, string reportStr) {
 	if (!t1 || !t2) {
@@ -142,7 +175,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 	auto t2S = t2->String();
 	if (t1S == t2S) {
 		if (t1->isArray()) {
-			if (opr == "call" || opr == "ret" || opr == "three_op") {//函数传参会自动转换为指针
+			if (checkArrayOpr(opr)) {//函数传参会自动转换为指针
 				return transT;
 			}
 		}
@@ -173,7 +206,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 			}
 		}
 		else if (t1->isArray()) {
-			if (opr == "call" || opr == "ret" || opr == "three_op") {
+			if (checkArrayOpr(opr)) {
 				if (t2->isPoint()) { // 数组和指针
 					auto tmpT1 = *t1; // copy to use
 					tmpT1.pas[tmpT1.pas.size() - 1].pointOrArr = true;

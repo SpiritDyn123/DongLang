@@ -10,7 +10,6 @@ Constant* DongLangArrayAST::genConstantValue() {
 		arrItemValues.push_back((Constant*)cAst->genCode());
 	}
 
-	//fill size
 	auto eleTypeInfo = DongLangTypeInfo(*typeInfo);
 	eleTypeInfo.DelPointArrayItem(PointOrArray(false));
 	auto eleType = eleTypeInfo.LlvmType(&lB);

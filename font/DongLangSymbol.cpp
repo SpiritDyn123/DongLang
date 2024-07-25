@@ -1,7 +1,7 @@
 #include "font/DongLangSymbol.h"
 #include "font/ast/DongLangBaseAST.h"
 
-string FuncSLSymbol::funcID(string baseId, vector<DongLangTypeInfo*> types, bool isVarArg) {
+string FuncDLSymbol::funcID(string baseId, vector<DongLangTypeInfo*> types, bool isVarArg) {
 	string id = baseId;
 	static map<string, string> oprAlias = {
 		{"int", "i"},

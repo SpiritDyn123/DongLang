@@ -1,5 +1,5 @@
 
-// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -102,6 +102,10 @@ public:
     virtual std::any visitVars(DongLangParser::VarsContext *context) = 0;
 
     virtual std::any visitVar_declares(DongLangParser::Var_declaresContext *context) = 0;
+
+    virtual std::any visitTemplate(DongLangParser::TemplateContext *context) = 0;
+
+    virtual std::any visitClass_def(DongLangParser::Class_defContext *context) = 0;
 
 
 };

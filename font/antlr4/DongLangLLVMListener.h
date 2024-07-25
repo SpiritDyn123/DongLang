@@ -4,30 +4,6 @@
 #include "font/ast/DongLangBaseAST.h"
 using namespace antlr4;
 
-
-#define ANALYSE_POINT_ARRAY(ctx) \
-	auto stype = ctx->type_type(); \
-	vector<PointOrArray> pas; \
-	pas.clear(); \
-	string lastOpr = "";\
-	for (auto stypeChild : stype->children) { \
-		if (stypeChild->getText() == "*") { \
-			if (lastOpr == "[]") { \
-				DongLangBaseAST::llvmCtx->emitError("anaylse type_type cannot point to array:" + ctx->getText()); \
-				break; \
-			} \
-			pas.push_back(PointOrArray(true)); \
-			lastOpr = "*"; \
-		} else if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(stypeChild)) { \
-			int array_len = arrChild->NUMBER() != NULL ? std::stoi(arrChild->NUMBER()->getText()) : 1; \
-			pas.push_back(PointOrArray(false, array_len)); \
-			lastOpr = "[]"; \
-		} \
-		else { \
-			lastOpr = ""; \
-		} \
-	}
-
 class DongLangLLVMExprTypeListener;
 class DongLangLLVMErrorListener : public ANTLRErrorListener {
 	virtual void syntaxError(Recognizer* recognizer, Token* offendingSymbol, size_t line,

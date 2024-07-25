@@ -1,5 +1,5 @@
 
-// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -14,14 +14,15 @@ public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
-    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, FUNC = 19, RETURN = 20, 
-    VOID = 21, TRUE = 22, FALSE = 23, FOR = 24, BREAK = 25, CONTINUE = 26, 
-    IF = 27, ELSE = 28, ELIF = 29, POINTADDR = 30, COND_AND = 31, COND_OR = 32, 
-    COND_NOT = 33, POINT = 34, INCREMENT = 35, DECREMENT = 36, COND_SPE = 37, 
-    ADD = 38, SUB = 39, MUL = 40, DIV = 41, OR = 42, XOR = 43, NOT = 44, 
-    CMP_EQ = 45, CMP_NE = 46, CMP_GT = 47, CMP_LT = 48, CMP_GE = 49, CMP_LE = 50, 
-    SPACE = 51, LINE_COMMENT = 52, COMMENT = 53, IDENTIFIER = 54, NUMBER = 55, 
-    ALPHA_DIGIT = 56, ALPHA = 57, DIGIT = 58, NULL_ = 59, STRING_LITERAL = 60
+    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, FUNC = 20, 
+    RETURN = 21, VOID = 22, TRUE = 23, FALSE = 24, FOR = 25, BREAK = 26, 
+    CONTINUE = 27, IF = 28, ELSE = 29, ELIF = 30, POINTADDR = 31, COND_AND = 32, 
+    COND_OR = 33, COND_NOT = 34, POINT = 35, INCREMENT = 36, DECREMENT = 37, 
+    COND_SPE = 38, NIL = 39, TYPE = 40, ADD = 41, SUB = 42, MUL = 43, DIV = 44, 
+    OR = 45, XOR = 46, NOT = 47, CMP_EQ = 48, CMP_NE = 49, CMP_GT = 50, 
+    CMP_LT = 51, CMP_GE = 52, CMP_LE = 53, SPACE = 54, LINE_COMMENT = 55, 
+    COMMENT = 56, IDENTIFIER = 57, NUMBER = 58, INTEGER = 59, ALPHA_DIGIT = 60, 
+    ALPHA = 61, DIGIT = 62, NULL_ = 63, STRING_LITERAL = 64
   };
 
   enum {
@@ -35,7 +36,8 @@ public:
     RuleArray_index = 27, RuleId_primary_p_addrs = 28, RuleId_primary = 29, 
     RulePrimary = 30, RulePrimary_type = 31, RuleArray_type = 32, RuleType_type = 33, 
     RuleType_type_void = 34, RuleVar_value = 35, RuleVar_arr_value = 36, 
-    RuleAssign = 37, RuleAssigns = 38, RuleVar = 39, RuleVars = 40, RuleVar_declares = 41
+    RuleAssign = 37, RuleAssigns = 38, RuleVar = 39, RuleVars = 40, RuleVar_declares = 41, 
+    RuleTemplate = 42, RuleClass_def = 43
   };
 
   explicit DongLangParser(antlr4::TokenStream *input);
@@ -96,7 +98,9 @@ public:
   class AssignsContext;
   class VarContext;
   class VarsContext;
-  class Var_declaresContext; 
+  class Var_declaresContext;
+  class TemplateContext;
+  class Class_defContext; 
 
   class  ProgContext : public antlr4::ParserRuleContext {
   public:
@@ -437,6 +441,10 @@ public:
     Global_var_expressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     Var_declaresContext *var_declares();
+    antlr4::tree::TerminalNode *TYPE();
+    antlr4::tree::TerminalNode *IDENTIFIER();
+    Type_typeContext *type_type();
+    Class_defContext *class_def();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -677,6 +685,7 @@ public:
     Type_typeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     Primary_typeContext *primary_type();
+    antlr4::tree::TerminalNode *IDENTIFIER();
     std::vector<antlr4::tree::TerminalNode *> POINT();
     antlr4::tree::TerminalNode* POINT(size_t i);
     std::vector<Array_typeContext *> array_type();
@@ -829,6 +838,36 @@ public:
   };
 
   Var_declaresContext* var_declares();
+
+  class  TemplateContext : public antlr4::ParserRuleContext {
+  public:
+    TemplateContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<antlr4::tree::TerminalNode *> IDENTIFIER();
+    antlr4::tree::TerminalNode* IDENTIFIER(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TemplateContext* template_();
+
+  class  Class_defContext : public antlr4::ParserRuleContext {
+  public:
+    Class_defContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Class_defContext* class_def();
 
 
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
