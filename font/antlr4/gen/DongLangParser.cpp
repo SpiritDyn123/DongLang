@@ -1,5 +1,5 @@
 
-// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 
 #include "DongLangListener.h"
@@ -85,7 +85,7 @@ void donglangParserInitialize() {
     }
   );
   static const int32_t serializedATNSegment[] = {
-  	4,1,64,471,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	4,1,64,473,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
   	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
   	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,
   	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,
@@ -109,83 +109,83 @@ void donglangParserInitialize() {
   	18,1,18,1,18,1,18,3,18,289,8,18,3,18,291,8,18,1,19,1,19,3,19,295,8,19,
   	1,20,1,20,1,20,1,20,1,21,1,21,1,21,1,21,1,21,1,22,1,22,1,22,1,22,5,22,
   	310,8,22,10,22,12,22,313,9,22,3,22,315,8,22,1,23,3,23,318,8,23,1,23,1,
-  	23,1,24,1,24,1,25,1,25,1,26,1,26,1,26,3,26,329,8,26,1,27,1,27,1,27,1,
-  	27,1,28,3,28,336,8,28,1,28,1,28,3,28,340,8,28,5,28,342,8,28,10,28,12,
-  	28,345,9,28,1,28,3,28,348,8,28,1,28,3,28,351,8,28,1,28,5,28,354,8,28,
-  	10,28,12,28,357,9,28,3,28,359,8,28,1,29,1,29,1,29,1,29,3,29,365,8,29,
-  	1,29,5,29,368,8,29,10,29,12,29,371,9,29,1,30,1,30,3,30,375,8,30,1,31,
-  	1,31,1,32,1,32,3,32,381,8,32,1,32,1,32,1,33,1,33,3,33,387,8,33,1,33,1,
-  	33,5,33,391,8,33,10,33,12,33,394,9,33,1,34,1,34,3,34,398,8,34,1,35,1,
-  	35,3,35,402,8,35,1,36,1,36,1,36,1,36,5,36,408,8,36,10,36,12,36,411,9,
-  	36,1,36,1,36,1,36,1,36,1,36,1,36,3,36,419,8,36,1,37,1,37,3,37,423,8,37,
-  	1,37,1,37,3,37,427,8,37,1,37,1,37,1,37,3,37,432,8,37,1,38,1,38,1,38,5,
-  	38,437,8,38,10,38,12,38,440,9,38,1,39,1,39,1,39,3,39,445,8,39,1,40,1,
-  	40,1,40,5,40,450,8,40,10,40,12,40,453,9,40,1,41,1,41,1,41,1,42,1,42,5,
-  	42,460,8,42,10,42,12,42,463,9,42,1,42,1,42,1,43,1,43,1,43,1,43,1,43,0,
-  	1,18,44,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,
-  	44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,0,10,
-  	2,0,35,35,44,44,1,0,41,42,2,0,31,31,45,46,1,0,48,53,1,0,26,27,1,0,23,
-  	24,2,0,31,31,35,35,1,0,13,17,4,0,31,31,35,35,41,42,44,46,1,0,36,37,496,
-  	0,94,1,0,0,0,2,105,1,0,0,0,4,108,1,0,0,0,6,120,1,0,0,0,8,123,1,0,0,0,
-  	10,132,1,0,0,0,12,135,1,0,0,0,14,150,1,0,0,0,16,152,1,0,0,0,18,162,1,
-  	0,0,0,20,196,1,0,0,0,22,198,1,0,0,0,24,219,1,0,0,0,26,232,1,0,0,0,28,
-  	245,1,0,0,0,30,248,1,0,0,0,32,256,1,0,0,0,34,281,1,0,0,0,36,290,1,0,0,
-  	0,38,294,1,0,0,0,40,296,1,0,0,0,42,300,1,0,0,0,44,314,1,0,0,0,46,317,
-  	1,0,0,0,48,321,1,0,0,0,50,323,1,0,0,0,52,328,1,0,0,0,54,330,1,0,0,0,56,
-  	358,1,0,0,0,58,360,1,0,0,0,60,374,1,0,0,0,62,376,1,0,0,0,64,378,1,0,0,
-  	0,66,386,1,0,0,0,68,397,1,0,0,0,70,401,1,0,0,0,72,418,1,0,0,0,74,431,
-  	1,0,0,0,76,433,1,0,0,0,78,441,1,0,0,0,80,446,1,0,0,0,82,454,1,0,0,0,84,
-  	457,1,0,0,0,86,466,1,0,0,0,88,89,3,36,18,0,89,90,5,38,0,0,90,93,1,0,0,
-  	0,91,93,3,4,2,0,92,88,1,0,0,0,92,91,1,0,0,0,93,96,1,0,0,0,94,92,1,0,0,
-  	0,94,95,1,0,0,0,95,1,1,0,0,0,96,94,1,0,0,0,97,98,3,38,19,0,98,99,5,38,
-  	0,0,99,106,1,0,0,0,100,101,3,16,8,0,101,102,5,38,0,0,102,106,1,0,0,0,
-  	103,106,3,22,11,0,104,106,3,32,16,0,105,97,1,0,0,0,105,100,1,0,0,0,105,
-  	103,1,0,0,0,105,104,1,0,0,0,106,3,1,0,0,0,107,109,3,6,3,0,108,107,1,0,
-  	0,0,108,109,1,0,0,0,109,110,1,0,0,0,110,111,5,20,0,0,111,112,3,68,34,
-  	0,112,113,5,57,0,0,113,114,5,1,0,0,114,115,3,14,7,0,115,118,5,2,0,0,116,
-  	119,3,8,4,0,117,119,5,38,0,0,118,116,1,0,0,0,118,117,1,0,0,0,119,5,1,
-  	0,0,0,120,121,5,3,0,0,121,122,5,4,0,0,122,7,1,0,0,0,123,127,5,5,0,0,124,
-  	126,3,2,1,0,125,124,1,0,0,0,126,129,1,0,0,0,127,125,1,0,0,0,127,128,1,
-  	0,0,0,128,130,1,0,0,0,129,127,1,0,0,0,130,131,5,6,0,0,131,9,1,0,0,0,132,
-  	133,3,66,33,0,133,134,5,57,0,0,134,11,1,0,0,0,135,136,5,7,0,0,136,137,
-  	5,8,0,0,137,13,1,0,0,0,138,151,1,0,0,0,139,144,3,10,5,0,140,141,5,7,0,
-  	0,141,143,3,10,5,0,142,140,1,0,0,0,143,146,1,0,0,0,144,142,1,0,0,0,144,
-  	145,1,0,0,0,145,148,1,0,0,0,146,144,1,0,0,0,147,149,3,12,6,0,148,147,
-  	1,0,0,0,148,149,1,0,0,0,149,151,1,0,0,0,150,138,1,0,0,0,150,139,1,0,0,
-  	0,151,15,1,0,0,0,152,154,5,21,0,0,153,155,3,18,9,0,154,153,1,0,0,0,154,
-  	155,1,0,0,0,155,17,1,0,0,0,156,157,6,9,-1,0,157,158,5,34,0,0,158,163,
-  	3,18,9,10,159,160,5,47,0,0,160,163,3,18,9,7,161,163,3,60,30,0,162,156,
-  	1,0,0,0,162,159,1,0,0,0,162,161,1,0,0,0,163,190,1,0,0,0,164,165,10,9,
-  	0,0,165,166,7,0,0,0,166,189,3,18,9,10,167,168,10,8,0,0,168,169,7,1,0,
-  	0,169,189,3,18,9,9,170,171,10,6,0,0,171,172,7,2,0,0,172,189,3,18,9,7,
-  	173,174,10,5,0,0,174,175,7,3,0,0,175,189,3,18,9,6,176,177,10,4,0,0,177,
-  	178,5,32,0,0,178,189,3,18,9,5,179,180,10,3,0,0,180,181,5,33,0,0,181,189,
-  	3,18,9,4,182,183,10,2,0,0,183,184,5,9,0,0,184,185,3,18,9,0,185,186,5,
-  	10,0,0,186,187,3,18,9,3,187,189,1,0,0,0,188,164,1,0,0,0,188,167,1,0,0,
-  	0,188,170,1,0,0,0,188,173,1,0,0,0,188,176,1,0,0,0,188,179,1,0,0,0,188,
-  	182,1,0,0,0,189,192,1,0,0,0,190,188,1,0,0,0,190,191,1,0,0,0,191,19,1,
-  	0,0,0,192,190,1,0,0,0,193,197,3,2,1,0,194,195,7,4,0,0,195,197,5,38,0,
-  	0,196,193,1,0,0,0,196,194,1,0,0,0,197,21,1,0,0,0,198,199,5,28,0,0,199,
-  	200,5,1,0,0,200,201,3,30,15,0,201,202,5,2,0,0,202,206,5,5,0,0,203,205,
-  	3,20,10,0,204,203,1,0,0,0,205,208,1,0,0,0,206,204,1,0,0,0,206,207,1,0,
-  	0,0,207,209,1,0,0,0,208,206,1,0,0,0,209,213,5,6,0,0,210,212,3,24,12,0,
-  	211,210,1,0,0,0,212,215,1,0,0,0,213,211,1,0,0,0,213,214,1,0,0,0,214,217,
-  	1,0,0,0,215,213,1,0,0,0,216,218,3,26,13,0,217,216,1,0,0,0,217,218,1,0,
-  	0,0,218,23,1,0,0,0,219,220,3,28,14,0,220,221,5,1,0,0,221,222,3,30,15,
-  	0,222,223,5,2,0,0,223,227,5,5,0,0,224,226,3,20,10,0,225,224,1,0,0,0,226,
-  	229,1,0,0,0,227,225,1,0,0,0,227,228,1,0,0,0,228,230,1,0,0,0,229,227,1,
-  	0,0,0,230,231,5,6,0,0,231,25,1,0,0,0,232,233,5,29,0,0,233,237,5,5,0,0,
-  	234,236,3,20,10,0,235,234,1,0,0,0,236,239,1,0,0,0,237,235,1,0,0,0,237,
-  	238,1,0,0,0,238,240,1,0,0,0,239,237,1,0,0,0,240,241,5,6,0,0,241,27,1,
-  	0,0,0,242,246,5,30,0,0,243,244,5,29,0,0,244,246,5,28,0,0,245,242,1,0,
-  	0,0,245,243,1,0,0,0,246,29,1,0,0,0,247,249,3,38,19,0,248,247,1,0,0,0,
-  	248,249,1,0,0,0,249,251,1,0,0,0,250,252,5,38,0,0,251,250,1,0,0,0,251,
-  	252,1,0,0,0,252,254,1,0,0,0,253,255,3,18,9,0,254,253,1,0,0,0,254,255,
-  	1,0,0,0,255,31,1,0,0,0,256,257,5,25,0,0,257,258,5,1,0,0,258,259,3,34,
-  	17,0,259,260,5,2,0,0,260,264,5,5,0,0,261,263,3,20,10,0,262,261,1,0,0,
-  	0,263,266,1,0,0,0,264,262,1,0,0,0,264,265,1,0,0,0,265,267,1,0,0,0,266,
-  	264,1,0,0,0,267,268,5,6,0,0,268,33,1,0,0,0,269,282,3,18,9,0,270,272,3,
-  	38,19,0,271,270,1,0,0,0,271,272,1,0,0,0,272,273,1,0,0,0,273,275,5,38,
+  	23,3,23,322,8,23,1,24,1,24,1,25,1,25,1,26,1,26,1,26,3,26,331,8,26,1,27,
+  	1,27,1,27,1,27,1,28,3,28,338,8,28,1,28,1,28,3,28,342,8,28,5,28,344,8,
+  	28,10,28,12,28,347,9,28,1,28,3,28,350,8,28,1,28,3,28,353,8,28,1,28,5,
+  	28,356,8,28,10,28,12,28,359,9,28,3,28,361,8,28,1,29,1,29,1,29,1,29,3,
+  	29,367,8,29,1,29,5,29,370,8,29,10,29,12,29,373,9,29,1,30,1,30,3,30,377,
+  	8,30,1,31,1,31,1,32,1,32,3,32,383,8,32,1,32,1,32,1,33,1,33,3,33,389,8,
+  	33,1,33,1,33,5,33,393,8,33,10,33,12,33,396,9,33,1,34,1,34,3,34,400,8,
+  	34,1,35,1,35,3,35,404,8,35,1,36,1,36,1,36,1,36,5,36,410,8,36,10,36,12,
+  	36,413,9,36,1,36,1,36,1,36,1,36,1,36,1,36,3,36,421,8,36,1,37,1,37,3,37,
+  	425,8,37,1,37,1,37,3,37,429,8,37,1,37,1,37,1,37,3,37,434,8,37,1,38,1,
+  	38,1,38,5,38,439,8,38,10,38,12,38,442,9,38,1,39,1,39,1,39,3,39,447,8,
+  	39,1,40,1,40,1,40,5,40,452,8,40,10,40,12,40,455,9,40,1,41,1,41,1,41,1,
+  	42,1,42,5,42,462,8,42,10,42,12,42,465,9,42,1,42,1,42,1,43,1,43,1,43,1,
+  	43,1,43,0,1,18,44,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,
+  	38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,
+  	84,86,0,10,2,0,35,35,44,44,1,0,41,42,2,0,31,31,45,46,1,0,48,53,1,0,26,
+  	27,1,0,23,24,2,0,31,31,35,35,1,0,13,17,4,0,31,31,35,35,41,42,44,46,1,
+  	0,36,37,499,0,94,1,0,0,0,2,105,1,0,0,0,4,108,1,0,0,0,6,120,1,0,0,0,8,
+  	123,1,0,0,0,10,132,1,0,0,0,12,135,1,0,0,0,14,150,1,0,0,0,16,152,1,0,0,
+  	0,18,162,1,0,0,0,20,196,1,0,0,0,22,198,1,0,0,0,24,219,1,0,0,0,26,232,
+  	1,0,0,0,28,245,1,0,0,0,30,248,1,0,0,0,32,256,1,0,0,0,34,281,1,0,0,0,36,
+  	290,1,0,0,0,38,294,1,0,0,0,40,296,1,0,0,0,42,300,1,0,0,0,44,314,1,0,0,
+  	0,46,321,1,0,0,0,48,323,1,0,0,0,50,325,1,0,0,0,52,330,1,0,0,0,54,332,
+  	1,0,0,0,56,360,1,0,0,0,58,362,1,0,0,0,60,376,1,0,0,0,62,378,1,0,0,0,64,
+  	380,1,0,0,0,66,388,1,0,0,0,68,399,1,0,0,0,70,403,1,0,0,0,72,420,1,0,0,
+  	0,74,433,1,0,0,0,76,435,1,0,0,0,78,443,1,0,0,0,80,448,1,0,0,0,82,456,
+  	1,0,0,0,84,459,1,0,0,0,86,468,1,0,0,0,88,89,3,36,18,0,89,90,5,38,0,0,
+  	90,93,1,0,0,0,91,93,3,4,2,0,92,88,1,0,0,0,92,91,1,0,0,0,93,96,1,0,0,0,
+  	94,92,1,0,0,0,94,95,1,0,0,0,95,1,1,0,0,0,96,94,1,0,0,0,97,98,3,38,19,
+  	0,98,99,5,38,0,0,99,106,1,0,0,0,100,101,3,16,8,0,101,102,5,38,0,0,102,
+  	106,1,0,0,0,103,106,3,22,11,0,104,106,3,32,16,0,105,97,1,0,0,0,105,100,
+  	1,0,0,0,105,103,1,0,0,0,105,104,1,0,0,0,106,3,1,0,0,0,107,109,3,6,3,0,
+  	108,107,1,0,0,0,108,109,1,0,0,0,109,110,1,0,0,0,110,111,5,20,0,0,111,
+  	112,3,68,34,0,112,113,5,57,0,0,113,114,5,1,0,0,114,115,3,14,7,0,115,118,
+  	5,2,0,0,116,119,3,8,4,0,117,119,5,38,0,0,118,116,1,0,0,0,118,117,1,0,
+  	0,0,119,5,1,0,0,0,120,121,5,3,0,0,121,122,5,4,0,0,122,7,1,0,0,0,123,127,
+  	5,5,0,0,124,126,3,2,1,0,125,124,1,0,0,0,126,129,1,0,0,0,127,125,1,0,0,
+  	0,127,128,1,0,0,0,128,130,1,0,0,0,129,127,1,0,0,0,130,131,5,6,0,0,131,
+  	9,1,0,0,0,132,133,3,66,33,0,133,134,5,57,0,0,134,11,1,0,0,0,135,136,5,
+  	7,0,0,136,137,5,8,0,0,137,13,1,0,0,0,138,151,1,0,0,0,139,144,3,10,5,0,
+  	140,141,5,7,0,0,141,143,3,10,5,0,142,140,1,0,0,0,143,146,1,0,0,0,144,
+  	142,1,0,0,0,144,145,1,0,0,0,145,148,1,0,0,0,146,144,1,0,0,0,147,149,3,
+  	12,6,0,148,147,1,0,0,0,148,149,1,0,0,0,149,151,1,0,0,0,150,138,1,0,0,
+  	0,150,139,1,0,0,0,151,15,1,0,0,0,152,154,5,21,0,0,153,155,3,18,9,0,154,
+  	153,1,0,0,0,154,155,1,0,0,0,155,17,1,0,0,0,156,157,6,9,-1,0,157,158,5,
+  	34,0,0,158,163,3,18,9,10,159,160,5,47,0,0,160,163,3,18,9,7,161,163,3,
+  	60,30,0,162,156,1,0,0,0,162,159,1,0,0,0,162,161,1,0,0,0,163,190,1,0,0,
+  	0,164,165,10,9,0,0,165,166,7,0,0,0,166,189,3,18,9,10,167,168,10,8,0,0,
+  	168,169,7,1,0,0,169,189,3,18,9,9,170,171,10,6,0,0,171,172,7,2,0,0,172,
+  	189,3,18,9,7,173,174,10,5,0,0,174,175,7,3,0,0,175,189,3,18,9,6,176,177,
+  	10,4,0,0,177,178,5,32,0,0,178,189,3,18,9,5,179,180,10,3,0,0,180,181,5,
+  	33,0,0,181,189,3,18,9,4,182,183,10,2,0,0,183,184,5,9,0,0,184,185,3,18,
+  	9,0,185,186,5,10,0,0,186,187,3,18,9,3,187,189,1,0,0,0,188,164,1,0,0,0,
+  	188,167,1,0,0,0,188,170,1,0,0,0,188,173,1,0,0,0,188,176,1,0,0,0,188,179,
+  	1,0,0,0,188,182,1,0,0,0,189,192,1,0,0,0,190,188,1,0,0,0,190,191,1,0,0,
+  	0,191,19,1,0,0,0,192,190,1,0,0,0,193,197,3,2,1,0,194,195,7,4,0,0,195,
+  	197,5,38,0,0,196,193,1,0,0,0,196,194,1,0,0,0,197,21,1,0,0,0,198,199,5,
+  	28,0,0,199,200,5,1,0,0,200,201,3,30,15,0,201,202,5,2,0,0,202,206,5,5,
+  	0,0,203,205,3,20,10,0,204,203,1,0,0,0,205,208,1,0,0,0,206,204,1,0,0,0,
+  	206,207,1,0,0,0,207,209,1,0,0,0,208,206,1,0,0,0,209,213,5,6,0,0,210,212,
+  	3,24,12,0,211,210,1,0,0,0,212,215,1,0,0,0,213,211,1,0,0,0,213,214,1,0,
+  	0,0,214,217,1,0,0,0,215,213,1,0,0,0,216,218,3,26,13,0,217,216,1,0,0,0,
+  	217,218,1,0,0,0,218,23,1,0,0,0,219,220,3,28,14,0,220,221,5,1,0,0,221,
+  	222,3,30,15,0,222,223,5,2,0,0,223,227,5,5,0,0,224,226,3,20,10,0,225,224,
+  	1,0,0,0,226,229,1,0,0,0,227,225,1,0,0,0,227,228,1,0,0,0,228,230,1,0,0,
+  	0,229,227,1,0,0,0,230,231,5,6,0,0,231,25,1,0,0,0,232,233,5,29,0,0,233,
+  	237,5,5,0,0,234,236,3,20,10,0,235,234,1,0,0,0,236,239,1,0,0,0,237,235,
+  	1,0,0,0,237,238,1,0,0,0,238,240,1,0,0,0,239,237,1,0,0,0,240,241,5,6,0,
+  	0,241,27,1,0,0,0,242,246,5,30,0,0,243,244,5,29,0,0,244,246,5,28,0,0,245,
+  	242,1,0,0,0,245,243,1,0,0,0,246,29,1,0,0,0,247,249,3,38,19,0,248,247,
+  	1,0,0,0,248,249,1,0,0,0,249,251,1,0,0,0,250,252,5,38,0,0,251,250,1,0,
+  	0,0,251,252,1,0,0,0,252,254,1,0,0,0,253,255,3,18,9,0,254,253,1,0,0,0,
+  	254,255,1,0,0,0,255,31,1,0,0,0,256,257,5,25,0,0,257,258,5,1,0,0,258,259,
+  	3,34,17,0,259,260,5,2,0,0,260,264,5,5,0,0,261,263,3,20,10,0,262,261,1,
+  	0,0,0,263,266,1,0,0,0,264,262,1,0,0,0,264,265,1,0,0,0,265,267,1,0,0,0,
+  	266,264,1,0,0,0,267,268,5,6,0,0,268,33,1,0,0,0,269,282,3,18,9,0,270,272,
+  	3,38,19,0,271,270,1,0,0,0,271,272,1,0,0,0,272,273,1,0,0,0,273,275,5,38,
   	0,0,274,276,3,18,9,0,275,274,1,0,0,0,275,276,1,0,0,0,276,277,1,0,0,0,
   	277,279,5,38,0,0,278,280,3,76,38,0,279,278,1,0,0,0,279,280,1,0,0,0,280,
   	282,1,0,0,0,281,269,1,0,0,0,281,271,1,0,0,0,282,35,1,0,0,0,283,291,3,
@@ -198,52 +198,53 @@ void donglangParserInitialize() {
   	306,311,3,18,9,0,307,308,5,7,0,0,308,310,3,18,9,0,309,307,1,0,0,0,310,
   	313,1,0,0,0,311,309,1,0,0,0,311,312,1,0,0,0,312,315,1,0,0,0,313,311,1,
   	0,0,0,314,305,1,0,0,0,314,306,1,0,0,0,315,45,1,0,0,0,316,318,5,42,0,0,
-  	317,316,1,0,0,0,317,318,1,0,0,0,318,319,1,0,0,0,319,320,5,58,0,0,320,
-  	47,1,0,0,0,321,322,5,64,0,0,322,49,1,0,0,0,323,324,7,5,0,0,324,51,1,0,
-  	0,0,325,329,3,46,23,0,326,329,3,50,25,0,327,329,3,48,24,0,328,325,1,0,
-  	0,0,328,326,1,0,0,0,328,327,1,0,0,0,329,53,1,0,0,0,330,331,5,11,0,0,331,
-  	332,3,18,9,0,332,333,5,12,0,0,333,55,1,0,0,0,334,336,7,6,0,0,335,334,
-  	1,0,0,0,335,336,1,0,0,0,336,343,1,0,0,0,337,339,5,35,0,0,338,340,5,31,
-  	0,0,339,338,1,0,0,0,339,340,1,0,0,0,340,342,1,0,0,0,341,337,1,0,0,0,342,
-  	345,1,0,0,0,343,341,1,0,0,0,343,344,1,0,0,0,344,359,1,0,0,0,345,343,1,
-  	0,0,0,346,348,5,35,0,0,347,346,1,0,0,0,347,348,1,0,0,0,348,355,1,0,0,
-  	0,349,351,5,31,0,0,350,349,1,0,0,0,350,351,1,0,0,0,351,352,1,0,0,0,352,
-  	354,5,35,0,0,353,350,1,0,0,0,354,357,1,0,0,0,355,353,1,0,0,0,355,356,
-  	1,0,0,0,356,359,1,0,0,0,357,355,1,0,0,0,358,335,1,0,0,0,358,347,1,0,0,
-  	0,359,57,1,0,0,0,360,364,3,56,28,0,361,365,5,57,0,0,362,365,3,42,21,0,
-  	363,365,3,40,20,0,364,361,1,0,0,0,364,362,1,0,0,0,364,363,1,0,0,0,365,
-  	369,1,0,0,0,366,368,3,54,27,0,367,366,1,0,0,0,368,371,1,0,0,0,369,367,
-  	1,0,0,0,369,370,1,0,0,0,370,59,1,0,0,0,371,369,1,0,0,0,372,375,3,52,26,
-  	0,373,375,3,58,29,0,374,372,1,0,0,0,374,373,1,0,0,0,375,61,1,0,0,0,376,
-  	377,7,7,0,0,377,63,1,0,0,0,378,380,5,11,0,0,379,381,5,58,0,0,380,379,
-  	1,0,0,0,380,381,1,0,0,0,381,382,1,0,0,0,382,383,5,12,0,0,383,65,1,0,0,
-  	0,384,387,3,62,31,0,385,387,5,57,0,0,386,384,1,0,0,0,386,385,1,0,0,0,
-  	387,392,1,0,0,0,388,391,5,35,0,0,389,391,3,64,32,0,390,388,1,0,0,0,390,
-  	389,1,0,0,0,391,394,1,0,0,0,392,390,1,0,0,0,392,393,1,0,0,0,393,67,1,
-  	0,0,0,394,392,1,0,0,0,395,398,3,66,33,0,396,398,5,22,0,0,397,395,1,0,
-  	0,0,397,396,1,0,0,0,398,69,1,0,0,0,399,402,3,18,9,0,400,402,3,72,36,0,
-  	401,399,1,0,0,0,401,400,1,0,0,0,402,71,1,0,0,0,403,404,5,5,0,0,404,409,
-  	3,72,36,0,405,406,5,7,0,0,406,408,3,72,36,0,407,405,1,0,0,0,408,411,1,
-  	0,0,0,409,407,1,0,0,0,409,410,1,0,0,0,410,412,1,0,0,0,411,409,1,0,0,0,
-  	412,413,5,6,0,0,413,419,1,0,0,0,414,415,5,5,0,0,415,416,3,44,22,0,416,
-  	417,5,6,0,0,417,419,1,0,0,0,418,403,1,0,0,0,418,414,1,0,0,0,419,73,1,
-  	0,0,0,420,426,3,58,29,0,421,423,7,8,0,0,422,421,1,0,0,0,422,423,1,0,0,
-  	0,423,424,1,0,0,0,424,425,5,18,0,0,425,427,3,18,9,0,426,422,1,0,0,0,426,
-  	427,1,0,0,0,427,432,1,0,0,0,428,429,3,58,29,0,429,430,7,9,0,0,430,432,
-  	1,0,0,0,431,420,1,0,0,0,431,428,1,0,0,0,432,75,1,0,0,0,433,438,3,74,37,
-  	0,434,435,5,7,0,0,435,437,3,74,37,0,436,434,1,0,0,0,437,440,1,0,0,0,438,
-  	436,1,0,0,0,438,439,1,0,0,0,439,77,1,0,0,0,440,438,1,0,0,0,441,444,5,
-  	57,0,0,442,443,5,18,0,0,443,445,3,70,35,0,444,442,1,0,0,0,444,445,1,0,
-  	0,0,445,79,1,0,0,0,446,451,3,78,39,0,447,448,5,7,0,0,448,450,3,78,39,
-  	0,449,447,1,0,0,0,450,453,1,0,0,0,451,449,1,0,0,0,451,452,1,0,0,0,452,
-  	81,1,0,0,0,453,451,1,0,0,0,454,455,3,66,33,0,455,456,3,80,40,0,456,83,
-  	1,0,0,0,457,461,5,11,0,0,458,460,5,57,0,0,459,458,1,0,0,0,460,463,1,0,
-  	0,0,461,459,1,0,0,0,461,462,1,0,0,0,462,464,1,0,0,0,463,461,1,0,0,0,464,
-  	465,5,12,0,0,465,85,1,0,0,0,466,467,5,19,0,0,467,468,5,5,0,0,468,469,
-  	5,6,0,0,469,87,1,0,0,0,60,92,94,105,108,118,127,144,148,150,154,162,188,
-  	190,196,206,213,217,227,237,245,248,251,254,264,271,275,279,281,288,290,
-  	294,311,314,317,328,335,339,343,347,350,355,358,364,369,374,380,386,390,
-  	392,397,401,409,418,422,426,431,438,444,451,461
+  	317,316,1,0,0,0,317,318,1,0,0,0,318,319,1,0,0,0,319,322,5,58,0,0,320,
+  	322,5,39,0,0,321,317,1,0,0,0,321,320,1,0,0,0,322,47,1,0,0,0,323,324,5,
+  	64,0,0,324,49,1,0,0,0,325,326,7,5,0,0,326,51,1,0,0,0,327,331,3,46,23,
+  	0,328,331,3,50,25,0,329,331,3,48,24,0,330,327,1,0,0,0,330,328,1,0,0,0,
+  	330,329,1,0,0,0,331,53,1,0,0,0,332,333,5,11,0,0,333,334,3,18,9,0,334,
+  	335,5,12,0,0,335,55,1,0,0,0,336,338,7,6,0,0,337,336,1,0,0,0,337,338,1,
+  	0,0,0,338,345,1,0,0,0,339,341,5,35,0,0,340,342,5,31,0,0,341,340,1,0,0,
+  	0,341,342,1,0,0,0,342,344,1,0,0,0,343,339,1,0,0,0,344,347,1,0,0,0,345,
+  	343,1,0,0,0,345,346,1,0,0,0,346,361,1,0,0,0,347,345,1,0,0,0,348,350,5,
+  	35,0,0,349,348,1,0,0,0,349,350,1,0,0,0,350,357,1,0,0,0,351,353,5,31,0,
+  	0,352,351,1,0,0,0,352,353,1,0,0,0,353,354,1,0,0,0,354,356,5,35,0,0,355,
+  	352,1,0,0,0,356,359,1,0,0,0,357,355,1,0,0,0,357,358,1,0,0,0,358,361,1,
+  	0,0,0,359,357,1,0,0,0,360,337,1,0,0,0,360,349,1,0,0,0,361,57,1,0,0,0,
+  	362,366,3,56,28,0,363,367,5,57,0,0,364,367,3,42,21,0,365,367,3,40,20,
+  	0,366,363,1,0,0,0,366,364,1,0,0,0,366,365,1,0,0,0,367,371,1,0,0,0,368,
+  	370,3,54,27,0,369,368,1,0,0,0,370,373,1,0,0,0,371,369,1,0,0,0,371,372,
+  	1,0,0,0,372,59,1,0,0,0,373,371,1,0,0,0,374,377,3,52,26,0,375,377,3,58,
+  	29,0,376,374,1,0,0,0,376,375,1,0,0,0,377,61,1,0,0,0,378,379,7,7,0,0,379,
+  	63,1,0,0,0,380,382,5,11,0,0,381,383,5,58,0,0,382,381,1,0,0,0,382,383,
+  	1,0,0,0,383,384,1,0,0,0,384,385,5,12,0,0,385,65,1,0,0,0,386,389,3,62,
+  	31,0,387,389,5,57,0,0,388,386,1,0,0,0,388,387,1,0,0,0,389,394,1,0,0,0,
+  	390,393,5,35,0,0,391,393,3,64,32,0,392,390,1,0,0,0,392,391,1,0,0,0,393,
+  	396,1,0,0,0,394,392,1,0,0,0,394,395,1,0,0,0,395,67,1,0,0,0,396,394,1,
+  	0,0,0,397,400,3,66,33,0,398,400,5,22,0,0,399,397,1,0,0,0,399,398,1,0,
+  	0,0,400,69,1,0,0,0,401,404,3,18,9,0,402,404,3,72,36,0,403,401,1,0,0,0,
+  	403,402,1,0,0,0,404,71,1,0,0,0,405,406,5,5,0,0,406,411,3,72,36,0,407,
+  	408,5,7,0,0,408,410,3,72,36,0,409,407,1,0,0,0,410,413,1,0,0,0,411,409,
+  	1,0,0,0,411,412,1,0,0,0,412,414,1,0,0,0,413,411,1,0,0,0,414,415,5,6,0,
+  	0,415,421,1,0,0,0,416,417,5,5,0,0,417,418,3,44,22,0,418,419,5,6,0,0,419,
+  	421,1,0,0,0,420,405,1,0,0,0,420,416,1,0,0,0,421,73,1,0,0,0,422,428,3,
+  	58,29,0,423,425,7,8,0,0,424,423,1,0,0,0,424,425,1,0,0,0,425,426,1,0,0,
+  	0,426,427,5,18,0,0,427,429,3,18,9,0,428,424,1,0,0,0,428,429,1,0,0,0,429,
+  	434,1,0,0,0,430,431,3,58,29,0,431,432,7,9,0,0,432,434,1,0,0,0,433,422,
+  	1,0,0,0,433,430,1,0,0,0,434,75,1,0,0,0,435,440,3,74,37,0,436,437,5,7,
+  	0,0,437,439,3,74,37,0,438,436,1,0,0,0,439,442,1,0,0,0,440,438,1,0,0,0,
+  	440,441,1,0,0,0,441,77,1,0,0,0,442,440,1,0,0,0,443,446,5,57,0,0,444,445,
+  	5,18,0,0,445,447,3,70,35,0,446,444,1,0,0,0,446,447,1,0,0,0,447,79,1,0,
+  	0,0,448,453,3,78,39,0,449,450,5,7,0,0,450,452,3,78,39,0,451,449,1,0,0,
+  	0,452,455,1,0,0,0,453,451,1,0,0,0,453,454,1,0,0,0,454,81,1,0,0,0,455,
+  	453,1,0,0,0,456,457,3,66,33,0,457,458,3,80,40,0,458,83,1,0,0,0,459,463,
+  	5,11,0,0,460,462,5,57,0,0,461,460,1,0,0,0,462,465,1,0,0,0,463,461,1,0,
+  	0,0,463,464,1,0,0,0,464,466,1,0,0,0,465,463,1,0,0,0,466,467,5,12,0,0,
+  	467,85,1,0,0,0,468,469,5,19,0,0,469,470,5,5,0,0,470,471,5,6,0,0,471,87,
+  	1,0,0,0,61,92,94,105,108,118,127,144,148,150,154,162,188,190,196,206,
+  	213,217,227,237,245,248,251,254,264,271,275,279,281,288,290,294,311,314,
+  	317,321,330,337,341,345,349,352,357,360,366,371,376,382,388,392,394,399,
+  	403,411,420,424,428,433,440,446,453,463
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 
@@ -1088,7 +1089,7 @@ DongLangParser::Ret_expressionContext* DongLangParser::ret_expression() {
 
     _la = _input->LA(1);
     if (((((_la - 1) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 1)) & -9007126660117430271) != 0)) {
+      ((1ULL << (_la - 1)) & -9007126385239523327) != 0)) {
       setState(153);
       expression(0);
     }
@@ -1264,6 +1265,7 @@ DongLangParser::ExpressionContext* DongLangParser::expression(int precedence) {
       case DongLangParser::FALSE:
       case DongLangParser::POINTADDR:
       case DongLangParser::POINT:
+      case DongLangParser::NIL:
       case DongLangParser::SUB:
       case DongLangParser::IDENTIFIER:
       case DongLangParser::NUMBER:
@@ -2031,7 +2033,7 @@ DongLangParser::If_condContext* DongLangParser::if_cond() {
 
     _la = _input->LA(1);
     if (((((_la - 1) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 1)) & -9007126660117430271) != 0)) {
+      ((1ULL << (_la - 1)) & -9007126385239523327) != 0)) {
       setState(253);
       expression(0);
     }
@@ -2233,7 +2235,7 @@ DongLangParser::For_condContext* DongLangParser::for_cond() {
 
       _la = _input->LA(1);
       if (((((_la - 1) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 1)) & -9007126660117430271) != 0)) {
+        ((1ULL << (_la - 1)) & -9007126385239523327) != 0)) {
         setState(274);
         expression(0);
       }
@@ -2675,6 +2677,7 @@ DongLangParser::Expr_listContext* DongLangParser::expr_list() {
       case DongLangParser::POINTADDR:
       case DongLangParser::COND_NOT:
       case DongLangParser::POINT:
+      case DongLangParser::NIL:
       case DongLangParser::SUB:
       case DongLangParser::NOT:
       case DongLangParser::IDENTIFIER:
@@ -2726,6 +2729,10 @@ tree::TerminalNode* DongLangParser::Num_primaryContext::SUB() {
   return getToken(DongLangParser::SUB, 0);
 }
 
+tree::TerminalNode* DongLangParser::Num_primaryContext::NIL() {
+  return getToken(DongLangParser::NIL, 0);
+}
+
 
 size_t DongLangParser::Num_primaryContext::getRuleIndex() const {
   return DongLangParser::RuleNum_primary;
@@ -2764,17 +2771,35 @@ DongLangParser::Num_primaryContext* DongLangParser::num_primary() {
     exitRule();
   });
   try {
-    enterOuterAlt(_localctx, 1);
-    setState(317);
+    setState(321);
     _errHandler->sync(this);
+    switch (_input->LA(1)) {
+      case DongLangParser::SUB:
+      case DongLangParser::NUMBER: {
+        enterOuterAlt(_localctx, 1);
+        setState(317);
+        _errHandler->sync(this);
 
-    _la = _input->LA(1);
-    if (_la == DongLangParser::SUB) {
-      setState(316);
-      match(DongLangParser::SUB);
+        _la = _input->LA(1);
+        if (_la == DongLangParser::SUB) {
+          setState(316);
+          match(DongLangParser::SUB);
+        }
+        setState(319);
+        match(DongLangParser::NUMBER);
+        break;
+      }
+
+      case DongLangParser::NIL: {
+        enterOuterAlt(_localctx, 2);
+        setState(320);
+        match(DongLangParser::NIL);
+        break;
+      }
+
+    default:
+      throw NoViableAltException(this);
     }
-    setState(319);
-    match(DongLangParser::NUMBER);
    
   }
   catch (RecognitionException &e) {
@@ -2834,7 +2859,7 @@ DongLangParser::Str_primaryContext* DongLangParser::str_primary() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(321);
+    setState(323);
     match(DongLangParser::STRING_LITERAL);
    
   }
@@ -2900,7 +2925,7 @@ DongLangParser::Bool_primaryContext* DongLangParser::bool_primary() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(323);
+    setState(325);
     _la = _input->LA(1);
     if (!(_la == DongLangParser::TRUE
 
@@ -2977,13 +3002,14 @@ DongLangParser::Value_primaryContext* DongLangParser::value_primary() {
     exitRule();
   });
   try {
-    setState(328);
+    setState(330);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
+      case DongLangParser::NIL:
       case DongLangParser::SUB:
       case DongLangParser::NUMBER: {
         enterOuterAlt(_localctx, 1);
-        setState(325);
+        setState(327);
         num_primary();
         break;
       }
@@ -2991,14 +3017,14 @@ DongLangParser::Value_primaryContext* DongLangParser::value_primary() {
       case DongLangParser::TRUE:
       case DongLangParser::FALSE: {
         enterOuterAlt(_localctx, 2);
-        setState(326);
+        setState(328);
         bool_primary();
         break;
       }
 
       case DongLangParser::STRING_LITERAL: {
         enterOuterAlt(_localctx, 3);
-        setState(327);
+        setState(329);
         str_primary();
         break;
       }
@@ -3065,12 +3091,12 @@ DongLangParser::Array_indexContext* DongLangParser::array_index() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(330);
+    setState(332);
     match(DongLangParser::T__10);
 
-    setState(331);
+    setState(333);
     expression(0);
-    setState(332);
+    setState(334);
     match(DongLangParser::T__11);
    
   }
@@ -3143,17 +3169,17 @@ DongLangParser::Id_primary_p_addrsContext* DongLangParser::id_primary_p_addrs() 
     exitRule();
   });
   try {
-    setState(358);
+    setState(360);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 41, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 42, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(335);
+      setState(337);
       _errHandler->sync(this);
 
-      switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 35, _ctx)) {
+      switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 36, _ctx)) {
       case 1: {
-        setState(334);
+        setState(336);
         _la = _input->LA(1);
         if (!(_la == DongLangParser::POINTADDR
 
@@ -3170,21 +3196,21 @@ DongLangParser::Id_primary_p_addrsContext* DongLangParser::id_primary_p_addrs() 
       default:
         break;
       }
-      setState(343);
+      setState(345);
       _errHandler->sync(this);
       _la = _input->LA(1);
       while (_la == DongLangParser::POINT) {
-        setState(337);
-        match(DongLangParser::POINT);
         setState(339);
+        match(DongLangParser::POINT);
+        setState(341);
         _errHandler->sync(this);
 
         _la = _input->LA(1);
         if (_la == DongLangParser::POINTADDR) {
-          setState(338);
+          setState(340);
           match(DongLangParser::POINTADDR);
         }
-        setState(345);
+        setState(347);
         _errHandler->sync(this);
         _la = _input->LA(1);
       }
@@ -3193,12 +3219,12 @@ DongLangParser::Id_primary_p_addrsContext* DongLangParser::id_primary_p_addrs() 
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(347);
+      setState(349);
       _errHandler->sync(this);
 
-      switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 38, _ctx)) {
+      switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 39, _ctx)) {
       case 1: {
-        setState(346);
+        setState(348);
         match(DongLangParser::POINT);
         break;
       }
@@ -3206,23 +3232,23 @@ DongLangParser::Id_primary_p_addrsContext* DongLangParser::id_primary_p_addrs() 
       default:
         break;
       }
-      setState(355);
+      setState(357);
       _errHandler->sync(this);
       _la = _input->LA(1);
       while (_la == DongLangParser::POINTADDR
 
       || _la == DongLangParser::POINT) {
-        setState(350);
+        setState(352);
         _errHandler->sync(this);
 
         _la = _input->LA(1);
         if (_la == DongLangParser::POINTADDR) {
-          setState(349);
+          setState(351);
           match(DongLangParser::POINTADDR);
         }
-        setState(352);
+        setState(354);
         match(DongLangParser::POINT);
-        setState(357);
+        setState(359);
         _errHandler->sync(this);
         _la = _input->LA(1);
       }
@@ -3312,25 +3338,25 @@ DongLangParser::Id_primaryContext* DongLangParser::id_primary() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(360);
+    setState(362);
     id_primary_p_addrs();
-    setState(364);
+    setState(366);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 42, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 43, _ctx)) {
     case 1: {
-      setState(361);
+      setState(363);
       match(DongLangParser::IDENTIFIER);
       break;
     }
 
     case 2: {
-      setState(362);
+      setState(364);
       call_expr();
       break;
     }
 
     case 3: {
-      setState(363);
+      setState(365);
       paran_expr();
       break;
     }
@@ -3338,17 +3364,17 @@ DongLangParser::Id_primaryContext* DongLangParser::id_primary() {
     default:
       break;
     }
-    setState(369);
+    setState(371);
     _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 43, _ctx);
+    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 44, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
-        setState(366);
+        setState(368);
         array_index(); 
       }
-      setState(371);
+      setState(373);
       _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 43, _ctx);
+      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 44, _ctx);
     }
    
   }
@@ -3412,16 +3438,17 @@ DongLangParser::PrimaryContext* DongLangParser::primary() {
     exitRule();
   });
   try {
-    setState(374);
+    setState(376);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case DongLangParser::TRUE:
       case DongLangParser::FALSE:
+      case DongLangParser::NIL:
       case DongLangParser::SUB:
       case DongLangParser::NUMBER:
       case DongLangParser::STRING_LITERAL: {
         enterOuterAlt(_localctx, 1);
-        setState(372);
+        setState(374);
         value_primary();
         break;
       }
@@ -3431,7 +3458,7 @@ DongLangParser::PrimaryContext* DongLangParser::primary() {
       case DongLangParser::POINT:
       case DongLangParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 2);
-        setState(373);
+        setState(375);
         id_primary();
         break;
       }
@@ -3495,7 +3522,7 @@ DongLangParser::Primary_typeContext* DongLangParser::primary_type() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(376);
+    setState(378);
     _la = _input->LA(1);
     if (!((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 253952) != 0))) {
@@ -3565,17 +3592,17 @@ DongLangParser::Array_typeContext* DongLangParser::array_type() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(378);
-    match(DongLangParser::T__10);
     setState(380);
+    match(DongLangParser::T__10);
+    setState(382);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == DongLangParser::NUMBER) {
-      setState(379);
+      setState(381);
       match(DongLangParser::NUMBER);
     }
-    setState(382);
+    setState(384);
     match(DongLangParser::T__11);
    
   }
@@ -3657,7 +3684,7 @@ DongLangParser::Type_typeContext* DongLangParser::type_type() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(386);
+    setState(388);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case DongLangParser::T__12:
@@ -3665,13 +3692,13 @@ DongLangParser::Type_typeContext* DongLangParser::type_type() {
       case DongLangParser::T__14:
       case DongLangParser::T__15:
       case DongLangParser::T__16: {
-        setState(384);
+        setState(386);
         primary_type();
         break;
       }
 
       case DongLangParser::IDENTIFIER: {
-        setState(385);
+        setState(387);
         match(DongLangParser::IDENTIFIER);
         break;
       }
@@ -3679,23 +3706,23 @@ DongLangParser::Type_typeContext* DongLangParser::type_type() {
     default:
       throw NoViableAltException(this);
     }
-    setState(392);
+    setState(394);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == DongLangParser::T__10
 
     || _la == DongLangParser::POINT) {
-      setState(390);
+      setState(392);
       _errHandler->sync(this);
       switch (_input->LA(1)) {
         case DongLangParser::POINT: {
-          setState(388);
+          setState(390);
           match(DongLangParser::POINT);
           break;
         }
 
         case DongLangParser::T__10: {
-          setState(389);
+          setState(391);
           array_type();
           break;
         }
@@ -3703,7 +3730,7 @@ DongLangParser::Type_typeContext* DongLangParser::type_type() {
       default:
         throw NoViableAltException(this);
       }
-      setState(394);
+      setState(396);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -3769,7 +3796,7 @@ DongLangParser::Type_type_voidContext* DongLangParser::type_type_void() {
     exitRule();
   });
   try {
-    setState(397);
+    setState(399);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case DongLangParser::T__12:
@@ -3779,14 +3806,14 @@ DongLangParser::Type_type_voidContext* DongLangParser::type_type_void() {
       case DongLangParser::T__16:
       case DongLangParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 1);
-        setState(395);
+        setState(397);
         type_type();
         break;
       }
 
       case DongLangParser::VOID: {
         enterOuterAlt(_localctx, 2);
-        setState(396);
+        setState(398);
         match(DongLangParser::VOID);
         break;
       }
@@ -3856,7 +3883,7 @@ DongLangParser::Var_valueContext* DongLangParser::var_value() {
     exitRule();
   });
   try {
-    setState(401);
+    setState(403);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case DongLangParser::T__0:
@@ -3865,20 +3892,21 @@ DongLangParser::Var_valueContext* DongLangParser::var_value() {
       case DongLangParser::POINTADDR:
       case DongLangParser::COND_NOT:
       case DongLangParser::POINT:
+      case DongLangParser::NIL:
       case DongLangParser::SUB:
       case DongLangParser::NOT:
       case DongLangParser::IDENTIFIER:
       case DongLangParser::NUMBER:
       case DongLangParser::STRING_LITERAL: {
         enterOuterAlt(_localctx, 1);
-        setState(399);
+        setState(401);
         expression(0);
         break;
       }
 
       case DongLangParser::T__4: {
         enterOuterAlt(_localctx, 2);
-        setState(400);
+        setState(402);
         var_arr_value();
         break;
       }
@@ -3953,39 +3981,39 @@ DongLangParser::Var_arr_valueContext* DongLangParser::var_arr_value() {
     exitRule();
   });
   try {
-    setState(418);
+    setState(420);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 52, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 53, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(403);
+      setState(405);
       match(DongLangParser::T__4);
-      setState(404);
+      setState(406);
       var_arr_value();
-      setState(409);
+      setState(411);
       _errHandler->sync(this);
       _la = _input->LA(1);
       while (_la == DongLangParser::T__6) {
-        setState(405);
+        setState(407);
         match(DongLangParser::T__6);
-        setState(406);
+        setState(408);
         var_arr_value();
-        setState(411);
+        setState(413);
         _errHandler->sync(this);
         _la = _input->LA(1);
       }
-      setState(412);
+      setState(414);
       match(DongLangParser::T__5);
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(414);
-      match(DongLangParser::T__4);
-      setState(415);
-      expr_list();
       setState(416);
+      match(DongLangParser::T__4);
+      setState(417);
+      expr_list();
+      setState(418);
       match(DongLangParser::T__5);
       break;
     }
@@ -4092,25 +4120,25 @@ DongLangParser::AssignContext* DongLangParser::assign() {
     exitRule();
   });
   try {
-    setState(431);
+    setState(433);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 55, _ctx)) {
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 56, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(420);
+      setState(422);
       id_primary();
-      setState(426);
+      setState(428);
       _errHandler->sync(this);
 
-      switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 54, _ctx)) {
+      switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 55, _ctx)) {
       case 1: {
-        setState(422);
+        setState(424);
         _errHandler->sync(this);
 
         _la = _input->LA(1);
         if ((((_la & ~ 0x3fULL) == 0) &&
           ((1ULL << _la) & 129778879299584) != 0)) {
-          setState(421);
+          setState(423);
           antlrcpp::downCast<AssignContext *>(_localctx)->opr = _input->LT(1);
           _la = _input->LA(1);
           if (!((((_la & ~ 0x3fULL) == 0) &&
@@ -4122,9 +4150,9 @@ DongLangParser::AssignContext* DongLangParser::assign() {
             consume();
           }
         }
-        setState(424);
+        setState(426);
         match(DongLangParser::T__17);
-        setState(425);
+        setState(427);
         expression(0);
         break;
       }
@@ -4137,9 +4165,9 @@ DongLangParser::AssignContext* DongLangParser::assign() {
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(428);
+      setState(430);
       id_primary();
-      setState(429);
+      setState(431);
       _la = _input->LA(1);
       if (!(_la == DongLangParser::INCREMENT
 
@@ -4220,17 +4248,17 @@ DongLangParser::AssignsContext* DongLangParser::assigns() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(433);
+    setState(435);
     assign();
-    setState(438);
+    setState(440);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == DongLangParser::T__6) {
-      setState(434);
+      setState(436);
       match(DongLangParser::T__6);
-      setState(435);
+      setState(437);
       assign();
-      setState(440);
+      setState(442);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -4298,16 +4326,16 @@ DongLangParser::VarContext* DongLangParser::var() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(441);
+    setState(443);
     match(DongLangParser::IDENTIFIER);
-    setState(444);
+    setState(446);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == DongLangParser::T__17) {
-      setState(442);
+      setState(444);
       match(DongLangParser::T__17);
-      setState(443);
+      setState(445);
       var_value();
     }
    
@@ -4374,17 +4402,17 @@ DongLangParser::VarsContext* DongLangParser::vars() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(446);
+    setState(448);
     var();
-    setState(451);
+    setState(453);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == DongLangParser::T__6) {
-      setState(447);
+      setState(449);
       match(DongLangParser::T__6);
-      setState(448);
+      setState(450);
       var();
-      setState(453);
+      setState(455);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -4451,9 +4479,9 @@ DongLangParser::Var_declaresContext* DongLangParser::var_declares() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(454);
+    setState(456);
     type_type();
-    setState(455);
+    setState(457);
     vars();
    
   }
@@ -4519,19 +4547,19 @@ DongLangParser::TemplateContext* DongLangParser::template_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(457);
+    setState(459);
     match(DongLangParser::T__10);
-    setState(461);
+    setState(463);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == DongLangParser::IDENTIFIER) {
-      setState(458);
+      setState(460);
       match(DongLangParser::IDENTIFIER);
-      setState(463);
+      setState(465);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(464);
+    setState(466);
     match(DongLangParser::T__11);
    
   }
@@ -4588,11 +4616,11 @@ DongLangParser::Class_defContext* DongLangParser::class_def() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(466);
-    match(DongLangParser::T__18);
-    setState(467);
-    match(DongLangParser::T__4);
     setState(468);
+    match(DongLangParser::T__18);
+    setState(469);
+    match(DongLangParser::T__4);
+    setState(470);
     match(DongLangParser::T__5);
    
   }

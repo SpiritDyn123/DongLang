@@ -91,6 +91,11 @@ FuncDLSymbol* DongLangLLVMExprTypeListener::CallFuncDLSymbol(antlr4::ParserRuleC
 string DongLangLLVMExprTypeListener::getExprOpr(DongLangParser::ExpressionContext* exprCtx) {
 	string opr = "=";
 	antlr4::ParserRuleContext* lastCtx = exprCtx;
+	bool isArr = mDefaultExprTypes[exprCtx]->isArray();
+	if (!isArr) {
+		return opr;
+	}
+
 	for (auto pCtx = exprCtx->parent; pCtx; lastCtx = (antlr4::ParserRuleContext*)pCtx, pCtx = pCtx->parent) {
 		if (dynamic_cast<DongLangParser::Paran_exprContext*>(pCtx) || // paran
 			dynamic_cast<DongLangParser::Expr_listContext*>(pCtx) ||
@@ -121,7 +126,7 @@ string DongLangLLVMExprTypeListener::getExprOpr(DongLangParser::ExpressionContex
 			if (ptrAddrCtx->POINT().size() == 0 && ptrAddrCtx->POINTADDR().size() == 0 && pIdPrimayCtx->array_index().size() == 0) {
 				continue;
 			}
-
+			opr = "ptr_arr";
 		}
 		else if (dynamic_cast<DongLangParser::Ret_expressionContext*>(pCtx)) {
 			opr = "ret";
@@ -169,8 +174,7 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 
 		if (auto tCtx = dynamic_cast<DongLangParser::Var_arr_valueContext*>(pCtx)) {
 			auto cTypeInfo = COPY_SP_TYPE_INFO(mVarArrValueTypes[tCtx]); //传递给child节点
-			int lastIndex = (int)cTypeInfo->pas.size() - 1;
-			if (lastIndex <= 0 || cTypeInfo->pas[lastIndex].pointOrArr) {
+			if (!cTypeInfo->isArray()) {
 				DongLangBaseAST::llvmCtx->emitError("array value deepth: " + cTypeInfo->String() + " ,err:" + ctx->getText());
 				return;
 			}
@@ -186,13 +190,11 @@ void DongLangLLVMExprTypeListener::enterVar_arr_value(DongLangParser::Var_arr_va
 
 	if (ctx->expr_list()) {
 		auto cTypeInfo = COPY_SP_TYPE_INFO(mVarArrValueTypes[ctx]); //传递给child节点
-		int lastIndex = (int)cTypeInfo->pas.size() - 1;
-		if (lastIndex < 0 || cTypeInfo->pas[lastIndex].pointOrArr) {
+		if (!cTypeInfo->DelPointArrayItem(PointOrArray(false)) || cTypeInfo->isArray()) {
 			DongLangBaseAST::llvmCtx->emitError("array value element expr: " + cTypeInfo->String() + " ,err:" + ctx->getText());
 			return;
 		}
 
-		cTypeInfo->DelPointArrayItem(PointOrArray(false));
 		for (auto expr : ctx->expr_list()->expression()) {
 			mExprTypes[expr] = cTypeInfo; //最底层传递给expression
 		}
@@ -419,8 +421,8 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 
 				if (transTypeInfo->isPoint() || transTypeInfo->isArray()) { //指针 == !=
 					if (ctx->CMP_EQ() || ctx->CMP_NE() || ctx->threeOpr) {
-						if (cmpExprCtx->primary() && cmpExprCtx->primary()->value_primary() && cmpExprCtx->getText() != "0") {
-							lC.emitError(ctx->getText() + +" opr='" + expOpr + "' point must use int NULL(0) value");
+						if (cmpExprCtx->primary() && cmpExprCtx->primary()->value_primary() && (cmpExprCtx->getText() != "0" && cmpExprCtx->getText() != "NIL")) {
+							lC.emitError(ctx->getText() + +" opr='" + expOpr + "' point must use int NIL(0) value");
 							return;
 						}
 					}
@@ -474,8 +476,8 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 		endl;*/
 
 	if (DongLangTypeInfo::typeCheckTrans(typeInfo, defaultTypeInfo, opr, true, ctx->getText())) {
-		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && ctx->getText() != "0") {
-			lC.emitError(ctx->parent->getText() + " opr='" + opr  + "' point must use int NULL(0) value");
+		if (typeInfo->isPoint() && defaultTypeInfo->String() == "int" && (ctx->getText() != "0" && ctx->getText() != "NIL")) {
+			lC.emitError(ctx->parent->getText() + " opr='" + opr  + "' point must use int NIL(0) value:" + ctx->getText());
 		}
 	}
 }

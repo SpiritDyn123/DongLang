@@ -3,6 +3,14 @@ project(DongLang VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 17)  
 
+include(ProcessorCount)
+ProcessorCount(PROCESSOR_COUNT)
+message(STATUS "processor_cnt:${PROCESSOR_COUNT}")
+
+set(CMAKE_BUILD_PARALLEL_LEVEL ${PROCESSOR_COUNT})
+
+#可能不起作用
+
 set(CMAKE_CXX_COMPILER clang++)
 
 # 调试信息

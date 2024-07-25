@@ -95,7 +95,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 
 	auto tmpTypeInfo = *idTypeInfo;
 
-	//array
+	//array opr
 	for (auto arrIndexAst : arrAsts) {
 		auto arrIndexV = arrIndexAst->genCode();
 		auto arrLLType = tmpTypeInfo.LlvmType(&lB);
@@ -111,21 +111,10 @@ Value* DongLangIdPrimaryAST::genCode() {
 		}
 	}
 
-	//point
-	int pointCnt = 0;
-	for (int i = 0; i < defaultTypeInfo->pas.size(); i++) {
-		if (defaultTypeInfo->pas[i].pointOrArr) {
-			pointCnt++;
-		}
-	}
-
-	for (int i = 0; i < tmpTypeInfo.pas.size(); i++) {
-		if (tmpTypeInfo.pas[i].pointOrArr) {
-			pointCnt--;
-		}
-	}
-
 	bool bLeftValue = !getLeftValue();
+
+	//point opr
+	int pointCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
 	if (pointCnt != 0) {
 		if (pointCnt > 0) { //取地址只能一次
 			if (!bSymbol) {
@@ -135,7 +124,12 @@ Value* DongLangIdPrimaryAST::genCode() {
 		else {
 			if (bSymbol) {
 				auto llType = tmpTypeInfo.LlvmType(&lB);
-				idValue = lB.CreateLoad(llType, idValue);
+				if (tmpTypeInfo.isPoint()) {
+					idValue = lB.CreateLoad(llType, idValue);
+				}
+				else {
+					idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
+				}
 			}
 
 			//是否是左值
@@ -143,9 +137,16 @@ Value* DongLangIdPrimaryAST::genCode() {
 				pointCnt++;
 			}
 			for (; pointCnt != 0; pointCnt++) {//*多次
-				tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				auto llType = tmpTypeInfo.LlvmType(&lB);
-				idValue = lB.CreateLoad(llType, idValue);
+				if (tmpTypeInfo.isPoint()) {
+					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+					auto llType = tmpTypeInfo.LlvmType(&lB);
+					idValue = lB.CreateLoad(llType, idValue);
+				}
+				else {
+					auto llType = tmpTypeInfo.LlvmType(&lB);
+					idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0)});
+					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+				}
 			}
 		}
 	}

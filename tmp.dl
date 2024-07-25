@@ -1,22 +1,21 @@
 // eg: donglang
 
-
+type INT int;
+type INT2 INT;
 func int* getArr(int *p, int[] arr, int[][2] aarr1) {
-	int[2] rArr, rArr1;
-	return rArr ? p : rArr;
+	return 0;
 }
 
-func int main(){
-	int a, b;
-	int* pa, pb;
+func int main(){	
+	INT2 a, b;
+	int* pa, pb = NIL;
 	int** ppa, ppb;
 	int[5] arr1;
 	int[2][2] arr2;
 
-	bool ba = arr1;
-	//if(*(arr1)){}
-	pa = getArr( pa, arr1, arr2);
-	getArr(arr1, pa, arr2);
-	printf("hello world a:%d\n", arr1[3], arr2[1][1]);
+
+	//bool ba = arr1;
+	a = *arr1;
+	a = arr1[1];
 	return 0;
 }

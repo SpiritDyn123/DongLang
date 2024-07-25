@@ -126,6 +126,7 @@ expr_list:
 
 num_primary:
     ('-')? NUMBER
+    | NIL
     ;
 
 str_primary: STRING_LITERAL;

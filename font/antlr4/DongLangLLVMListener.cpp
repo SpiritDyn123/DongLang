@@ -47,18 +47,19 @@ void DongLangLLVMListener::enterProg(DongLangParser::ProgContext* ctx) {
 }
 
 void DongLangLLVMListener::exitProg(DongLangParser::ProgContext* ctx) {
-	vector<DongLangBaseAST*> pgLines;
-	pgLines.clear();
+	vector<DongLangBaseAST*> lineAsts;
+	lineAsts.clear();
 	for (auto child : ctx->children) {
 		if (dynamic_cast<DongLangParser::Global_var_expressionContext*>(child) ||
 			dynamic_cast<DongLangParser::Function_defContext*>(child)) {
-			pgLines.push_back(mAsts[dynamic_cast<antlr4::ParserRuleContext*>(child)]);
+			auto ast = mAsts[dynamic_cast<antlr4::ParserRuleContext*>(child)];
+			if(ast) lineAsts.push_back(ast);
 
 			//cout << "exitProg:" << child->getText() << endl;
 		}
 	}
 
-	rootAST = new DongLangProgAST(pgLines);
+	rootAST = new DongLangProgAST(lineAsts);
 }
 
 void DongLangLLVMListener::exitFunction_def(DongLangParser::Function_defContext* ctx) {
@@ -199,7 +200,7 @@ void DongLangLLVMListener::exitExpression(DongLangParser::ExpressionContext* ctx
 void DongLangLLVMListener::enterGlobal_var_expression(DongLangParser::Global_var_expressionContext* ctx)  { }
 void DongLangLLVMListener::exitGlobal_var_expression(DongLangParser::Global_var_expressionContext* ctx)  {
 	antlr4::ParserRuleContext* child = ctx->var_declares();
-	mAsts[ctx] = mAsts[child];
+	if(child) mAsts[ctx] = mAsts[child];
 }
 
 void DongLangLLVMListener::enterIf_expression(DongLangParser::If_expressionContext* ctx) {
@@ -318,6 +319,7 @@ void DongLangLLVMListener::exitValue_primary(DongLangParser::Value_primaryContex
 	auto exprCtx = (DongLangParser::ExpressionContext*)ctx->parent->parent;
 	antlr4::ParserRuleContext* child = ctx->num_primary();
 	if (child) {
+		string numStr = ctx->num_primary()->NIL() ? "0" : child->getText();
 		mAsts[ctx] = new DongLangNumPrimaryAST(child->getText(), etListener->ExprType(exprCtx, true));
 		return;
 	}

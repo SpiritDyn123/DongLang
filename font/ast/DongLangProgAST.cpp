@@ -3,8 +3,8 @@
 #include "llvm/IR/Type.h"
 
 
-DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& pgLines) {
-	this->pgLines = pgLines;
+DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& lineAsts) {
+	this->lineAsts = lineAsts;
 
 	//global_main_init
 	auto rootScope = CurScope(NULL);
@@ -12,12 +12,12 @@ DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& pgLines) {
 		{new DongLangTypeInfo("void")}, NULL, true, false));
 	
 	auto mainInitFn = new DongLangFunctionDefAST(NULL, "global_main_init", {}, false, true, {});
-	this->pgLines.insert(this->pgLines.begin(), mainInitFn);
+	this->lineAsts.insert(this->lineAsts.begin(), mainInitFn);
 
 	doSysExternFuncs();
 
 	bool hasMain = false;
-	for (auto line : pgLines) {
+	for (auto line : lineAsts) {
 		auto fn = dynamic_cast<DongLangFunctionDefAST*>(line);
 		if (!fn) {
 			continue;
@@ -32,7 +32,7 @@ DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& pgLines) {
 	if (!hasMain) {
 		rootScope->AddSymbol("main", func_main_id, FuncDLSymbol::Create("main",
 			{ new DongLangTypeInfo("void") }, NULL, true, false));
-		this->pgLines.insert(this->pgLines.end(), new DongLangFunctionDefAST(NULL, "main", {}, false, true, {}));
+		this->lineAsts.insert(this->lineAsts.end(), new DongLangFunctionDefAST(NULL, "main", {}, false, true, {}));
 	}
 }
 
@@ -43,7 +43,7 @@ Value* DongLangProgAST::genCode() {
 	//初始化一个init函数
 
 #if 1
-	for (auto line : pgLines) {
+	for (auto line : lineAsts) {
 		Value* v = line->genCode();
 	}
 

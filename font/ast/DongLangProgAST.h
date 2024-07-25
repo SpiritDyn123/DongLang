@@ -21,12 +21,12 @@ using namespace llvm;
 
 class DongLangProgAST : public DongLangBaseAST {
 public:
-	DongLangProgAST(vector<DongLangBaseAST*>& pgLines);
+	DongLangProgAST(vector<DongLangBaseAST*>& lineAsts);
 	virtual Value* genCode() override;
 private:
 	void doSysExternFuncs();
 private:
-	vector<DongLangBaseAST*> pgLines;
+	vector<DongLangBaseAST*> lineAsts;
 
 private:
 	void testStudy();

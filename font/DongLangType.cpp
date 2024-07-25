@@ -146,7 +146,7 @@ PointOrArray* DongLangTypeInfo::getArrayPA(uint offset) {
 			break;
 		}
 
-		tmpArrPas.push_back(&pa);
+		tmpArrPas.insert(tmpArrPas.begin(), & pa);
 	}
 
 	for (auto it = tmpArrPas.begin(); it != tmpArrPas.end(); ++it, --offset) {
@@ -162,6 +162,7 @@ bool DongLangTypeInfo::checkArrayOpr(string& opr) {
 	return opr == "call"		||
 		   opr == "ret"			||
 		   opr == "three_op"	||
+		   opr == "ptr_arr"	||
 		   opr == "cond";
 }
 
@@ -175,7 +176,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 	auto t2S = t2->String();
 	if (t1S == t2S) {
 		if (t1->isArray()) {
-			if (checkArrayOpr(opr)) {//函数传参会自动转换为指针
+			if (checkArrayOpr(opr)) {
 				return transT;
 			}
 		}
@@ -197,7 +198,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 				opr == "-")) {
 				return transT;
 			}
-			else if (t2->isArray()) { // 数组和指针
+			else if (t2->isArray()) { // 指针和数组
 				auto tmpT2 = *t2; // copy to use
 				tmpT2.pas[tmpT2.pas.size() - 1].pointOrArr = true;
 				if (t1S == tmpT2.String()) {
@@ -214,7 +215,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 						return t2;
 					}
 				}
-				else if (t2->isArray()) { // 数组和数组 call时候
+				else if (t2->isArray()) { // 数组和数组
 					auto tmpT1 = *t1; // copy to use
 					auto tmpT2 = *t2; // copy to use
 					tmpT1.DelPointArrayItem(PointOrArray(false));
