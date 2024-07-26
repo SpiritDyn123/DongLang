@@ -295,8 +295,7 @@ void DongLangLLVMListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) 
 	auto funcSymbol = etListener->CallFuncDLSymbol(ctx);
 
 	bool isGlobal = false;
-	auto exprCtx = dynamic_cast<DongLangParser::ExpressionContext*>(ctx->parent->parent->parent);//call_expr->primary->expression
-	for (auto pCtx = (antlr4::tree::ParseTree*)exprCtx; pCtx != NULL; pCtx = pCtx->parent) {
+	for (auto pCtx = ctx->parent; pCtx != NULL; pCtx = pCtx->parent) {
 		if (dynamic_cast<DongLangParser::Global_var_expressionContext*>(pCtx)) { //全局变量
 			isGlobal = true;
 			break;
@@ -306,7 +305,7 @@ void DongLangLLVMListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) 
 		}
 	}
 
-	mAsts[ctx] = new DongLangCallExprAST(funcSymbol, args, argDefaultTypes, isGlobal, etListener->ExprType(exprCtx), etListener->ExprDefaultType(exprCtx));
+	mAsts[ctx] = new DongLangCallExprAST(funcSymbol, args, argDefaultTypes, isGlobal);
 }
 
 void DongLangLLVMListener::enterExpr_list(DongLangParser::Expr_listContext* ctx) { }
@@ -375,7 +374,6 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 
 	DongLangTypeInfo* exprTypeInfo = NULL;
 	DongLangTypeInfo* exprDefaultTypeInfo = NULL;
-	DongLangTypeInfo* idTypeInfo = etListener->IdPrimaryType(ctx);
 	if (auto exprCtx = dynamic_cast<DongLangParser::ExpressionContext*>(ctx->parent->parent)) { //expression
 		 exprTypeInfo = etListener->ExprType(exprCtx);
 		 exprDefaultTypeInfo = etListener->ExprDefaultType(exprCtx);
@@ -391,7 +389,7 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 					etListener->ExprType(assignCtx->expression()) : 
 					DongLangTypeInfo::typeCheckTrans(exprDefaultTypeInfo, DongLangTypeInfo::IntType, assignCtx->INCREMENT() ? "+" : "-"));
 			mAsts[assignCtx] =
-				new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, assignTypeInfo, exprDefaultTypeInfo, idTypeInfo);
+				new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, assignTypeInfo, exprDefaultTypeInfo);
 		}
 	}
 
@@ -404,7 +402,7 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 			//<< ",paran_defaultTinfo:" << (etListener->ExprDefaultType(paranExprCtx) ? etListener->ExprDefaultType(paranExprCtx)->String():"NULL")
 			<< endl;
 	}*/
-	mAsts[ctx] = new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, exprTypeInfo, exprDefaultTypeInfo, idTypeInfo);
+	mAsts[ctx] = new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, exprTypeInfo, exprDefaultTypeInfo);
 
 }
 

@@ -20,15 +20,13 @@ using namespace llvm;
 
 class DongLangCallExprAST : public DongLangBaseAST {
 public:
-	DongLangCallExprAST(FuncDLSymbol* , std::vector<DongLangBaseAST*>&, std::vector<DongLangTypeInfo*>&, bool,
-		DongLangTypeInfo*, DongLangTypeInfo* defaultTypeInfo);
+	DongLangCallExprAST(FuncDLSymbol* , std::vector<DongLangBaseAST*>&, std::vector<DongLangTypeInfo*>&, bool);
 	Value* genCode() override;
 private:
 	FuncDLSymbol* funcSymbol;
 	std::vector<DongLangBaseAST*> args;
 	std::vector<DongLangTypeInfo*> argDefaultTypes;
 	bool isGlobal;
-	DongLangTypeInfo* defaultTypeInfo;
 };
 
 class DongLangRetExprAST : public DongLangBaseAST {

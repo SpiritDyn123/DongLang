@@ -54,8 +54,7 @@ class DongLangIdPrimaryAST : public DongLangBaseAST {
 public:
 	DongLangIdPrimaryAST(antlr4Ctx, std::string, DongLangBaseAST* idAst, vector<DongLangBaseAST*>& arrAsts,
 		DongLangTypeInfo* typeInfo, 
-		DongLangTypeInfo* defaultTypeInfo,
-		DongLangTypeInfo* idTypeInfo);
+		DongLangTypeInfo* defaultTypeInfo);
 	virtual Value* genCode() override;
 private:
 	antlr4Ctx ctx;
@@ -63,7 +62,6 @@ private:
 	DongLangBaseAST* idAst;
 	vector<DongLangBaseAST*> arrAsts;
 	DongLangTypeInfo* defaultTypeInfo;
-	DongLangTypeInfo* idTypeInfo;
 };
 
 

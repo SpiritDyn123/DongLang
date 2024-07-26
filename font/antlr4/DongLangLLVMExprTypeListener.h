@@ -8,7 +8,6 @@ public:
 	DongLangLLVMExprTypeListener();
 	DongLangTypeInfo* ExprType(DongLangParser::ExpressionContext* ctx, bool hasDefault = false);
 	DongLangTypeInfo* ExprDefaultType(DongLangParser::ExpressionContext* ctx);
-	DongLangTypeInfo* IdPrimaryType(DongLangParser::Id_primaryContext* ctx);
 	DongLangTypeInfo* VarArrValueType(DongLangParser::Var_arr_valueContext* ctx);
 	DongLangTypeInfo* AssignType(DongLangParser::AssignContext* ctx);
 	DongLangTypeInfo* VarExprTypes(DongLangParser::Var_expressionContext* ctx);
@@ -50,7 +49,6 @@ private:
 	typedef  map<antlr4::ParserRuleContext*, DongLangTypeInfo*> MTYPES;
 	MTYPES mExprTypes;
 	MTYPES mDefaultExprTypes;
-	MTYPES mIdPrimaryTypes;
 	MTYPES mVarArrValueTypes;
 	MTYPES mAssignTypes;
 	MTYPES mVarExprTypes; //存储mAssignTypes的最终（官方）类型，类似mExprTypes之余mDefaultExprTypes

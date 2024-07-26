@@ -44,15 +44,6 @@ DongLangTypeInfo* DongLangLLVMExprTypeListener::ExprDefaultType(DongLangParser::
 	return NULL;
 }
 
-DongLangTypeInfo* DongLangLLVMExprTypeListener::IdPrimaryType(DongLangParser::Id_primaryContext* ctx) {
-	auto it = mIdPrimaryTypes.find(ctx);
-	if (it != mIdPrimaryTypes.end()) {
-		return it->second;
-	}
-
-	return NULL;
-}
-
 DongLangTypeInfo* DongLangLLVMExprTypeListener::VarArrValueType(DongLangParser::Var_arr_valueContext* ctx) {
 	auto it = mVarArrValueTypes.find(ctx);
 	if (it != mVarArrValueTypes.end()) {
@@ -576,10 +567,17 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 			return;
 		}
 		
-		mIdPrimaryTypes[ctx] = symbol->getVarType();
+		idTypeInfo = symbol->getVarType();
+	}
+	else if(ctx->call_expr()){//call_expr
+		auto pCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(ctx->parent);
+		idTypeInfo = mCallFuncSymbol[ctx->call_expr()]->getVarType();
+	}
+	else  { //paran_expr
+		idTypeInfo = mDefaultExprTypes[ctx->paran_expr()->expression()];
 	}
 
-	idTypeInfo = COPY_SP_TYPE_INFO(mIdPrimaryTypes[ctx]);
+	idTypeInfo = COPY_SP_TYPE_INFO(idTypeInfo);
 
 	for (auto child : ctx->children) {
 		if (auto arrIndexCtx = dynamic_cast<DongLangParser::Array_indexContext*>(child)) {
@@ -599,10 +597,12 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 			}
 		}
 		else { // '&'
-			if (idTypeInfo->isArray()) {
-				DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " array cannot opr point");
-				return;
-			}
+			//if (idTypeInfo->isArray()) {
+			//	DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " array cannot opr point");
+			//	return;
+			//}
+
+
 			idTypeInfo->AddPointArrayItem(PointOrArray(true));
 		}
 	}
@@ -641,11 +641,7 @@ void DongLangLLVMExprTypeListener::exitValue_primary(DongLangParser::Value_prima
 }
 
 void DongLangLLVMExprTypeListener::enterParan_expr(DongLangParser::Paran_exprContext* ctx) {}
-void DongLangLLVMExprTypeListener::exitParan_expr(DongLangParser::Paran_exprContext* ctx) {
-	auto paranTypeInfo = mDefaultExprTypes[ctx->expression()];
-	auto pCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(ctx->parent);
-	mIdPrimaryTypes[pCtx] = paranTypeInfo;
-}
+void DongLangLLVMExprTypeListener::exitParan_expr(DongLangParser::Paran_exprContext* ctx) {}
 
 void DongLangLLVMExprTypeListener::enterCall_expr(DongLangParser::Call_exprContext* ctx) {}
 void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) {
@@ -760,10 +756,6 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 	}
 
 	mCallFuncSymbol[ctx] = callFunc;
-
-	//call_expr
-	auto pCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(ctx->parent);
-	mIdPrimaryTypes[pCtx] = callFunc->getVarType();
 
 }
 

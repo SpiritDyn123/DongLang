@@ -47,9 +47,6 @@ Value* DongLangProgAST::genCode() {
 		Value* v = line->genCode();
 	}
 
-	auto& entryBB = lM.getFunction("global_main_init")->getEntryBlock();
-	lB.SetInsertPoint(&entryBB);
-	lB.CreateRetVoid();
 #else 
 	testStudy();
 #endif

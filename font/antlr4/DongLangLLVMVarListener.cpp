@@ -28,10 +28,10 @@ DongLangTypeInfo* DongLangLLVMVarListener::analyseDLTypeInfo(DongLangParser::Typ
 	}
 
 	for (auto paCtx : typeTypeCtx->children) {
-		if (paCtx->getText() == "*") {
+		if (paCtx->getText() == "*") { //*
 			ttypeInfo.pas.push_back(PointOrArray(true));
 		}
-		else if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(paCtx)) {
+		else if (auto arrChild = dynamic_cast<DongLangParser::Array_typeContext*>(paCtx)) { // []
 			int array_len = arrChild->NUMBER() ? std::stoi(arrChild->NUMBER()->getText()) : -1;
 			if (arrChild->NUMBER() && array_len <= 0) {
 				DongLangBaseAST::llvmCtx->emitError(typeTypeCtx->getText() + " array length err");

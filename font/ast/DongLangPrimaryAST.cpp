@@ -68,13 +68,11 @@ DongLangIdPrimaryAST::DongLangIdPrimaryAST(antlr4Ctx ctx, std::string id,
 	DongLangBaseAST* idAst, 
 	vector<DongLangBaseAST*>& arrAsts, 
 	DongLangTypeInfo* typeInfo, 
-	DongLangTypeInfo* defaultTypeInfo,
-	DongLangTypeInfo* idTypeInfo) : DongLangBaseAST(typeInfo), 
+	DongLangTypeInfo* defaultTypeInfo) : DongLangBaseAST(typeInfo), 
 	id(id),
 	idAst(idAst), 
 	ctx(ctx), arrAsts(arrAsts),
-	defaultTypeInfo(defaultTypeInfo),
-	idTypeInfo(idTypeInfo){ 
+	defaultTypeInfo(defaultTypeInfo) { 
 	if (!defaultTypeInfo) {
 		defaultTypeInfo = typeInfo;
 	}
@@ -83,79 +81,94 @@ DongLangIdPrimaryAST::DongLangIdPrimaryAST(antlr4Ctx ctx, std::string id,
 Value* DongLangIdPrimaryAST::genCode() {
 	Value* idValue = NULL;
 	bool bSymbol = id != "";
+	DongLangTypeInfo* idTypeInfo = NULL;
 	if (bSymbol) {
 		auto symbol = FindSymbol(ctx, id);
 		idValue = symbol->getVal(); //alloca ptr
+		idTypeInfo = symbol->getVarType();
 	}
 	else { //idAst
 		idValue = idAst->genCode();
+		idTypeInfo = idAst->exprType();
 	}
-
-	auto typeInfo = exprType();
 
 	auto tmpTypeInfo = *idTypeInfo;
 
+	//是否是左值
+	bool bLeftValue = !getLeftValue() || getFArg();
+
+	bool needInitialLoad = (dyn_cast<AllocaInst>(idValue) 
+		|| dyn_cast<Constant>(idValue)
+		) && !tmpTypeInfo.isArray();
+
 	//array opr
-	for (auto arrIndexAst : arrAsts) {
-		auto arrIndexV = arrIndexAst->genCode();
-		auto arrLLType = tmpTypeInfo.LlvmType(&lB);
-		if (arrLLType->isPointerTy()) {
-			idValue = lB.CreateLoad(arrLLType, idValue);
-			tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
-			arrLLType = tmpTypeInfo.LlvmType(&lB);
-			idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { arrIndexV });
+	int arrCnt = arrAsts.size();
+	if (arrCnt) {
+		if (needInitialLoad) {
+			idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 		}
-		else {
-			idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });
-			tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
+
+		int arrIndex = 0;
+		for (auto arrIndexAst : arrAsts) {
+			auto arrIndexV = arrIndexAst->genCode();
+			auto arrLLType = tmpTypeInfo.LlvmType(&lB);
+			if (arrLLType->isPointerTy()) {
+				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
+				arrLLType = tmpTypeInfo.LlvmType(&lB);
+				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { arrIndexV });
+				if (arrIndex < arrCnt - 1) { // 最后一次不用load
+					idValue = lB.CreateLoad(arrLLType, idValue);
+				}
+			}
+			else {
+				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });
+				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
+			}
+
+			arrIndex++;
 		}
 	}
-
-	bool bLeftValue = !getLeftValue();
-
-	//point opr
-	int pointCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
-	if (pointCnt != 0) {
-		if (pointCnt > 0) { //取地址只能一次
-			if (!bSymbol) {
-				idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
-			}
+	
+	//ptr opr
+	int ptrCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
+	if (ptrCnt) {
+		if (ptrCnt > 0) { //取地址只能一次
+			//idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 		}
 		else {
-			if (bSymbol) {
+			if (needInitialLoad && !arrCnt) {
 				auto llType = tmpTypeInfo.LlvmType(&lB);
-				if (tmpTypeInfo.isPoint()) {
-					idValue = lB.CreateLoad(llType, idValue);
-				}
-				else {
+				if (tmpTypeInfo.isArray()) {
 					idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
 				}
+				else {
+					idValue = lB.CreateLoad(llType, idValue);
+				}
+
+				tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+				ptrCnt++;
 			}
 
-			//是否是左值
-			if (bLeftValue && !getFArg()) {
-				pointCnt++;
-			}
-			for (; pointCnt != 0; pointCnt++) {//*多次
-				if (tmpTypeInfo.isPoint()) {
+			for (; ptrCnt != 0; ptrCnt++) {//*多次
+				if (tmpTypeInfo.isArray()) {
+					auto llType = tmpTypeInfo.LlvmType(&lB);
+					idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
+					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+				}
+				else {
 					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
 					auto llType = tmpTypeInfo.LlvmType(&lB);
 					idValue = lB.CreateLoad(llType, idValue);
 				}
-				else {
-					auto llType = tmpTypeInfo.LlvmType(&lB);
-					idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0)});
-					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				}
 			}
 		}
 	}
-	else {
-		if (bSymbol && (!bLeftValue || getFArg())) {
-			auto llType = tmpTypeInfo.LlvmType(&lB);
-			if (!defaultTypeInfo->isArray()) {
-				idValue = lB.CreateLoad(llType, idValue);
-			}
+
+
+	if (bSymbol && !bLeftValue) {
+		auto llType = tmpTypeInfo.LlvmType(&lB);
+		if (!defaultTypeInfo->isArray()) {
+			idValue = lB.CreateLoad(llType, idValue);
 		}
 	}
 	

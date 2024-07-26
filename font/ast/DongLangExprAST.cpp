@@ -4,13 +4,11 @@
 DongLangCallExprAST::DongLangCallExprAST(FuncDLSymbol* funcSymbol,
 	std::vector<DongLangBaseAST*>& args,
 	std::vector<DongLangTypeInfo*>& argDefaultTypes,
-	bool isGlobal, DongLangTypeInfo* typeInfo, 
-	DongLangTypeInfo* defaultTypeInfo) : DongLangBaseAST(typeInfo),
+	bool isGlobal) : DongLangBaseAST(funcSymbol->getVarType()),
 	funcSymbol(funcSymbol),
 	args(args),
 	argDefaultTypes(argDefaultTypes),
-	isGlobal(isGlobal),
-	defaultTypeInfo(defaultTypeInfo) {
+	isGlobal(isGlobal) {
 }
 
 Value* DongLangCallExprAST::genCode() {
