@@ -1,28 +1,29 @@
 // eg: donglang
 
-type INT int;
-type INT2 INT;
-func int* getArr(int *p, int[] arr, int[][2] aarr1) {
-	return 0;
+func int** getPtr(int a, int *p, int[] arr1, int[][1] arr2, int[][1][2] arr3) {
+
+        a = *p;
+        a = *arr1;
+        a = arr1[0];
+        a = **arr2;
+        a = arr2[0][1];
+        a = ***arr3;
+        a = arr3[0][1][2];
+        return 0;
 }
 
-int ga = 0;
-int *gp = NIL;
-func int main(){	
-	 int a;
-    int **p;
-    int[1][2] arr;
-    /*
-    a = arr[1][2];
-    a = p[1][2];
 
-    a = **arr;
-    a = **p;
 
-    a = *p[1];
-    a = *arr[1];
-    */
-    a = (*p)[1];
-    a = (*arr)[1];
-    return 1;
+func void ff1() {
+        int a;
+        int *p;
+        int **pp;
+        int[1] arr1;
+        int[1][1] arr2;
+        int[1][1][2] arr3;
+
+        *((&p)) = p ;
+        p = arr1;
+        getPtr(a, p, arr1, arr2, arr3);
+        getPtr(a, arr1, p, arr2, arr3);
 }

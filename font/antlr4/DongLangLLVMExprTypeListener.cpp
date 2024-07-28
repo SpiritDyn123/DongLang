@@ -19,7 +19,6 @@ using namespace std;
 DongLangLLVMExprTypeListener::DongLangLLVMExprTypeListener() {
 	mExprTypes.clear();
 	mDefaultExprTypes.clear();
-	mIdPrimaryTypes.clear();
 	mVarArrValueTypes.clear();
 	mAssignTypes.clear();
 	mCallFuncSymbol.clear();
@@ -89,6 +88,7 @@ string DongLangLLVMExprTypeListener::getExprOpr(DongLangParser::ExpressionContex
 
 	for (auto pCtx = exprCtx->parent; pCtx; lastCtx = (antlr4::ParserRuleContext*)pCtx, pCtx = pCtx->parent) {
 		if (dynamic_cast<DongLangParser::Paran_exprContext*>(pCtx) || // paran
+			dynamic_cast<DongLangParser::PrimaryContext*>(pCtx) ||
 			dynamic_cast<DongLangParser::Expr_listContext*>(pCtx) ||
 			dynamic_cast<DongLangParser::AssignContext*>(pCtx) ||
 			dynamic_cast<DongLangParser::AssignsContext*>(pCtx) ||
@@ -109,6 +109,7 @@ string DongLangLLVMExprTypeListener::getExprOpr(DongLangParser::ExpressionContex
 
 			}
 			else {
+				cout << exprCtx->getText() << "," << pCtx->getText() << endl;
 				continue;
 			}
 		}
@@ -275,6 +276,17 @@ void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionCon
 			break;
 		}
 
+		if (auto tCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(pCtx)) {
+			if (tCtx->id_primary_p_addrs()->POINT().size() == 0 &&
+				tCtx->id_primary_p_addrs()->POINTADDR().size() == 0 &&
+				tCtx->array_index().size() == 0) {
+				continue;
+			}
+
+			//type = defaulttype;
+			break;
+		}
+
 		if (auto tCtx = dynamic_cast<DongLangParser::ExpressionContext*>(pCtx)) {
 			auto typeInfo = ExprType(tCtx);
 			/*
@@ -285,7 +297,7 @@ void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionCon
 				*/
 			if (typeInfo) { //某些路径的expression需要特殊处理 1、callfun(expr) 2、assign=expr
 				if (tCtx->expression().size() == 0) { // expression --> paran_expr -> id_primary -> expression
-
+					mExprTypes[ctx] = typeInfo; //传递给child节点
 				}
 				if (tCtx->expression().size() == 1 && !tCtx->COND_NOT()) {
 					mExprTypes[ctx] = typeInfo; //传递给child节点
@@ -419,7 +431,7 @@ void DongLangLLVMExprTypeListener::exitExpression(DongLangParser::ExpressionCont
 					}
 				}
 
-				mExprTypes[cmpExprCtx] = transTypeInfo; //修正默认运算类型
+				if(!transTypeInfo->isPoint() || (!ctx->ADD() && !ctx->SUB())) mExprTypes[cmpExprCtx] = transTypeInfo; //修正默认运算类型
 			}
 
 			if (ctx->CMP_EQ() || ctx->CMP_NE() || ctx->CMP_GT() || ctx->CMP_GE() || ctx->CMP_LT() || ctx->CMP_LE()) {
@@ -563,7 +575,7 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 		id = ctx->IDENTIFIER()->getText();
 		auto symbol = DongLangBaseAST::FindSymbol(ctx, id);
 		if (!symbol) {
-			DongLangBaseAST::llvmCtx->emitError("undefined var:" + id);
+			DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " undefined var:" + id);
 			return;
 		}
 		
@@ -602,7 +614,23 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 			//	return;
 			//}
 
+			antlr4::tree::ParseTree* lastCtx = ctx;
+			for (auto pCtx = ctx->parent;pCtx; lastCtx = pCtx, pCtx = pCtx->parent) {
+				if (dynamic_cast<DongLangParser::VarContext*>(pCtx) ||
+					dynamic_cast<DongLangParser::FargContext*>(pCtx)) {
+					break;
+				}
 
+				if (auto assignCtx = dynamic_cast<DongLangParser::AssignContext*>(pCtx)) {
+					if (lastCtx == assignCtx->id_primary()) {
+						DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " cannot opr:& left value");
+						return;
+					}
+					
+					break;
+				}
+			}
+			
 			idTypeInfo->AddPointArrayItem(PointOrArray(true));
 		}
 	}

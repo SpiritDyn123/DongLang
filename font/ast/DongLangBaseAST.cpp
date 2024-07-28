@@ -22,9 +22,9 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 			Instruction::CastOps castT;
 			if (t1S == "bool" || t1S == "bit") {
 				if (t2S != "bit") {
-					if (defaultTypeInfo->isArray()) { //数组比较特殊
-						curValue = lB.CreateGEP(defaultTypeInfo->LlvmType(&lB), curValue, { lB.getInt32(0), lB.getInt32(0) });
-					}
+					//if (defaultTypeInfo->isArray()) { //数组比较特殊
+					//	curValue = lB.CreateGEP(defaultTypeInfo->LlvmType(&lB), curValue, { lB.getInt32(0), lB.getInt32(0) });
+					//}
 					
 					Value* zeroValue = Constant::getNullValue(curValue->getType());
 					if (t2S == "float") {

@@ -88,23 +88,21 @@ Value* DongLangIdPrimaryAST::genCode() {
 		idTypeInfo = symbol->getVarType();
 	}
 	else { //idAst
+		idAst->setFArg();
 		idValue = idAst->genCode();
 		idTypeInfo = idAst->exprType();
 	}
 
 	auto tmpTypeInfo = *idTypeInfo;
 
-	//是否是左值
-	bool bLeftValue = !getLeftValue() || getFArg();
 
-	bool needInitialLoad = (dyn_cast<AllocaInst>(idValue) 
-		|| dyn_cast<Constant>(idValue)
-		) && !tmpTypeInfo.isArray();
+	bool needInitialLoad = dyn_cast<AllocaInst>(idValue) 
+		|| dyn_cast<Constant>(idValue);
 
 	//array opr
-	int arrCnt = arrAsts.size();
-	if (arrCnt) {
-		if (needInitialLoad) {
+	int arrOprCnt = arrAsts.size();
+	if (arrOprCnt) {
+		if (needInitialLoad && !tmpTypeInfo.isArray()) {
 			idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 		}
 
@@ -116,7 +114,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
 				arrLLType = tmpTypeInfo.LlvmType(&lB);
 				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { arrIndexV });
-				if (arrIndex < arrCnt - 1) { // 最后一次不用load
+				if (arrIndex < arrOprCnt - 1) { // 最后一次不用load
 					idValue = lB.CreateLoad(arrLLType, idValue);
 				}
 			}
@@ -130,13 +128,18 @@ Value* DongLangIdPrimaryAST::genCode() {
 	}
 	
 	//ptr opr
-	int ptrCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
-	if (ptrCnt) {
-		if (ptrCnt > 0) { //取地址只能一次
+	int ptrOprCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
+	if (ptrOprCnt) {
+		if (ptrOprCnt > 0) { //取地址只能一次
 			//idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 		}
 		else {
-			if (needInitialLoad && !arrCnt) {
+			if (!arrOprCnt && !needInitialLoad && !tmpTypeInfo.isArray()) {
+				tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+				ptrOprCnt++;
+			}
+
+			for (; ptrOprCnt != 0; ptrOprCnt++) {//*多次
 				auto llType = tmpTypeInfo.LlvmType(&lB);
 				if (tmpTypeInfo.isArray()) {
 					idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
@@ -146,29 +149,19 @@ Value* DongLangIdPrimaryAST::genCode() {
 				}
 
 				tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				ptrCnt++;
-			}
-
-			for (; ptrCnt != 0; ptrCnt++) {//*多次
-				if (tmpTypeInfo.isArray()) {
-					auto llType = tmpTypeInfo.LlvmType(&lB);
-					idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
-					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				}
-				else {
-					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-					auto llType = tmpTypeInfo.LlvmType(&lB);
-					idValue = lB.CreateLoad(llType, idValue);
-				}
 			}
 		}
 	}
 
-
-	if (bSymbol && !bLeftValue) {
+	//是否是左值 或函参
+	bool bLeftValue = !getLeftValue();
+	if ((!bLeftValue || getFArg()) && ptrOprCnt <= 0) {
 		auto llType = tmpTypeInfo.LlvmType(&lB);
-		if (!defaultTypeInfo->isArray()) {
+		if (tmpTypeInfo.isArray()) { //array作为左值，右值必然只能是指针
+			//idValue = lB.CreateGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
+		} else {
 			idValue = lB.CreateLoad(llType, idValue);
+
 		}
 	}
 	

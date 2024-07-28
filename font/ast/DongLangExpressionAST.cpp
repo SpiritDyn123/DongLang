@@ -64,7 +64,7 @@ void DongLangExpressionAST::assetOpearation() {
 			lhsTs != "int" &&
 			lhsTs != "float" && 
 			(!lhsType->isPoint() || rhs->exprType()->String() != "int")) {
-			lC.emitError("expression assetOpearation:" + op + " error");
+			lC.emitError("expression assetOpearation:" + lhsType->String() + op + rhs->exprType()->String() + " error");
 			return;
 		}
 	}

@@ -351,7 +351,6 @@ void DongLangLLVMListener::exitPrimary(DongLangParser::PrimaryContext* ctx) {
 
 void DongLangLLVMListener::enterId_primary(DongLangParser::Id_primaryContext* ctx) {}
 void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx) {
-
 	DongLangBaseAST* idAst = NULL;
 	string id = "";
 	DongLangParser::ExpressionContext* paranExprCtx = NULL;
@@ -371,6 +370,8 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 	for (auto arrIndexCtx : ctx->array_index()) {
 		arrAsts.push_back(mAsts[arrIndexCtx->expression()]);
 	}
+
+	bool noOpr = ctx->id_primary_p_addrs()->POINT().size() == 0 && ctx->id_primary_p_addrs()->POINTADDR().size() ==  0 && ctx->array_index().size() == 0;
 
 	DongLangTypeInfo* exprTypeInfo = NULL;
 	DongLangTypeInfo* exprDefaultTypeInfo = NULL;
@@ -402,7 +403,14 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 			//<< ",paran_defaultTinfo:" << (etListener->ExprDefaultType(paranExprCtx) ? etListener->ExprDefaultType(paranExprCtx)->String():"NULL")
 			<< endl;
 	}*/
-	mAsts[ctx] = new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, exprTypeInfo, exprDefaultTypeInfo);
+
+
+	if (idAst && noOpr) {
+		mAsts[ctx] = idAst;
+	}
+	else {
+		mAsts[ctx] = new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, exprTypeInfo, exprDefaultTypeInfo);
+	}
 
 }
 

@@ -17,6 +17,7 @@ Value* DongLangCallExprAST::genCode() {
 	for (auto i = 0; i < args.size(); i++) {
 		args[i]->setFArg();
 		auto value = args[i]->genCode();
+
 		auto argType = args[i]->exprType();
 		if (argType->isArray() && argDefaultTypes[i]->isArray()) {// value->getType()->isArrayTy()
 			value = lB.CreateGEP(argDefaultTypes[i]->LlvmType(&lB), value, {lB.getInt32(0), lB.getInt32(0)});
@@ -36,7 +37,7 @@ Value* DongLangCallExprAST::genCode() {
 		callValue = lB.CreateCall(fn, fArgs);
 	}
 
-	return callValue;
+	return TransValue(funcSymbol->getVarType(), callValue);
 
 }
 
