@@ -67,29 +67,15 @@ Type* DongLangTypeInfo::LlvmType(IRBuilder<>* llvmBuilder) {
 		return NULL;
 	}
 
-	vector<PointOrArray> tmpArrPas;
-	tmpArrPas.clear();
 	for (auto it = pas.begin(); it != pas.end(); ++it) {
 		if (it->pointOrArr) {
-			if (tmpArrPas.size()) {
-				for (auto arrpa : tmpArrPas) {
-					lType = ArrayType::get(lType, arrpa.array_len);
-					size = size * arrpa.array_len;
-				}
-				tmpArrPas.clear();
-			}
-
 			lType = lType->getPointerTo();
 			size = 8;
 		}
 		else {
-			tmpArrPas.insert(tmpArrPas.begin(), *it);	
+			lType = ArrayType::get(lType, it->array_len);
+			size = size * it->array_len;
 		}
-	}
-
-	for (auto arrpa : tmpArrPas) {
-		lType = ArrayType::get(lType, arrpa.array_len);
-		size = size * arrpa.array_len;
 	}
 
 	// cout << "llvm_type(" << String() << "):" << lType->getTypeID() << endl;
@@ -97,17 +83,12 @@ Type* DongLangTypeInfo::LlvmType(IRBuilder<>* llvmBuilder) {
 }
 
 bool DongLangTypeInfo::needInitial() {
-	if (!isArray()) {
+	if (pas.size() == 0) {
 		return false;
 	}
 
-	for (int i = pas.size() - 1; i >= 0; i--) {
-		if (pas[i].pointOrArr) {
-			return pas[i+1].array_len < 0;
-		}
-	}
-
-	return pas[0].array_len < 0;;
+	auto& pa = pas[pas.size() - 1];
+	return !pa.pointOrArr && pa.array_len < 0;;
 }
 
 
@@ -116,53 +97,43 @@ void DongLangTypeInfo::AddPointArrayItem(PointOrArray pa) {
 }
 
 bool DongLangTypeInfo::DelPointArrayItem(PointOrArray pa) {
-	for (int i = pas.size() - 1; i >= 0; i--) {
-		PointOrArray& pa = pas[i];
-		if (pa.pointOrArr || i == 0) {
-			pas.erase(pas.begin() + i);
-			return true;
-		}
-		else {
-			if (pas[i - 1].pointOrArr) {
-				pas.erase(pas.begin() + i);
-				return true;
-			}
-		}
+	if (pas.size() > 0) {
+		pas.pop_back();
+		return true;
 	}
 
 	return false;
 }
 
 PointOrArray* DongLangTypeInfo::getArrayPA(uint offset) {
-	if (!isArray()) {
-		return NULL;
-	}
-
-	vector<PointOrArray*> tmpArrPas;
-	tmpArrPas.clear();
-	for (int i = pas.size() - 1; i >= 0; i--) {
+	for (int i = pas.size() - 1; i >= 0; i--, offset--) {
 		PointOrArray& pa = pas[i];
 		if (pa.pointOrArr) {
 			break;
 		}
 
-		tmpArrPas.insert(tmpArrPas.begin(), & pa);
-	}
-
-	for (auto it = tmpArrPas.begin(); it != tmpArrPas.end(); ++it, --offset) {
-		if (offset== 0) {
-			return *it;
+		if (offset == 0) {
+			return &pa;
 		}
 	}
 
 	return  NULL;
 }
 
+bool DongLangTypeInfo::arrToPtr(DongLangTypeInfo* typeInfo) {
+	if (typeInfo->isArray()) {
+		typeInfo->pas[typeInfo->pas.size() - 1].pointOrArr = true;
+		return true;
+	}
+
+	return false;
+}
+
 bool DongLangTypeInfo::checkArrayOpr(string& opr) {
 	return opr == "call"		||
 		   opr == "ret"			||
 		   opr == "three_op"	||
-		   opr == "ptr_arr"	||
+		   opr == "ptr_arr"		||
 		   opr == "cond";
 }
 
@@ -200,7 +171,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 			}
 			else if (t2->isArray()) { // 指针和数组
 				auto tmpT2 = *t2; // copy to use
-				tmpT2.pas[tmpT2.pas.size() - 1].pointOrArr = true;
+				arrToPtr(&tmpT2);
 				if (t1S == tmpT2.String()) {
 					return transT;
 				}
@@ -210,7 +181,7 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 			if (checkArrayOpr(opr)) {
 				if (t2->isPoint()) { // 数组和指针
 					auto tmpT1 = *t1; // copy to use
-					tmpT1.pas[tmpT1.pas.size() - 1].pointOrArr = true;
+					arrToPtr(&tmpT1);
 					if (t2S == tmpT1.String()) {
 						return t2;
 					}
@@ -259,4 +230,3 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 
 	return NULL;
 }
-

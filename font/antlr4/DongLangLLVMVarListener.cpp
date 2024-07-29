@@ -43,24 +43,18 @@ DongLangTypeInfo* DongLangLLVMVarListener::analyseDLTypeInfo(DongLangParser::Typ
 	}
 
 	//ºÏ≤È÷∏’Î
-	if (ttypeInfo.pas.size()) {
-		int paIndex = 0;
-		for (auto pa : ttypeInfo.pas) {
-			if (paIndex == 0 || pa.pointOrArr) {
-				paIndex++;
-				continue;
-			}
+	int paCnt = ttypeInfo.pas.size();
+	for (int i = 0; i < paCnt-1; i++) {
+		auto& pa = ttypeInfo.pas[i];
+		if (pa.pointOrArr) {
+			continue;
+		}
 
-			auto lastPa = ttypeInfo.pas[paIndex - 1];
-			if (!lastPa.pointOrArr && pa.array_len < 0) {// [][]
-				DongLangBaseAST::llvmCtx->emitError(typeTypeCtx->getText() + " type array length format err");
-				return NULL;
-			}
-
-			paIndex++;
+		if (!ttypeInfo.pas[i+1].pointOrArr && pa.array_len < 0) {
+			DongLangBaseAST::llvmCtx->emitError(typeTypeCtx->getText() + " type array length format err");
+			return NULL;
 		}
 	}
-	
 
 	return new DongLangTypeInfo(ttypeInfo);
 }
@@ -87,7 +81,7 @@ void DongLangLLVMVarListener::enterFunction_def(DongLangParser::Function_defCont
 	auto argSymbol = VarDLSymbol::Create(argId, typeInfo, NULL, argDefaultValueID); \
 	curScope->AddSymbol(argId, SYMBOL_ID(argCtx), argSymbol); \
 	argTypes.push_back(argTypeInfo); \
-	argSymbols.push_back(argSymbol);\
+	argSymbols.push_back(argSymbol);
 
 void DongLangLLVMVarListener::exitFunction_def(DongLangParser::Function_defContext* ctx) {//fnName 
 	string fnName = ctx->IDENTIFIER()->getText();

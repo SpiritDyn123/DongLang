@@ -1,13 +1,13 @@
 // eg: donglang
 
-func int** getPtr(int a, int *p, int[] arr1, int[][1] arr2, int[][1][2] arr3) {
+func int** getPtr(int a, int *p, int[] arr1, int[1][] arr2, int[2][1][] arr3) {
         a = *p;
         a = *arr1;
         a = arr1[0];
         a = **arr2;
         a = arr2[0][1];
-        a = ***arr3;
-        a = arr3[0][1][2];
+     //   a = ***arr3;
+      //  a = arr3[0][1][2];
         
         return 0;
 }
@@ -25,7 +25,7 @@ func int main() {
         int **pp;
         int[1] arr1;
         int[1][1] arr2;
-        int[1][1][2] arr3;
+        int[2][1][1] arr3;
 
         //*((&p)) = p ;
         p = arr1;
