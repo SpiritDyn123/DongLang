@@ -8,8 +8,11 @@ DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& lineAsts) {
 
 	//global_main_init
 	auto rootScope = CurScope(NULL);
+	auto mainRetType = new DongLangTypeInfo("void");
+	vector<DongLangTypeInfo*> mainArgTs = {};
+	vector<VarDLSymbol*> mainArgSs = {};
 	rootScope->AddSymbol("global_main_init", func_global_main_init_id, FuncDLSymbol::Create("global_main_init", 
-		{new DongLangTypeInfo("void")}, NULL, true, false));
+		mainRetType, mainArgSs, mainArgTs, NULL, true, false));
 	
 	auto mainInitFn = new DongLangFunctionDefAST(NULL, "global_main_init", {}, false, true, {});
 	this->lineAsts.insert(this->lineAsts.begin(), mainInitFn);
@@ -31,7 +34,7 @@ DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& lineAsts) {
 
 	if (!hasMain) {
 		rootScope->AddSymbol("main", func_main_id, FuncDLSymbol::Create("main",
-			{ new DongLangTypeInfo("void") }, NULL, true, false));
+			mainRetType, mainArgSs, mainArgTs, NULL, true, false));
 		this->lineAsts.insert(this->lineAsts.end(), new DongLangFunctionDefAST(NULL, "main", {}, false, true, {}));
 	}
 }

@@ -352,6 +352,18 @@ void DongLangLLVMExprTypeListener::enterExpression(DongLangParser::ExpressionCon
 			break;
 		}
 
+		//farg_default: fun(int a = expr)
+		if (auto tCtx = dynamic_cast<DongLangParser::Farg_defaultContext*>(pCtx)) {
+			auto var = DongLangBaseAST::FindSymbol(tCtx, tCtx->farg()->IDENTIFIER()->getText());
+			if (!var) {
+				DongLangBaseAST::llvmCtx->emitError("undefined var:" + tCtx->farg()->IDENTIFIER()->getText());
+				return;
+			}
+
+			mExprTypes[ctx] = var->getVarType();
+			break;
+		}
+
 		//assign *arr[5] (+-*/)?= xxx
 		if (auto tCtx = dynamic_cast<DongLangParser::AssignContext*>(pCtx)) {
 			// assign value: expression
@@ -527,7 +539,7 @@ void DongLangLLVMExprTypeListener::exitAssign(DongLangParser::AssignContext* ctx
 		}
 	}
 
-	if (typeR->String() != transTypeInfo->String() && !transTypeInfo->isPoint()) {
+	if (typeR->String() != transTypeInfo->String() && !(ctx->ADD() || ctx->SUB()) && !transTypeInfo->isPoint()) {
 		mExprTypes[exprCtx] = transTypeInfo;
 	}
 
@@ -614,23 +626,6 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 			//	return;
 			//}
 
-			antlr4::tree::ParseTree* lastCtx = ctx;
-			for (auto pCtx = ctx->parent;pCtx; lastCtx = pCtx, pCtx = pCtx->parent) {
-				if (dynamic_cast<DongLangParser::VarContext*>(pCtx) ||
-					dynamic_cast<DongLangParser::FargContext*>(pCtx)) {
-					break;
-				}
-
-				if (auto assignCtx = dynamic_cast<DongLangParser::AssignContext*>(pCtx)) {
-					if (lastCtx == assignCtx->id_primary()) {
-						DongLangBaseAST::llvmCtx->emitError("primary:" + ctx->getText() + " cannot opr:& left value");
-						return;
-					}
-					
-					break;
-				}
-			}
-			
 			idTypeInfo->AddPointArrayItem(PointOrArray(true));
 		}
 	}
@@ -689,7 +684,6 @@ void DongLangLLVMExprTypeListener::exitCall_expr(DongLangParser::Call_exprContex
 
 	int argCount = exprCtxList.size();
 
-	//int float¿ÉÒÔ×ª»»
 	map<FuncDLSymbol*, int> dstFuncs;
 	dstFuncs.clear();
 	int maxEValue = 0;

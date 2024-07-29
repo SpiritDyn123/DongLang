@@ -1,5 +1,5 @@
 
-// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -30,6 +30,8 @@ public:
     virtual std::any visitFunction_body(DongLangParser::Function_bodyContext *context) = 0;
 
     virtual std::any visitFarg(DongLangParser::FargContext *context) = 0;
+
+    virtual std::any visitFarg_default(DongLangParser::Farg_defaultContext *context) = 0;
 
     virtual std::any visitF_varargs(DongLangParser::F_varargsContext *context) = 0;
 

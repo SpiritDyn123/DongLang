@@ -38,6 +38,21 @@ struct DongLangTypeInfo {
 	bool DelPointArrayItem(PointOrArray pa);
 	PointOrArray* getArrayPA(uint offset = 0);
 
+	static bool arrToPtr(DongLangTypeInfo* typeInfo) {
+		if (typeInfo->isArray()) {
+			for (int i = typeInfo->pas.size() - 1; i >= 0; i--) {
+				if (i == 0 || typeInfo->pas[i - 1].pointOrArr) {
+						typeInfo->pas[i].pointOrArr = true; 
+						break; 
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	static bool checkArrayOpr(string& opr);
 	static DongLangTypeInfo* typeCheckTrans(DongLangTypeInfo* t1, DongLangTypeInfo* t2, string opr = "", bool errReport = false, string reportStr = "");
 	static DongLangTypeInfo* IntType;

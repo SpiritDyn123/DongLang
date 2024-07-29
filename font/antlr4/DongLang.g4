@@ -30,14 +30,18 @@ externC: 'extern' 'C';
 function_body: '{' (statement)* '}';
 
 farg:
-    type_type IDENTIFIER //
+    type_type IDENTIFIER//
+    ;
+farg_default:
+    farg '=' expression
     ;
 f_varargs:
     ',''...'
     ;
 
 farg_list:
-    | farg (',' farg)* f_varargs? //
+    | farg (',' farg)* (',' farg_default)* f_varargs? //
+    | farg_default (',' farg_default)* f_varargs? //
     ;
 
 ret_expression:

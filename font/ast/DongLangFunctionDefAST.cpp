@@ -28,15 +28,11 @@ Value* DongLangFunctionDefAST::genCode() {
 		auto argTypeInfo = argT.typeInfo;
 		argTypes.push_back(argTypeInfo);
 
-		llvm::Type* fArgType = argTypeInfo->LlvmType(&lB);
+		auto fArgType = argTypeInfo->LlvmType(&lB);
 		if (argTypeInfo->isArray()) { //数组转指针
 			fArgType = fArgType->getArrayElementType()->getPointerTo();
-			//auto tmpT = *argTypeInfo;
-			//tmpT.pas[tmpT.pas.size() - 1] = true;
-			//fArgType = tmpT.LlvmType(&lB);
 		}
 	
-
 		fArgTypes.push_back(fArgType);
 	}
 
@@ -50,22 +46,28 @@ Value* DongLangFunctionDefAST::genCode() {
 	auto fnType = FunctionType::get(lRetType, fArgTypes, funcSymbol->varArg());
 	auto fn = Function::Create(fnType, GlobalValue::ExternalLinkage, funcSymbol->ID(), &lM);
 
-	//var name
-	int indx = 0;
-	for (auto& arg : fn->args()) {
-		auto& argInfo = args[indx];
-		arg.setName(argInfo.name);
-
-		auto symbol = FindSymbol(argInfo.ctx, argInfo.name);
-		//数组操作
-		symbol->setVal(&arg);
-		indx++;
-	}
-
 	if (hasBody) {
 		string& fnName = funcSymbol->Name();
 		auto entryBB = BasicBlock::Create(lC, "entry_" + fnName, fn);
 		lB.SetInsertPoint(entryBB);
+
+		//var name
+		int indx = 0;
+		for (auto& arg : fn->args()) {
+			auto& argInfo = args[indx];
+			//arg.setName(argInfo.name);
+
+			Value* argValue = lB.CreateAlloca(arg.getType(), NULL, argInfo.name);
+			lB.CreateStore(&arg, argValue);
+			//save symbol
+			auto symbol = FindSymbol(argInfo.ctx, argInfo.name);
+			auto symbolTypeInfo = symbol->getVarType();
+			if (symbolTypeInfo->isArray()) {
+
+			}
+			symbol->setVal(argValue);
+			indx++;
+		}
 
 		if (fnName == "main") {
 			lB.CreateCall(lM.getFunction("global_main_init"));

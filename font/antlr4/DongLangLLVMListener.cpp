@@ -281,9 +281,10 @@ void DongLangLLVMListener::exitParan_expr(DongLangParser::Paran_exprContext* ctx
 
 void DongLangLLVMListener::enterCall_expr(DongLangParser::Call_exprContext* ctx) {}
 void DongLangLLVMListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) {
-	vector<DongLangBaseAST*> args;
-	vector<DongLangTypeInfo*> argDefaultTypes;
-	args.clear();
+	vector<DongLangBaseAST*> args = {};
+	vector<DongLangTypeInfo*> argDefaultTypes = {};
+
+	//1、参数
 	if (ctx->expr_list()) {
 		for (auto argCtx : ctx->expr_list()->expression()) {
 			args.push_back(mAsts[argCtx]);
@@ -293,6 +294,14 @@ void DongLangLLVMListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) 
 
 	string fnName = ctx->IDENTIFIER()->getText();
 	auto funcSymbol = etListener->CallFuncDLSymbol(ctx);
+
+	//2、填充默认参数
+	auto funcSs = funcSymbol->argSymbol();
+	for (int i = args.size(); i < funcSs.size();i++) {
+		args.push_back(mAsts[(antlr4::ParserRuleContext*)funcSs[i]->getDefaultValueID()]);
+	}
+
+	//TODO 3、不定参数
 
 	bool isGlobal = false;
 	for (auto pCtx = ctx->parent; pCtx != NULL; pCtx = pCtx->parent) {

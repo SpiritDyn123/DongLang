@@ -10,7 +10,6 @@
 using namespace llvm;
 using namespace std;
 
-typedef int64_t SYMBOL_ID;
 
 const SYMBOL_ID func_main_id = -1;
 const SYMBOL_ID func_global_main_init_id = -1;

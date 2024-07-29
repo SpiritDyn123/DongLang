@@ -18,10 +18,10 @@ Value* DongLangCallExprAST::genCode() {
 		args[i]->setFArg();
 		auto value = args[i]->genCode();
 
-		auto argType = args[i]->exprType();
-		if (argType->isArray() && argDefaultTypes[i]->isArray()) {// value->getType()->isArrayTy()
-			value = lB.CreateGEP(argDefaultTypes[i]->LlvmType(&lB), value, {lB.getInt32(0), lB.getInt32(0)});
-		}
+		//auto argType = args[i]->exprType();
+		//if (argType->isArray() && argDefaultTypes[i]->isArray()) {// value->getType()->isArrayTy()
+		//	value = lB.CreateGEP(argDefaultTypes[i]->LlvmType(&lB), value, {lB.getInt32(0), lB.getInt32(0)});
+		//}
 
 		fArgs[i] = value;
 	}
@@ -49,9 +49,9 @@ Value* DongLangRetExprAST::genCode() {
 	expr->setFArg();
 	Value *retValue = expr->genCode();
 	auto retTypeInfo = expr->exprType();
-	if (retTypeInfo->isArray() && defaultTypeInfo->isArray()) { //&& retValue->getType()->isArrayTy()
-		retValue = lB.CreateGEP(defaultTypeInfo->LlvmType(&lB), retValue, { lB.getInt32(0), lB.getInt32(0) });
-	}
+	//if (retTypeInfo->isArray() && defaultTypeInfo->isArray()) { //&& retValue->getType()->isArrayTy()
+	//	retValue = lB.CreateGEP(defaultTypeInfo->LlvmType(&lB), retValue, { lB.getInt32(0), lB.getInt32(0) });
+	//}
 
 	return llvmBuilder->CreateRet(retValue);
 }

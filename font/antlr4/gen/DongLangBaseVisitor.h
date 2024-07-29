@@ -1,5 +1,5 @@
 
-// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -36,6 +36,10 @@ public:
   }
 
   virtual std::any visitFarg(DongLangParser::FargContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFarg_default(DongLangParser::Farg_defaultContext *ctx) override {
     return visitChildren(ctx);
   }
 

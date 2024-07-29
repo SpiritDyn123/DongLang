@@ -73,27 +73,37 @@ void DongLangLLVMVarListener::enterFunction_def(DongLangParser::Function_defCont
 	DongLangBaseAST::AddScope(ctx, false, ctx->IDENTIFIER()->getText());
 }
 
+#define FARG_ANALYZE(argCtx, argDefaultValueID) auto argId = argCtx->IDENTIFIER()->getText(); \
+	auto varSb = curScope->FindSymbol(argId);\
+	if (varSb && varSb->getScope() == curScope) {\
+		DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " repeated var declare:" + argId);\
+		return;\
+	}\
+	\
+	auto typeInfo = analyseDLTypeInfo(argCtx->type_type());\
+	auto argTypeInfo = new DongLangTypeInfo(*typeInfo);\
+	DongLangTypeInfo::arrToPtr(typeInfo); \ 
+	\
+	auto argSymbol = VarDLSymbol::Create(argId, typeInfo, NULL, argDefaultValueID); \
+	curScope->AddSymbol(argId, SYMBOL_ID(argCtx), argSymbol); \
+	argTypes.push_back(argTypeInfo); \
+	argSymbols.push_back(argSymbol);\
+
 void DongLangLLVMVarListener::exitFunction_def(DongLangParser::Function_defContext* ctx) {//fnName 
 	string fnName = ctx->IDENTIFIER()->getText();
 
 	//args
-	vector<DongLangTypeInfo*> argTypes;
-	argTypes.clear();
+	vector<DongLangTypeInfo*> argTypes = {};
 
 	auto curScope = DongLangBaseAST::CurScope(ctx);
-
+	vector<VarDLSymbol*> argSymbols = {};
 	for (auto argCtx : ctx->farg_list()->farg()) {
-		auto argId = argCtx->IDENTIFIER()->getText();
-		auto varSb = curScope->FindSymbol(argId);
-		if (varSb && varSb->getScope() == curScope) {
-			DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " repeated var declare:" + argId);
-			return;
-		}
+		FARG_ANALYZE(argCtx, 0);
+	}
 
-		auto typeInfo = analyseDLTypeInfo(argCtx->type_type());
-		
-		curScope->AddSymbol(argId, SYMBOL_ID(argCtx), VarDLSymbol::Create(argId, typeInfo, NULL));
-		argTypes.push_back(typeInfo);
+	for (auto argDCtx : ctx->farg_list()->farg_default()) {
+		auto argCtx = argDCtx->farg();
+		FARG_ANALYZE(argCtx, SYMBOL_ID(argDCtx->expression()));
 	}
 
 	//return type
@@ -121,9 +131,7 @@ void DongLangLLVMVarListener::exitFunction_def(DongLangParser::Function_defConte
 		return;
 	}
 
-	argTypes.insert(argTypes.begin(), retTypeInfo);
-
-	funcScope->AddSymbol(fnName, SYMBOL_ID(ctx), FuncDLSymbol::Create(fnName, argTypes, NULL, externC, isVarArg));
+	funcScope->AddSymbol(fnName, SYMBOL_ID(ctx), FuncDLSymbol::Create(fnName, retTypeInfo, argSymbols, argTypes, NULL, externC, isVarArg));
 }
 
 void DongLangLLVMVarListener::enterGlobal_var_expression(DongLangParser::Global_var_expressionContext* ctx) {

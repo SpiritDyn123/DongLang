@@ -1,5 +1,5 @@
 
-// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -27,17 +27,17 @@ public:
 
   enum {
     RuleProg = 0, RuleStatement = 1, RuleFunction_def = 2, RuleExternC = 3, 
-    RuleFunction_body = 4, RuleFarg = 5, RuleF_varargs = 6, RuleFarg_list = 7, 
-    RuleRet_expression = 8, RuleExpression = 9, RuleCond_statement = 10, 
-    RuleIf_expression = 11, RuleElif_expr = 12, RuleElse_expr = 13, RuleElif = 14, 
-    RuleIf_cond = 15, RuleFor_expression = 16, RuleFor_cond = 17, RuleGlobal_var_expression = 18, 
-    RuleVar_expression = 19, RuleParan_expr = 20, RuleCall_expr = 21, RuleExpr_list = 22, 
-    RuleNum_primary = 23, RuleStr_primary = 24, RuleBool_primary = 25, RuleValue_primary = 26, 
-    RuleArray_index = 27, RuleId_primary_p_addrs = 28, RuleId_primary = 29, 
-    RulePrimary = 30, RulePrimary_type = 31, RuleArray_type = 32, RuleType_type = 33, 
-    RuleType_type_void = 34, RuleVar_value = 35, RuleVar_arr_value = 36, 
-    RuleAssign = 37, RuleAssigns = 38, RuleVar = 39, RuleVars = 40, RuleVar_declares = 41, 
-    RuleTemplate = 42, RuleClass_def = 43
+    RuleFunction_body = 4, RuleFarg = 5, RuleFarg_default = 6, RuleF_varargs = 7, 
+    RuleFarg_list = 8, RuleRet_expression = 9, RuleExpression = 10, RuleCond_statement = 11, 
+    RuleIf_expression = 12, RuleElif_expr = 13, RuleElse_expr = 14, RuleElif = 15, 
+    RuleIf_cond = 16, RuleFor_expression = 17, RuleFor_cond = 18, RuleGlobal_var_expression = 19, 
+    RuleVar_expression = 20, RuleParan_expr = 21, RuleCall_expr = 22, RuleExpr_list = 23, 
+    RuleNum_primary = 24, RuleStr_primary = 25, RuleBool_primary = 26, RuleValue_primary = 27, 
+    RuleArray_index = 28, RuleId_primary_p_addrs = 29, RuleId_primary = 30, 
+    RulePrimary = 31, RulePrimary_type = 32, RuleArray_type = 33, RuleType_type = 34, 
+    RuleType_type_void = 35, RuleVar_value = 36, RuleVar_arr_value = 37, 
+    RuleAssign = 38, RuleAssigns = 39, RuleVar = 40, RuleVars = 41, RuleVar_declares = 42, 
+    RuleTemplate = 43, RuleClass_def = 44
   };
 
   explicit DongLangParser(antlr4::TokenStream *input);
@@ -63,6 +63,7 @@ public:
   class ExternCContext;
   class Function_bodyContext;
   class FargContext;
+  class Farg_defaultContext;
   class F_varargsContext;
   class Farg_listContext;
   class Ret_expressionContext;
@@ -208,6 +209,22 @@ public:
 
   FargContext* farg();
 
+  class  Farg_defaultContext : public antlr4::ParserRuleContext {
+  public:
+    Farg_defaultContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    FargContext *farg();
+    ExpressionContext *expression();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Farg_defaultContext* farg_default();
+
   class  F_varargsContext : public antlr4::ParserRuleContext {
   public:
     F_varargsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -228,6 +245,8 @@ public:
     virtual size_t getRuleIndex() const override;
     std::vector<FargContext *> farg();
     FargContext* farg(size_t i);
+    std::vector<Farg_defaultContext *> farg_default();
+    Farg_defaultContext* farg_default(size_t i);
     F_varargsContext *f_varargs();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;

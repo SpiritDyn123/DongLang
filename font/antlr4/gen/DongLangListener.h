@@ -1,5 +1,5 @@
 
-// Generated from D:/studyCode/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
+// Generated from D:/vsprojects/DongLang/font/antlr4/DongLang.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -31,6 +31,9 @@ public:
 
   virtual void enterFarg(DongLangParser::FargContext *ctx) = 0;
   virtual void exitFarg(DongLangParser::FargContext *ctx) = 0;
+
+  virtual void enterFarg_default(DongLangParser::Farg_defaultContext *ctx) = 0;
+  virtual void exitFarg_default(DongLangParser::Farg_defaultContext *ctx) = 0;
 
   virtual void enterF_varargs(DongLangParser::F_varargsContext *ctx) = 0;
   virtual void exitF_varargs(DongLangParser::F_varargsContext *ctx) = 0;
