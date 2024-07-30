@@ -10,6 +10,21 @@
 
 using namespace std;
 
+#define FARG_ANALYZE(argCtx, argDefaultValueID) auto argId = argCtx->IDENTIFIER()->getText(); \
+	auto varSb = curScope->FindSymbol(argId);\
+	if (varSb && varSb->getScope() == curScope) {\
+		DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " repeated var declare:" + argId);\
+		return;\
+	}\
+	\
+	auto typeInfo = analyseDLTypeInfo(argCtx->type_type());\
+	auto argTypeInfo = new DongLangTypeInfo(*typeInfo);\
+	DongLangTypeInfo::arrToPtr(typeInfo); \ 
+	auto argSymbol = VarDLSymbol::Create(argId, typeInfo, NULL, argDefaultValueID); \
+	curScope->AddSymbol(argId, SYMBOL_ID(argCtx), argSymbol); \
+	argTypes.push_back(argTypeInfo); \
+	argSymbols.push_back(argSymbol);
+
 DongLangTypeInfo* DongLangLLVMVarListener::analyseDLTypeInfo(DongLangParser::Type_typeContext* typeTypeCtx) {
 	DongLangTypeInfo ttypeInfo;
 	if (typeTypeCtx->IDENTIFIER()) {
@@ -67,21 +82,6 @@ void DongLangLLVMVarListener::enterFunction_def(DongLangParser::Function_defCont
 	DongLangBaseAST::AddScope(ctx, false, ctx->IDENTIFIER()->getText());
 }
 
-#define FARG_ANALYZE(argCtx, argDefaultValueID) auto argId = argCtx->IDENTIFIER()->getText(); \
-	auto varSb = curScope->FindSymbol(argId);\
-	if (varSb && varSb->getScope() == curScope) {\
-		DongLangBaseAST::llvmCtx->emitError(ctx->getText() + " repeated var declare:" + argId);\
-		return;\
-	}\
-	\
-	auto typeInfo = analyseDLTypeInfo(argCtx->type_type());\
-	auto argTypeInfo = new DongLangTypeInfo(*typeInfo);\
-	DongLangTypeInfo::arrToPtr(typeInfo); \ 
-	\
-	auto argSymbol = VarDLSymbol::Create(argId, typeInfo, NULL, argDefaultValueID); \
-	curScope->AddSymbol(argId, SYMBOL_ID(argCtx), argSymbol); \
-	argTypes.push_back(argTypeInfo); \
-	argSymbols.push_back(argSymbol);
 
 void DongLangLLVMVarListener::exitFunction_def(DongLangParser::Function_defContext* ctx) {//fnName 
 	string fnName = ctx->IDENTIFIER()->getText();

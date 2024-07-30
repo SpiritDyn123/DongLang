@@ -84,7 +84,7 @@ public:
 	bool extC() const { return externC;  }
 	bool varArg() const { return isVarArg;}
 
-	vector<VarDLSymbol*> argSymbol();
+	vector<VarDLSymbol*>& argSymbol();
 	VarDLSymbol* argSymbol(int index);
 	vector<DongLangTypeInfo*> argType();
 	DongLangTypeInfo* argType(int index);

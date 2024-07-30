@@ -22,19 +22,17 @@ bool DongLangScope::checkVar(string id, DLSymbol* symbol) {
 }
 
 bool DongLangScope::AddSymbol(string baseId, SYMBOL_ID sId, DLSymbol* symbol) {
-	auto st = symbol->type();
+	//cannot hase var name;
+	if (checkVar(baseId, symbol)) {
+		return false;
+	}
 
+	auto st = symbol->type();
 	if (mSymbols.find(st) == mSymbols.end()) {
 		mSymbols[st] = MTypeSymbols();
 		mSymbols[st].clear();
 	}
-	else {
-		//cannot hase var name;
-		if (checkVar(baseId, symbol)) {
-			return false;
-		}
-	}
-
+	
 	auto& mTypeSymbols = mSymbols[st];
 	if (st != STVar && mTypeSymbols.find(symbol->ID()) != mTypeSymbols.end()) {
 		return false;
@@ -121,7 +119,10 @@ FuncDLSymbol* DongLangScope::FindFuncSymbol(string id,
 	//externC模式查找
 	auto it = mFuncSymbols.find(id);
 	if (it != mFuncSymbols.end()) {
-		return (FuncDLSymbol*)it->second;
+		auto funcS = (FuncDLSymbol*)it->second;
+		if (fId == FuncDLSymbol::funcID(funcS->Name(), funcS->argType(), funcS->varArg())) {
+			return  funcS;
+		}
 	}
 
 	//正常模式查找

@@ -29,10 +29,6 @@ Value* DongLangFunctionDefAST::genCode() {
 		argTypes.push_back(argTypeInfo);
 
 		auto fArgType = argTypeInfo->LlvmType(&lB);
-		if (argTypeInfo->isArray()) { //数组转指针
-			fArgType = fArgType->getArrayElementType()->getPointerTo();
-		}
-	
 		fArgTypes.push_back(fArgType);
 	}
 

@@ -71,6 +71,12 @@ void DongLangLLVMListener::exitFunction_def(DongLangParser::Function_defContext*
 		args.push_back(DongLangFunctionDefAST::ArgInfo(argCtx->IDENTIFIER()->getText(), argCtx, argType));
 	}
 
+	for (auto argDCtx : ctx->farg_list()->farg_default()) {
+		auto argCtx = argDCtx->farg();
+		DongLangTypeInfo* argType = DongLangLLVMVarListener::analyseDLTypeInfo(argCtx->type_type());
+		args.push_back(DongLangFunctionDefAST::ArgInfo(argCtx->IDENTIFIER()->getText(), argCtx, argType));
+	}
+
 	//body
 	vector<DongLangBaseAST*> body;
 	body.clear();

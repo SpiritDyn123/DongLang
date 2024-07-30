@@ -106,6 +106,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 			idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 		}
 
+	
 		int arrIndex = 0;
 		for (auto arrIndexAst : arrAsts) {
 			auto arrIndexV = arrIndexAst->genCode();
@@ -114,7 +115,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
 				arrLLType = tmpTypeInfo.LlvmType(&lB);
 				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { arrIndexV });
-				if (arrIndex < arrOprCnt - 1) { // 最后一次不用load
+				if (arrIndex < arrOprCnt - 1 && arrLLType->isPointerTy()) { // 最后一次不用load
 					idValue = lB.CreateLoad(arrLLType, idValue);
 				}
 			}
@@ -125,6 +126,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 
 			arrIndex++;
 		}
+		
 	}
 	
 	//ptr opr

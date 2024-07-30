@@ -30,21 +30,12 @@ string FuncDLSymbol::funcID(string baseId, vector<DongLangTypeInfo*> argTypes, b
 		if (isVarArg) {
 			id += "__VAR";
 		}
-
-	/*	id = regex_replace(id, regex("\\*"), "P");
-		id = regex_replace(id, regex("\\["), "A");
-		id = regex_replace(id, regex("\\]"), "A");*/
 	}
 	
 	return id;
 }
-vector<VarDLSymbol*>  FuncDLSymbol::argSymbol() {
-	vector<VarDLSymbol*> argSymbols = {};
-	for (auto symbol : argSymbols) {
-		argSymbols.push_back(symbol);
-	}
-
-	return  argSymbols;
+vector<VarDLSymbol*>&  FuncDLSymbol::argSymbol() {
+	return argSymbols;
 }
 
 VarDLSymbol* FuncDLSymbol::argSymbol(int index) {
