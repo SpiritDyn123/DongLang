@@ -78,6 +78,19 @@ DongLangIdPrimaryAST::DongLangIdPrimaryAST(antlr4Ctx ctx, std::string id,
 	}
 }
 
+bool DongLangIdPrimaryAST::isAddressed() {
+	DongLangTypeInfo* idTypeInfo = NULL;
+	if (id != "") {
+		auto symbol = FindSymbol(ctx, id);
+		idTypeInfo = symbol->getVarType();
+	}
+	else { //idAst
+		idTypeInfo = idAst->exprType();
+	}
+
+	return defaultTypeInfo->pas.size() - idTypeInfo->pas.size() + arrAsts.size() > 0;
+}
+
 Value* DongLangIdPrimaryAST::genCode() {
 	Value* idValue = NULL;
 	bool bSymbol = id != "";
@@ -97,10 +110,16 @@ Value* DongLangIdPrimaryAST::genCode() {
 	bool needInitialLoad = dyn_cast<AllocaInst>(idValue) 
 		|| dyn_cast<Constant>(idValue);
 
+	bool isAd = false;
+	if (idAst) {
+		auto adAst = dynamic_cast<ICanAddressAST*>(idAst);
+			isAd = adAst && adAst->isAddressed();
+	}
+
 	//array opr
 	int arrOprCnt = arrAsts.size();
 	if (arrOprCnt) {
-		if (needInitialLoad && !tmpTypeInfo.isArray()) {
+		if (needInitialLoad && !tmpTypeInfo.isArray() && !isAd) {
 			idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 		}
 
@@ -123,14 +142,13 @@ Value* DongLangIdPrimaryAST::genCode() {
 
 			arrIndex++;
 		}
-		
 	}
 	
 	//ptr opr
 	int ptrOprCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
 	if (ptrOprCnt < 0) {
 		int oprIndex = ptrOprCnt;
-		if (!arrOprCnt && !needInitialLoad && !tmpTypeInfo.isArray()) {
+		if (!tmpTypeInfo.isArray()&& (!arrOprCnt && !needInitialLoad || isAd)) {
 			tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
 			oprIndex++;
 		}

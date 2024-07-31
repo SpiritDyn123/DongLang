@@ -101,6 +101,10 @@ private:
 	vector<T*> vars;
 };
 
+class ICanAddressAST {
+public:
+	virtual bool isAddressed() = 0;
+};
 
 #define lC (*DongLangBaseAST::llvmCtx)
 #define lB (*DongLangBaseAST::llvmBuilder)

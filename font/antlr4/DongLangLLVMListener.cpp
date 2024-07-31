@@ -366,11 +366,13 @@ void DongLangLLVMListener::exitPrimary(DongLangParser::PrimaryContext* ctx) {
 void DongLangLLVMListener::enterId_primary(DongLangParser::Id_primaryContext* ctx) {}
 void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx) {
 	//±»paran°üº¬
-	if (auto exprCtx = dynamic_cast<DongLangParser::ExpressionContext*>(ctx->parent->parent)) { //expression
-		if (dynamic_cast<DongLangParser::Paran_exprContext*>(exprCtx->parent)) {
-			auto pIdCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(exprCtx->parent->parent); //id_primary
-			if (!pIdCtx->array_index().size()) {
-				return;
+	if (!ctx->array_index().size()) {
+		if (auto exprCtx = dynamic_cast<DongLangParser::ExpressionContext*>(ctx->parent->parent)) { //expression
+			if (dynamic_cast<DongLangParser::Paran_exprContext*>(exprCtx->parent)) {
+				auto pIdCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(exprCtx->parent->parent); //id_primary
+				if (!pIdCtx->array_index().size()) {
+					return;
+				}
 			}
 		}
 	}

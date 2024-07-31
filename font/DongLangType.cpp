@@ -93,7 +93,8 @@ bool DongLangTypeInfo::needInitial() {
 
 
 void DongLangTypeInfo::AddPointArrayItem(PointOrArray pa) {
-	pas.insert(pas.begin(), pa);
+	pas.push_back(pa);
+	//pas.insert(pas.begin(), pa);
 }
 
 bool DongLangTypeInfo::DelPointArrayItem(PointOrArray pa) {

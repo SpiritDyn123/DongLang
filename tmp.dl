@@ -2,13 +2,7 @@
 
 
 func void fff(int[3] arr1, int[4][] arr2) {
-	int a = *arr1;
-	a = arr1[1];
-
-	a = **arr2;
-	a = arr2[1][2];
-	a = *arr2[1];
-	a = (*arr2)[1];
+	
 }
 
 func int getV() {}
@@ -19,14 +13,9 @@ func int main() {
 	int a;
 	int *p;
 	int **pp;
+	int[3] arr1;
 	int[4][3] arr;
 
-	a = pp[1][2];
-
-	a = *(((&a)));
-	a = (((&a)))[1];
-	a = (&a)[1];
-
-	a = *(&a + 1);
+	 int* cc = *(&arr[1]);
 	//p = &(*&a);
 }

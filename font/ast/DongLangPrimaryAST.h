@@ -50,11 +50,13 @@ private:
 	bool value;
 };
 
-class DongLangIdPrimaryAST : public DongLangBaseAST {
+
+class DongLangIdPrimaryAST : public DongLangBaseAST, public ICanAddressAST {
 public:
 	DongLangIdPrimaryAST(antlr4Ctx, std::string, DongLangBaseAST* idAst, vector<DongLangBaseAST*>& arrAsts,
 		DongLangTypeInfo* typeInfo, 
 		DongLangTypeInfo* defaultTypeInfo);
+	virtual bool isAddressed() override;
 	virtual Value* genCode() override;
 private:
 	antlr4Ctx ctx;
