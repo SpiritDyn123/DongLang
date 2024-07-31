@@ -1,13 +1,32 @@
 // eg: donglang
 
 
+func void fff(int[3] arr1, int[4][] arr2) {
+	int a = *arr1;
+	a = arr1[1];
+
+	a = **arr2;
+	a = arr2[1][2];
+	a = *arr2[1];
+	a = (*arr2)[1];
+}
+
+func int getV() {}
+func int *getPtr1() {}
+func int **getPtr2() {}
 
 func int main() {
 	int a;
 	int *p;
 	int **pp;
+	int[4][3] arr;
 
-	//p = *pp;
-	a= *(&a);
-	p = &(*&a);
+	a = pp[1][2];
+
+	a = *(((&a)));
+	a = (((&a)))[1];
+	a = (&a)[1];
+
+	a = *(&a + 1);
+	//p = &(*&a);
 }

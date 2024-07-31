@@ -25,17 +25,16 @@ public:
 	struct ArgInfo {
 		string name;
 		antlr4Ctx ctx;
-		DongLangTypeInfo* typeInfo;
-		ArgInfo(string name, antlr4Ctx ctx, DongLangTypeInfo* typeInfo): name(name), ctx(ctx), typeInfo(typeInfo){}
+		ArgInfo(string name, antlr4Ctx ctx ): name(name), ctx(ctx){}
 	};
 public:
-	DongLangFunctionDefAST(antlr4Ctx ctx, string fnName, vector<ArgInfo> args, bool isVarArg,
+	DongLangFunctionDefAST(FuncDLSymbol* funcSymbol, string fnName, vector<ArgInfo> args, bool isVarArg,
 		bool hasBody, vector<DongLangBaseAST*> body);
 	virtual Value* genCode() override;
 
 	const string& getName();
 private:
-	antlr4Ctx ctx;
+	FuncDLSymbol* funcSymbol;
 	string fnName;
 	bool isVarArg;
 	vector<ArgInfo> args;

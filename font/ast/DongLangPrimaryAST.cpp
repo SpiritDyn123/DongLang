@@ -88,13 +88,11 @@ Value* DongLangIdPrimaryAST::genCode() {
 		idTypeInfo = symbol->getVarType();
 	}
 	else { //idAst
-		idAst->setFArg();
 		idValue = idAst->genCode();
 		idTypeInfo = idAst->exprType();
 	}
 
 	auto tmpTypeInfo = *idTypeInfo;
-
 
 	bool needInitialLoad = dyn_cast<AllocaInst>(idValue) 
 		|| dyn_cast<Constant>(idValue);
@@ -106,7 +104,6 @@ Value* DongLangIdPrimaryAST::genCode() {
 			idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 		}
 
-	
 		int arrIndex = 0;
 		for (auto arrIndexAst : arrAsts) {
 			auto arrIndexV = arrIndexAst->genCode();
@@ -131,39 +128,35 @@ Value* DongLangIdPrimaryAST::genCode() {
 	
 	//ptr opr
 	int ptrOprCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
-	if (ptrOprCnt) {
-		if (ptrOprCnt > 0) { //取地址只能一次
-			//idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
+	if (ptrOprCnt < 0) {
+		int oprIndex = ptrOprCnt;
+		if (!arrOprCnt && !needInitialLoad && !tmpTypeInfo.isArray()) {
+			tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+			oprIndex++;
 		}
-		else {
-			if (!arrOprCnt && !needInitialLoad && !tmpTypeInfo.isArray()) {
-				tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				ptrOprCnt++;
+
+		for (; oprIndex != 0; oprIndex++) {//*多次
+			auto llType = tmpTypeInfo.LlvmType(&lB);
+			if (tmpTypeInfo.isArray()) {
+				idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
+			}
+			else {
+				idValue = lB.CreateLoad(llType, idValue);
 			}
 
-			for (; ptrOprCnt != 0; ptrOprCnt++) {//*多次
-				auto llType = tmpTypeInfo.LlvmType(&lB);
-				if (tmpTypeInfo.isArray()) {
-					idValue = lB.CreateInBoundsGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
-				}
-				else {
-					idValue = lB.CreateLoad(llType, idValue);
-				}
-
-				tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-			}
+			tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
 		}
+	}
+	else if (ptrOprCnt > 0 ) { //取地址只能一次
+		//idValue = lB.CreateLoad(tmpTypeInfo.LlvmType(&lB), idValue);
 	}
 
 	//是否是左值 或函参
 	bool bLeftValue = !getLeftValue();
 	if ((!bLeftValue || getFArg()) && ptrOprCnt <= 0) {
 		auto llType = tmpTypeInfo.LlvmType(&lB);
-		if (tmpTypeInfo.isArray()) { //array作为左值，右值必然只能是指针
-			//idValue = lB.CreateGEP(llType, idValue, { lB.getInt32(0), lB.getInt32(0) });
-		} else {
+		if (!tmpTypeInfo.isArray()) { //array作为左值，右值必然只能是指针
 			idValue = lB.CreateLoad(llType, idValue);
-
 		}
 	}
 	

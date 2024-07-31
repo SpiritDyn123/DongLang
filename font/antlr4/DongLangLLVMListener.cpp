@@ -67,14 +67,12 @@ void DongLangLLVMListener::exitFunction_def(DongLangParser::Function_defContext*
 	vector<DongLangFunctionDefAST::ArgInfo> args;
 	args.clear();
 	for (auto argCtx : ctx->farg_list()->farg()) {
-		DongLangTypeInfo* argType = DongLangLLVMVarListener::analyseDLTypeInfo(argCtx->type_type());
-		args.push_back(DongLangFunctionDefAST::ArgInfo(argCtx->IDENTIFIER()->getText(), argCtx, argType));
+		args.push_back(DongLangFunctionDefAST::ArgInfo(argCtx->IDENTIFIER()->getText(), argCtx));
 	}
 
 	for (auto argDCtx : ctx->farg_list()->farg_default()) {
 		auto argCtx = argDCtx->farg();
-		DongLangTypeInfo* argType = DongLangLLVMVarListener::analyseDLTypeInfo(argCtx->type_type());
-		args.push_back(DongLangFunctionDefAST::ArgInfo(argCtx->IDENTIFIER()->getText(), argCtx, argType));
+		args.push_back(DongLangFunctionDefAST::ArgInfo(argCtx->IDENTIFIER()->getText(), argCtx));
 	}
 
 	//body
@@ -86,8 +84,9 @@ void DongLangLLVMListener::exitFunction_def(DongLangParser::Function_defContext*
 		}
 	}
 	
+	auto funcSymbol = (FuncDLSymbol*)DongLangBaseAST::FindSymbol((DongLangBaseAST::antlr4Ctx)ctx->parent, SYMBOL_ID(ctx));
 	bool isVarArg = ctx->farg_list()->f_varargs();
-	mAsts[ctx] = new DongLangFunctionDefAST(ctx, ctx->IDENTIFIER()->getText(), args, isVarArg,
+	mAsts[ctx] = new DongLangFunctionDefAST(funcSymbol, ctx->IDENTIFIER()->getText(), args, isVarArg,
 		ctx->function_body(), body);
 }
 
@@ -366,6 +365,16 @@ void DongLangLLVMListener::exitPrimary(DongLangParser::PrimaryContext* ctx) {
 
 void DongLangLLVMListener::enterId_primary(DongLangParser::Id_primaryContext* ctx) {}
 void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx) {
+	//±»paran°üº¬
+	if (auto exprCtx = dynamic_cast<DongLangParser::ExpressionContext*>(ctx->parent->parent)) { //expression
+		if (dynamic_cast<DongLangParser::Paran_exprContext*>(exprCtx->parent)) {
+			auto pIdCtx = dynamic_cast<DongLangParser::Id_primaryContext*>(exprCtx->parent->parent); //id_primary
+			if (!pIdCtx->array_index().size()) {
+				return;
+			}
+		}
+	}
+
 	DongLangBaseAST* idAst = NULL;
 	string id = "";
 	DongLangParser::ExpressionContext* paranExprCtx = NULL;
@@ -374,7 +383,20 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 	}
 	else if (ctx->paran_expr()) {
 		paranExprCtx = ctx->paran_expr()->expression();
-		idAst = mAsts[paranExprCtx];
+		idAst = idAst = mAsts[paranExprCtx];;
+		for (; !idAst && id == ""; ) {
+			auto cCtx = paranExprCtx->primary()->id_primary();
+			if (cCtx->call_expr()) {
+				idAst = mAsts[cCtx->call_expr()];
+			}
+			else if (cCtx->paran_expr()) {
+				paranExprCtx = cCtx->paran_expr()->expression();
+				idAst = idAst = mAsts[paranExprCtx];;
+			}
+			else if (cCtx->IDENTIFIER()) {
+				id = cCtx->IDENTIFIER()->getText();
+			}
+		}
 	}
 	else if (ctx->IDENTIFIER()) {
 		id = ctx->IDENTIFIER()->getText();

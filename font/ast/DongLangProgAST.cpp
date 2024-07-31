@@ -11,10 +11,11 @@ DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& lineAsts) {
 	auto mainRetType = new DongLangTypeInfo("void");
 	vector<DongLangTypeInfo*> mainArgTs = {};
 	vector<VarDLSymbol*> mainArgSs = {};
-	rootScope->AddSymbol("global_main_init", func_global_main_init_id, FuncDLSymbol::Create("global_main_init", 
-		mainRetType, mainArgSs, mainArgTs, NULL, true, false));
+	auto gloablMainInitFuncSs = FuncDLSymbol::Create("global_main_init",
+		mainRetType, mainArgSs, mainArgTs, NULL, true, false);
+	rootScope->AddSymbol("global_main_init", func_global_main_init_id, gloablMainInitFuncSs);
 	
-	auto mainInitFn = new DongLangFunctionDefAST(NULL, "global_main_init", {}, false, true, {});
+	auto mainInitFn = new DongLangFunctionDefAST(gloablMainInitFuncSs, "global_main_init", {}, false, true, {});
 	this->lineAsts.insert(this->lineAsts.begin(), mainInitFn);
 
 	doSysExternFuncs();
@@ -33,9 +34,10 @@ DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& lineAsts) {
 	}
 
 	if (!hasMain) {
-		rootScope->AddSymbol("main", func_main_id, FuncDLSymbol::Create("main",
-			mainRetType, mainArgSs, mainArgTs, NULL, true, false));
-		this->lineAsts.insert(this->lineAsts.end(), new DongLangFunctionDefAST(NULL, "main", {}, false, true, {}));
+		auto mainFuncSs = FuncDLSymbol::Create("main",
+			mainRetType, mainArgSs, mainArgTs, NULL, true, false);
+		rootScope->AddSymbol("main", func_main_id, mainFuncSs);
+		this->lineAsts.insert(this->lineAsts.end(), new DongLangFunctionDefAST(mainFuncSs, "main", {}, false, true, {}));
 	}
 }
 

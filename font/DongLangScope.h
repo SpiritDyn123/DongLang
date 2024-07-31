@@ -12,7 +12,7 @@ using namespace std;
 
 
 const SYMBOL_ID func_main_id = -1;
-const SYMBOL_ID func_global_main_init_id = -1;
+const SYMBOL_ID func_global_main_init_id = -2;
 
 class DongLangScopeForInfo {
 public:
