@@ -1,7 +1,7 @@
 ; ModuleID = 'spirit lang jit'
 source_filename = "spirit lang jit"
 
-@ga = dso_local global i64 1
+@0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
 define void @global_main_init() {
 entry_global_main_init:
@@ -12,26 +12,28 @@ declare i64 @printf(ptr, ...)
 
 declare ptr @memcpy(ptr, ptr, i64)
 
-define i64 @getga() {
-entry_getga:
-  %0 = load i64, ptr @ga, align 4
-  %1 = add i64 %0, 1
-  store i64 %1, ptr @ga, align 4
-  %2 = load i64, ptr @ga, align 4
-  ret i64 %2
+define void @fff_iP_iA4P(ptr %0, ptr %1) {
+entry_fff:
+  %arr1 = alloca ptr, align 8
+  store ptr %0, ptr %arr1, align 8
+  %arr2 = alloca ptr, align 8
+  store ptr %1, ptr %arr2, align 8
+  ret void
 }
 
-define i64 @ff_i_i_i_i(i64 %0, i64 %1, i64 %2, i64 %3) {
-entry_ff:
-  %a = alloca i64, align 8
-  store i64 %0, ptr %a, align 4
-  %b = alloca i64, align 8
-  store i64 %1, ptr %b, align 4
-  %c = alloca i64, align 8
-  store i64 %2, ptr %c, align 4
-  %d = alloca i64, align 8
-  store i64 %3, ptr %d, align 4
+define i64 @getV() {
+entry_getV:
   ret i64 0
+}
+
+define ptr @getPtr1() {
+entry_getPtr1:
+  ret ptr null
+}
+
+define ptr @getPtr2() {
+entry_getPtr2:
+  ret ptr null
 }
 
 define i64 @main() {
@@ -39,15 +41,19 @@ entry_main:
   call void @global_main_init()
   %a = alloca i64, align 8
   store i64 0, ptr %a, align 4
-  %0 = load i64, ptr %a, align 4
-  %1 = load i64, ptr @ga, align 4
-  %2 = call i64 @getga()
-  %3 = call i64 @ff_i_i_i_i(i64 %0, i64 5, i64 %1, i64 %2)
-  %4 = load i64, ptr @ga, align 4
-  %5 = call i64 @getga()
-  %6 = call i64 @ff_i_i_i_i(i64 1, i64 2, i64 %4, i64 %5)
-  %7 = call i64 @getga()
-  %8 = call i64 @ff_i_i_i_i(i64 1, i64 2, i64 3, i64 %7)
-  %9 = call i64 @ff_i_i_i_i(i64 1, i64 2, i64 3, i64 4)
+  %p = alloca ptr, align 8
+  store ptr null, ptr %p, align 8
+  %pp = alloca ptr, align 8
+  store ptr null, ptr %pp, align 8
+  %arr1 = alloca [3 x i64], align 8
+  store [3 x i64] zeroinitializer, ptr %arr1, align 4
+  %arr = alloca [3 x [4 x i64]], align 8
+  store [3 x [4 x i64]] zeroinitializer, ptr %arr, align 4
+  %0 = call ptr @getPtr2()
+  %1 = getelementptr inbounds i64, ptr %0, i64 2
+  %2 = load i64, ptr %1, align 4
+  store i64 %2, ptr %a, align 4
+  %3 = load i64, ptr %a, align 4
+  %4 = call i64 (ptr, ...) @printf(ptr @0, i64 %3)
   ret i64 0
 }

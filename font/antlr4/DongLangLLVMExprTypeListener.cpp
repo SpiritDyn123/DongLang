@@ -612,9 +612,10 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 		}
 	}
 
-	auto oprCCtx = ctx->id_primary_p_addrs()->children;
-	for(int i = oprCCtx.size() - 1; i >= 0;i--) {
-		auto child = oprCCtx[i];
+	//right -> left: &*&*(IDENTIFIER|call_expr|paran_expr)
+	auto oprPtrCCtx = ctx->id_primary_p_addrs()->children;
+	for(int i = oprPtrCCtx.size() - 1; i >= 0;i--) {
+		auto child = oprPtrCCtx[i];
 		auto pointS = child->getText();
 		if (pointS == "*") {
 			if (!idTypeInfo->DelPointArrayItem(PointOrArray(true))) {
@@ -629,30 +630,55 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 			}*/
 
 			//必须针对identifier
-			bool canAddress = ctx->IDENTIFIER();
-			auto cCtx = ctx;
-			for (;!canAddress;) {
-				if (cCtx->IDENTIFIER()) {
-					canAddress = cCtx->id_primary_p_addrs()->POINT().size() >= cCtx->id_primary_p_addrs()->POINTADDR().size();
-					break;
+			if (i == oprPtrCCtx.size() - 1) { //最后一个才判断
+				bool canAddress = ctx->array_index().size();
+				if (!canAddress) {
+					if (ctx->IDENTIFIER()) {
+						canAddress = true;
+					}
+					else if (ctx->call_expr()) {
+						auto ptrCCtx = ctx->id_primary_p_addrs();
+						if (ctx->array_index().size()) {
+							canAddress = true;
+						}
+					}
+					else if (ctx->paran_expr()) { //paran
+						for (auto cCtx = ctx;; canAddress = false) {
+							auto exprCtx = cCtx->paran_expr()->expression();
+							if (!exprCtx->primary() || !exprCtx->primary()->id_primary()) {
+								break;
+							}
+
+							cCtx = exprCtx->primary()->id_primary();
+							auto ptrCCtx = cCtx->id_primary_p_addrs();
+							canAddress = ptrCCtx->POINT().size() >= ptrCCtx->POINTADDR().size(); // count(*) > count(&)
+							if (!canAddress) {
+								break;
+							}
+
+							canAddress = cCtx->array_index().size();
+							if (canAddress) {
+								break;
+							}
+
+							if (cCtx->IDENTIFIER()) {
+								canAddress = true;
+								break;
+							}
+
+							if (ctx->call_expr()) {
+								break;
+							}
+
+						}
+
+					}
 				}
 
-				if (ctx->call_expr()) {
-					break;
+				if (!canAddress) {
+					lC.emitError("primary:" + ctx->getText() + " can not address &");
+					return;
 				}
-
-				//paran
-				auto exprCtx = cCtx->paran_expr()->expression();
-				if (!exprCtx->primary() || !exprCtx->primary()->id_primary()) {
-					break;
-				}
-
-				cCtx = exprCtx->primary()->id_primary();
-			}
-
-			if (!canAddress) {
-				lC.emitError("primary:" + ctx->getText() + " can not address &");
-				return;
 			}
 
 			idTypeInfo->AddPointArrayItem(PointOrArray(true));
@@ -660,6 +686,9 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 	}
 
 	if (auto assignCtx = dynamic_cast<DongLangParser::AssignContext*>(ctx->parent)) {//->assign
+		//TODO assign 左值：检查是否可以寻址
+
+
 		mAssignTypes[assignCtx] = idTypeInfo;
 	}
 	else { //primary->expression

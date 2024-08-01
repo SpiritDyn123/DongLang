@@ -385,7 +385,7 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 	}
 	else if (ctx->paran_expr()) {
 		paranExprCtx = ctx->paran_expr()->expression();
-		idAst = idAst = mAsts[paranExprCtx];;
+		idAst = idAst = mAsts[paranExprCtx];
 		for (; !idAst && id == ""; ) {
 			auto cCtx = paranExprCtx->primary()->id_primary();
 			if (cCtx->call_expr()) {

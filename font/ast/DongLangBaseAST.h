@@ -15,7 +15,7 @@
 #include <map>
 #include "font/DongLangScope.h"
 #include "antlr4-runtime.h"
-
+#include "dl_version.h"
 using namespace std;
 using namespace llvm;
 

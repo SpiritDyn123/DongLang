@@ -1,7 +1,7 @@
 // eg: donglang
 
 
-func void fff(int[3] arr1, int[4][] arr2) {
+func void fff(int[3] arr1, int[4][] arr2 = NIL) {
 	
 }
 
@@ -15,7 +15,11 @@ func int main() {
 	int **pp;
 	int[3] arr1;
 	int[4][3] arr;
+	/*arr[0][2] = 100;
+	p = &arr[0][0];
+	pp = &p;*/
 
-	 int* cc = *(&arr[1]);
-	//p = &(*&a);
+	a = (*pp)[2];
+	a = *&((*getPtr2())[2]);
+	printf("%d\n", a);
 }

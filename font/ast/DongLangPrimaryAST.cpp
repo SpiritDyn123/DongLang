@@ -107,6 +107,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 
 	auto tmpTypeInfo = *idTypeInfo;
 
+#if !defined(VERSION) || VERSION == 1000000
 	bool needInitialLoad = dyn_cast<AllocaInst>(idValue) 
 		|| dyn_cast<Constant>(idValue);
 
@@ -125,6 +126,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 
 		int arrIndex = 0;
 		for (auto arrIndexAst : arrAsts) {
+			arrIndexAst->setFArg();
 			auto arrIndexV = arrIndexAst->genCode();
 			auto arrLLType = tmpTypeInfo.LlvmType(&lB);
 			if (arrLLType->isPointerTy()) {
@@ -179,4 +181,8 @@ Value* DongLangIdPrimaryAST::genCode() {
 	}
 	
 	return TransValue(defaultTypeInfo, idValue);
+#elif VERSION == 1000001
+
+
+#endif
 }
