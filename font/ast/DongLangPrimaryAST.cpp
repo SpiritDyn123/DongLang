@@ -92,6 +92,7 @@ bool DongLangIdPrimaryAST::isAddressed() {
 }
 
 Value* DongLangIdPrimaryAST::genCode() {
+#if !defined(VERSION) || VERSION == 1000000
 	Value* idValue = NULL;
 	bool bSymbol = id != "";
 	DongLangTypeInfo* idTypeInfo = NULL;
@@ -107,7 +108,6 @@ Value* DongLangIdPrimaryAST::genCode() {
 
 	auto tmpTypeInfo = *idTypeInfo;
 
-#if !defined(VERSION) || VERSION == 1000000
 	bool needInitialLoad = dyn_cast<AllocaInst>(idValue) 
 		|| dyn_cast<Constant>(idValue);
 
@@ -180,9 +180,93 @@ Value* DongLangIdPrimaryAST::genCode() {
 		}
 	}
 	
-	return TransValue(defaultTypeInfo, idValue);
-#elif VERSION == 1000001
+#elif VERSION >= 1000001
+	Value* idValue = NULL;
+	bool bSymbol = id != "";
+	bool bLeftValue = !getLeftValue();
+	bool bFArg = getFArg();
+	DongLangTypeInfo tmpTypeInfo;
 
+	if (bSymbol) {
+		auto symbol = FindSymbol(ctx, id);
+		idValue = symbol->getVal(); //alloca ptr
+		tmpTypeInfo = *(symbol->getVarType());
+
+		int oprCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
+		auto llType = tmpTypeInfo.LlvmType(&lB);
+		if ((!bLeftValue || bFArg) && !llType->isArrayTy() && oprCnt <= 0) {
+			idValue = lB.CreateLoad(llType, idValue);
+		}
+	}
+	else { //idAst
+		idAst->setFArg();
+		idValue = idAst->genCode();
+		tmpTypeInfo = *(idAst->exprType());
+	}
+
+	bool isArr = tmpTypeInfo.isArray();
+	bool fromArr = false;
+	int arrOprCnt = arrAsts.size();
+	if (arrOprCnt) {
+		for (auto arrIndexAst : arrAsts) {
+			arrIndexAst->setFArg();
+			auto arrIndexV = arrIndexAst->genCode();
+			auto arrLLType = tmpTypeInfo.LlvmType(&lB);
+			if (arrLLType->isArrayTy()) {
+				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });
+				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
+				fromArr = true;
+			} else {
+				if (!fromArr) {
+					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+				}
+
+				arrLLType = tmpTypeInfo.LlvmType(&lB);
+				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { arrIndexV });
+				if (!arrLLType->isArrayTy()) { //array do not need load
+					idValue = lB.CreateLoad(arrLLType, idValue);
+				}
+
+				if (fromArr) {
+					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+				}
+				fromArr = false;
+			}
+		}
+	}
+
+	int ptrOprCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
+	if (ptrOprCnt < 0) {
+		for (; ptrOprCnt != 0; ptrOprCnt++) {//*¶à´Î
+			auto ptrLLType = tmpTypeInfo.LlvmType(&lB);
+			if (ptrLLType->isArrayTy()) {
+				idValue = lB.CreateInBoundsGEP(ptrLLType, idValue, { lB.getInt32(0), lB.getInt32(0) });
+				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
+				fromArr = true;
+			}
+			else {
+				if (!fromArr) {
+					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+				}
+
+				ptrLLType = tmpTypeInfo.LlvmType(&lB);
+				idValue = lB.CreateLoad(ptrLLType, idValue);
+
+				if (fromArr) {
+					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
+				}
+				fromArr = false;
+			}
+
+		}
+	}
+
+	if (isArr && !tmpTypeInfo.isArray()) {
+		auto llType = tmpTypeInfo.LlvmType(&lB);
+		idValue = lB.CreateLoad(llType, idValue);
+	}
 
 #endif
+
+	return TransValue(defaultTypeInfo, idValue);
 }

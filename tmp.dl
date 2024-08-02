@@ -13,13 +13,12 @@ func int main() {
 	int a;
 	int *p;
 	int **pp;
-	int[3] arr1;
 	int[4][3] arr;
-	/*arr[0][2] = 100;
-	p = &arr[0][0];
-	pp = &p;*/
+	int*[3] parr;
 
-	a = (*pp)[2];
-	a = *&((*getPtr2())[2]);
-	printf("%d\n", a);
+	*p = 5;
+	*arr[2] = 1;
+
+	//if(arr) {}
+	if(&arr) {}
 }

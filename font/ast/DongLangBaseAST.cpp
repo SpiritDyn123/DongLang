@@ -30,6 +30,9 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 					if (t2S == "float") {
 						curValue = lB.CreateFCmpUNE(curValue, zeroValue);
 					}
+					else if (defaultTypeInfo->isArray()) {
+						curValue = lB.getInt1(1);
+					}
 					else {
 						curValue = lB.CreateICmpNE(curValue, zeroValue);
 					}

@@ -64,6 +64,7 @@ private:
 	DongLangBaseAST* idAst;
 	vector<DongLangBaseAST*> arrAsts;
 	DongLangTypeInfo* defaultTypeInfo;
+	
 };
 
 

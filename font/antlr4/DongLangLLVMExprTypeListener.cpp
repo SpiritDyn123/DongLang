@@ -669,9 +669,7 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 							if (ctx->call_expr()) {
 								break;
 							}
-
 						}
-
 					}
 				}
 
@@ -687,8 +685,44 @@ void DongLangLLVMExprTypeListener::exitId_primary(DongLangParser::Id_primaryCont
 
 	if (auto assignCtx = dynamic_cast<DongLangParser::AssignContext*>(ctx->parent)) {//->assign
 		//TODO assign 左值：检查是否可以寻址
+		if (assignCtx->expression() || assignCtx->INCREMENT() || assignCtx->DECREMENT()) {
+			DongLangTypeInfo* srcTypeInfo = NULL;
+			for (auto cCtx = ctx;;) {
+				if (cCtx->IDENTIFIER()) {
+					srcTypeInfo = DongLangBaseAST::FindSymbol(cCtx, cCtx->IDENTIFIER()->getText())->getVarType();
+					break;
+				}
+				else if (cCtx->call_expr()) {
+					srcTypeInfo = mCallFuncSymbol[cCtx->call_expr()]->getVarType();
+					break;
+				}
 
+				auto exprCtx = cCtx->paran_expr()->expression();
+				if (exprCtx->expression().size()) {
+					srcTypeInfo = mDefaultExprTypes[exprCtx];
+					if (srcTypeInfo->isPoint() && (exprCtx->ADD() || exprCtx->SUB())) {
+						exprCtx = exprCtx->expression(0);
+					}
+					else {
+						srcTypeInfo = NULL;
+						break;
+					}
+				}
 
+				auto primaryCtx = exprCtx->primary();
+				if (primaryCtx->value_primary()) {
+					break;
+				}
+
+				cCtx = primaryCtx->id_primary();
+			}
+
+			if (!srcTypeInfo || srcTypeInfo->pas.size() < idTypeInfo->pas.size()) {
+				lC.emitError("primary:" + ctx->getText() + " can not as left value");
+				return;
+			}
+		}
+	
 		mAssignTypes[assignCtx] = idTypeInfo;
 	}
 	else { //primary->expression
