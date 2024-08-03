@@ -1,8 +1,11 @@
 // eg: donglang
 
 
-func void fff(int[3] arr1, int[4][] arr2 = NIL) {
-	
+func void fff(int a, int* p, int[3] arr1, int[4][] arr2 = NIL) {
+	//a = *p;
+	//a = *arr1;
+	//a = **arr2;
+
 }
 
 func int getV() {}
@@ -13,12 +16,18 @@ func int main() {
 	int a;
 	int *p;
 	int **pp;
-	int[4][3] arr;
-	int*[3] parr;
 
+	int[3] arr1;
+	int[4][3] arr2;
+	int[4]* parr;
+
+	/*
 	*p = 5;
-	*arr[2] = 1;
+	**pp = a;
+	arr2[2][3] = 1;
+	*/
 
-	//if(arr) {}
-	if(&arr) {}
+	//a = **arr2;
+	a = **pp;
+	fff(a, p, arr1);
 }

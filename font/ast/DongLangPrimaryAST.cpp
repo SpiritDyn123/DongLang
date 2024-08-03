@@ -205,7 +205,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 	}
 
 	bool isArr = tmpTypeInfo.isArray();
-	bool fromArr = false;
+	bool fromArr = bLeftValue;
 	int arrOprCnt = arrAsts.size();
 	if (arrOprCnt) {
 		for (auto arrIndexAst : arrAsts) {
@@ -230,7 +230,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 				if (fromArr) {
 					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
 				}
-				fromArr = false;
+				fromArr = bLeftValue;
 			}
 		}
 	}
@@ -255,13 +255,13 @@ Value* DongLangIdPrimaryAST::genCode() {
 				if (fromArr) {
 					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
 				}
-				fromArr = false;
+				fromArr = bLeftValue;
 			}
 
 		}
 	}
 
-	if (isArr && !tmpTypeInfo.isArray()) {
+	if ((!bLeftValue || bFArg) && isArr && !tmpTypeInfo.isArray()) {
 		auto llType = tmpTypeInfo.LlvmType(&lB);
 		idValue = lB.CreateLoad(llType, idValue);
 	}
