@@ -194,8 +194,9 @@ Value* DongLangIdPrimaryAST::genCode() {
 
 		int oprCnt = defaultTypeInfo->pas.size() - tmpTypeInfo.pas.size();
 		auto llType = tmpTypeInfo.LlvmType(&lB);
-		if ((!bLeftValue || bFArg) && !llType->isArrayTy() && oprCnt <= 0) {
+		if ((!bLeftValue || bFArg) && llType->isPointerTy() && oprCnt <= 0) {
 			idValue = lB.CreateLoad(llType, idValue);
+			//tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
 		}
 	}
 	else { //idAst
@@ -205,7 +206,6 @@ Value* DongLangIdPrimaryAST::genCode() {
 	}
 
 	bool isArr = tmpTypeInfo.isArray();
-	bool fromArr = bLeftValue;
 	int arrOprCnt = arrAsts.size();
 	if (arrOprCnt) {
 		for (auto arrIndexAst : arrAsts) {
@@ -215,22 +215,15 @@ Value* DongLangIdPrimaryAST::genCode() {
 			if (arrLLType->isArrayTy()) {
 				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });
 				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
-				fromArr = true;
+				isArr = true;
 			} else {
-				if (!fromArr) {
-					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				}
-
+				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
 				arrLLType = tmpTypeInfo.LlvmType(&lB);
 				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { arrIndexV });
-				if (!arrLLType->isArrayTy()) { //array do not need load
+				isArr = arrLLType->isArrayTy();
+				if (!isArr) {
 					idValue = lB.CreateLoad(arrLLType, idValue);
 				}
-
-				if (fromArr) {
-					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				}
-				fromArr = bLeftValue;
 			}
 		}
 	}
@@ -239,29 +232,21 @@ Value* DongLangIdPrimaryAST::genCode() {
 	if (ptrOprCnt < 0) {
 		for (; ptrOprCnt != 0; ptrOprCnt++) {//*¶à´Î
 			auto ptrLLType = tmpTypeInfo.LlvmType(&lB);
-			if (ptrLLType->isArrayTy()) {
+			isArr = ptrLLType->isArrayTy();
+			if (isArr) {
 				idValue = lB.CreateInBoundsGEP(ptrLLType, idValue, { lB.getInt32(0), lB.getInt32(0) });
 				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
-				fromArr = true;
 			}
 			else {
-				if (!fromArr) {
-					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				}
-
+				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
 				ptrLLType = tmpTypeInfo.LlvmType(&lB);
 				idValue = lB.CreateLoad(ptrLLType, idValue);
-
-				if (fromArr) {
-					tmpTypeInfo.DelPointArrayItem(PointOrArray(true));
-				}
-				fromArr = bLeftValue;
 			}
 
 		}
 	}
 
-	if ((!bLeftValue || bFArg) && isArr && !tmpTypeInfo.isArray()) {
+	if ((!bLeftValue || bFArg)  && isArr && !tmpTypeInfo.isArray()) {
 		auto llType = tmpTypeInfo.LlvmType(&lB);
 		idValue = lB.CreateLoad(llType, idValue);
 	}

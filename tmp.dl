@@ -25,9 +25,29 @@ func int main() {
 	*p = 5;
 	**pp = a;
 	arr2[2][3] = 1;
+	
+
+	a = **pp;
+	a = **arr2;//
+	
+	a = pp[1][2];
+	a = arr2[1][2];
 	*/
 
-	//a = **arr2;
-	a = **pp;
-	fff(a, p, arr1);
+
+	a=**pp;
+	a = pp[1][2];
+	a = *pp[1];
+	a = (*pp)[1];
+
+	a = **arr2;
+	a = arr2[1][2];
+	a = *arr2[1];
+	a = (*arr2)[1];
+
+
+	**pp = a;
+	pp[1][2]  = a;
+
+	//fff(a, p, arr1);
 }

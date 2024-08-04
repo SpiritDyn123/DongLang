@@ -48,14 +48,17 @@ define dso_local noundef i32 @main() #2 {
   %3 = alloca ptr, align 8
   %4 = alloca [3 x i32], align 4
   %5 = alloca [3 x [4 x i32]], align 16
-  %6 = getelementptr inbounds [3 x [4 x i32]], ptr %5, i64 0, i64 0
-  %7 = getelementptr inbounds [4 x i32], ptr %6, i64 0, i64 0
-  %8 = load i32, ptr %7, align 16
-  store i32 %8, ptr %1, align 4
-  %9 = load i32, ptr %1, align 4
-  %10 = load ptr, ptr %2, align 8
-  %11 = getelementptr inbounds [3 x i32], ptr %4, i64 0, i64 0
-  call void @_Z3fffiPiS_PA4_i(i32 noundef %9, ptr noundef %10, ptr noundef %11, ptr noundef null)
+  %6 = alloca ptr, align 8
+  %7 = load i32, ptr %1, align 4
+  %8 = load ptr, ptr %3, align 8
+  %9 = load ptr, ptr %8, align 8
+  store i32 %7, ptr %9, align 4
+  %10 = load i32, ptr %1, align 4
+  %11 = load ptr, ptr %3, align 8
+  %12 = getelementptr inbounds ptr, ptr %11, i64 1
+  %13 = load ptr, ptr %12, align 8
+  %14 = getelementptr inbounds i32, ptr %13, i64 2
+  store i32 %10, ptr %14, align 4
   ret i32 0
 }
 
