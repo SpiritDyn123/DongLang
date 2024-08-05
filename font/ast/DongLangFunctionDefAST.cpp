@@ -86,6 +86,41 @@ Value* DongLangFunctionDefAST::genCode() {
 				lB.CreateRet(Constant::getNullValue(lRetType));
 			}
 		}
+
+		BasicBlock* endBB = NULL;
+		for (BasicBlock& bb : *fn) {
+			endBB = &bb;
+		}
+
+		if (endBB->size() > 1) {
+			auto newBB = BasicBlock::Create(lC, "", fn);
+			newBB->moveAfter(endBB);
+			for (auto it = endBB->begin(); it != endBB->end(); ++it) {
+				if (auto retInst = dyn_cast<ReturnInst>(it)) {
+					//BranchInst::Create(newBB, retInst);
+					//endBB->erase(it, endBB->end());
+					break;
+				}
+			}
+
+			endBB = newBB;
+			//ReturnInst::Create(, endBB);
+		}
+
+		for (BasicBlock& bb : *fn) {
+			if (&bb == endBB) {
+				break;
+			}
+
+			BasicBlock::iterator it;
+			for (it = bb.begin(); it != bb.end();++it) {
+				if (auto retInst = dyn_cast<ReturnInst>(it)) {
+					//BranchInst::Create(endBB, retInst);
+					//bb.erase(it, bb.end());
+					break;
+				}
+			}
+		}
 	}
 
 	return fn;

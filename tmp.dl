@@ -1,9 +1,9 @@
 // eg: donglang
 
 
-func void fff(int a, int* p, int[3] arr1, int[4][] arr2 = NIL) {
+func int fff(int a, int* p, int[3] arr1, int[4][] arr2 = NIL) {
 	if(arr2 == NIL) {
-		return ;
+		return 5;
 	}
 
 	arr2[1][2] = 102;

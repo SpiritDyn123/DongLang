@@ -1,15 +1,21 @@
- void fff(int a, int* p, int arr1[], int arr2[][4] = 0) {
+ int  fff(int a, int* p, int arr1[], int arr2[][4] = 0) {
 	//a = *p;
 	//a = *arr1;
-	 if (arr2 == 0) {
-		 return;
-	 }
-	 else {
-		 a += 2;
-	 }
-
+	 for (;;) {
+		 if (a > 10) {
+			 a++;
+			 break;
+		 }
+		 else if (a > 100) {
+			 a--;
+			 return 5;
+		 }
+		 else {
+			 continue;
+		 }
+	}
 	 a += 1;
-
+	 return 1;
 }
 
  int getV() {}
