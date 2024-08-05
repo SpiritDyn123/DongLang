@@ -1,7 +1,14 @@
  void fff(int a, int* p, int arr1[], int arr2[][4] = 0) {
 	//a = *p;
 	//a = *arr1;
-	a = **arr2;
+	 if (arr2 == 0) {
+		 return;
+	 }
+	 else {
+		 a += 2;
+	 }
+
+	 a += 1;
 
 }
 
@@ -18,16 +25,16 @@
 	int arr1[3];
 	int arr2[3][4];
 	PARR parr;
+	int* parr2[5];
 
-	//a = *pp[1];
-	//a = *arr2[1];
-	//a = **parr;
-	//a = parr[1][2];
 
-	//a = (*pp)[1];
-	//a = (*arr2)[1];
+	a = **parr2;
+	a = parr2[1][2];
+	a = *parr2[1];
+	a = (*parr2)[1];
+	*parr2[1] = a;
+	(*parr2)[1] = a;
 
-	**pp = a;
-	pp[1][2] = a;
+
 	//fff(a, p, arr1);
 }

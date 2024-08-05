@@ -2,52 +2,35 @@
 
 
 func void fff(int a, int* p, int[3] arr1, int[4][] arr2 = NIL) {
-	//a = *p;
-	//a = *arr1;
-	//a = **arr2;
+	if(arr2 == NIL) {
+		return ;
+	}
 
+	arr2[1][2] = 102;
 }
 
 func int getV() {}
 func int *getPtr1() {}
-func int **getPtr2() {}
+func int **getPtr2() {
+}
 
 func int main() {
 	int a;
 	int *p;
 	int **pp;
 
-	int[3] arr1;
+	int[5] arr1;
 	int[4][3] arr2;
-	int[4]* parr;
+	int[5]* parr;
+	int*[5] parr2;
 
-	/*
-	*p = 5;
-	**pp = a;
-	arr2[2][3] = 1;
+	if(a=100) {}
+	if(int a = 2221;a > 10) {
+		fff(a, p, arr1);
+		printf("%d\n", arr2[1][2]);
+	} else {
+		printf("a:%d <= 10\n", a);
+	}
+
 	
-
-	a = **pp;
-	a = **arr2;//
-	
-	a = pp[1][2];
-	a = arr2[1][2];
-	*/
-
-
-	a=**pp;
-	a = pp[1][2];
-	a = *pp[1];
-	a = (*pp)[1];
-
-	a = **arr2;
-	a = arr2[1][2];
-	a = *arr2[1];
-	a = (*arr2)[1];
-
-
-	**pp = a;
-	pp[1][2]  = a;
-
-	//fff(a, p, arr1);
 }

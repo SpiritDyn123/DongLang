@@ -14,9 +14,25 @@ define dso_local void @_Z3fffiPiS_PA4_i(i32 noundef %0, ptr noundef %1, ptr noun
   store ptr %2, ptr %7, align 8
   store ptr %3, ptr %8, align 8
   %9 = load ptr, ptr %8, align 8
-  %10 = getelementptr inbounds [4 x i32], ptr %9, i64 0, i64 0
-  %11 = load i32, ptr %10, align 4
-  store i32 %11, ptr %5, align 4
+  %10 = icmp eq ptr %9, null
+  br i1 %10, label %11, label %12
+
+11:                                               ; preds = %4
+  br label %18
+
+12:                                               ; preds = %4
+  %13 = load i32, ptr %5, align 4
+  %14 = add nsw i32 %13, 2
+  store i32 %14, ptr %5, align 4
+  br label %15
+
+15:                                               ; preds = %12
+  %16 = load i32, ptr %5, align 4
+  %17 = add nsw i32 %16, 1
+  store i32 %17, ptr %5, align 4
+  br label %18
+
+18:                                               ; preds = %15, %11
   ret void
 }
 
@@ -49,22 +65,40 @@ define dso_local noundef i32 @main() #2 {
   %4 = alloca [3 x i32], align 4
   %5 = alloca [3 x [4 x i32]], align 16
   %6 = alloca ptr, align 8
-  %7 = load i32, ptr %1, align 4
-  %8 = load ptr, ptr %3, align 8
-  %9 = load ptr, ptr %8, align 8
-  store i32 %7, ptr %9, align 4
-  %10 = load i32, ptr %1, align 4
-  %11 = load ptr, ptr %3, align 8
-  %12 = getelementptr inbounds ptr, ptr %11, i64 1
-  %13 = load ptr, ptr %12, align 8
-  %14 = getelementptr inbounds i32, ptr %13, i64 2
-  store i32 %10, ptr %14, align 4
+  %7 = alloca [5 x ptr], align 16
+  %8 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 0
+  %9 = load ptr, ptr %8, align 16
+  %10 = load i32, ptr %9, align 4
+  store i32 %10, ptr %1, align 4
+  %11 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 1
+  %12 = load ptr, ptr %11, align 8
+  %13 = getelementptr inbounds i32, ptr %12, i64 2
+  %14 = load i32, ptr %13, align 4
+  store i32 %14, ptr %1, align 4
+  %15 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 1
+  %16 = load ptr, ptr %15, align 8
+  %17 = load i32, ptr %16, align 4
+  store i32 %17, ptr %1, align 4
+  %18 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 0
+  %19 = load ptr, ptr %18, align 16
+  %20 = getelementptr inbounds i32, ptr %19, i64 1
+  %21 = load i32, ptr %20, align 4
+  store i32 %21, ptr %1, align 4
+  %22 = load i32, ptr %1, align 4
+  %23 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 1
+  %24 = load ptr, ptr %23, align 8
+  store i32 %22, ptr %24, align 4
+  %25 = load i32, ptr %1, align 4
+  %26 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 0
+  %27 = load ptr, ptr %26, align 16
+  %28 = getelementptr inbounds i32, ptr %27, i64 1
+  store i32 %25, ptr %28, align 4
   ret i32 0
 }
 
-attributes #0 = { mustprogress noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #0 = { mustprogress noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
 attributes #1 = { cold noreturn nounwind }
-attributes #2 = { mustprogress noinline norecurse nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #2 = { mustprogress noinline norecurse nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
 
 !llvm.module.flags = !{!0, !1, !2, !3, !4}
 !llvm.ident = !{!5}
@@ -74,4 +108,4 @@ attributes #2 = { mustprogress noinline norecurse nounwind optnone uwtable "fram
 !2 = !{i32 7, !"PIE Level", i32 2}
 !3 = !{i32 7, !"uwtable", i32 2}
 !4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"clang version 16.0.4 (https://github.com/llvm/llvm-project ae42196bc493ffe877a7e3dff8be32035dea4d07)"}
+!5 = !{!"clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)"}
