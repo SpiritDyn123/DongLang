@@ -130,6 +130,7 @@
     <ClInclude Include="font\DongLangScope.h" />
     <ClInclude Include="font\DongLangSymbol.h" />
     <ClInclude Include="font\DongLangType.h" />
+    <ClInclude Include="include\dl_version.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="font\antlr4\gen\DongLang.interp" />

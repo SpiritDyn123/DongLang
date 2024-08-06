@@ -3,97 +3,129 @@ source_filename = "ll_test.cpp"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
-; Function Attrs: mustprogress noinline nounwind optnone uwtable
-define dso_local noundef i32 @_Z3fffiPiS_PA4_i(i32 noundef %0, ptr noundef %1, ptr noundef %2, ptr noundef %3) #0 {
-  %5 = alloca i32, align 4
-  %6 = alloca i32, align 4
-  %7 = alloca ptr, align 8
-  %8 = alloca ptr, align 8
-  %9 = alloca ptr, align 8
-  store i32 %0, ptr %6, align 4
-  store ptr %1, ptr %7, align 8
-  store ptr %2, ptr %8, align 8
-  store ptr %3, ptr %9, align 8
-  %10 = load i32, ptr %6, align 4
-  %11 = icmp sgt i32 %10, 1
-  br i1 %11, label %12, label %13
+%class.A = type { ptr, i32, i32 }
 
-12:                                               ; preds = %4
-  store i32 5, ptr %5, align 4
-  br label %14
+$_ZN1A3addEi = comdat any
 
-13:                                               ; preds = %4
-  store i32 1, ptr %5, align 4
-  br label %14
+$_ZN1AC2Ev = comdat any
 
-14:                                               ; preds = %13, %12
-  %15 = load i32, ptr %5, align 4
-  ret i32 %15
+$_ZN1AC2Ei = comdat any
+
+$_ZN1AC2ERKS_ = comdat any
+
+$_ZN1A2ffEv = comdat any
+
+$_ZTV1A = comdat any
+
+$_ZTS1A = comdat any
+
+$_ZTI1A = comdat any
+
+@_ZTV1A = linkonce_odr dso_local unnamed_addr constant { [3 x ptr] } { [3 x ptr] [ptr null, ptr @_ZTI1A, ptr @_ZN1A2ffEv] }, comdat, align 8
+@_ZTVN10__cxxabiv117__class_type_infoE = external global ptr
+@_ZTS1A = linkonce_odr dso_local constant [3 x i8] c"1A\00", comdat, align 1
+@_ZTI1A = linkonce_odr dso_local constant { ptr, ptr } { ptr getelementptr inbounds (ptr, ptr @_ZTVN10__cxxabiv117__class_type_infoE, i64 2), ptr @_ZTS1A }, comdat, align 8
+
+; Function Attrs: mustprogress noinline optnone uwtable
+define dso_local void @_Z3fffi1APS_(i32 noundef %0, ptr noundef %1, ptr noundef %2) #0 {
+  %4 = alloca i32, align 4
+  %5 = alloca ptr, align 8
+  %6 = alloca ptr, align 8
+  store i32 %0, ptr %4, align 4
+  store ptr %1, ptr %5, align 8
+  store ptr %2, ptr %6, align 8
+  %7 = load i32, ptr %4, align 4
+  call void @_ZN1A3addEi(ptr noundef nonnull align 8 dereferenceable(16) %1, i32 noundef %7)
+  %8 = load ptr, ptr %6, align 8
+  %9 = load i32, ptr %4, align 4
+  call void @_ZN1A3addEi(ptr noundef nonnull align 8 dereferenceable(16) %8, i32 noundef %9)
+  ret void
 }
 
 ; Function Attrs: mustprogress noinline nounwind optnone uwtable
-define dso_local noundef i32 @_Z4getVv() #0 {
-  call void @llvm.trap()
-  unreachable
+define linkonce_odr dso_local void @_ZN1A3addEi(ptr noundef nonnull align 8 dereferenceable(16) %0, i32 noundef %1) #1 comdat align 2 {
+  %3 = alloca ptr, align 8
+  %4 = alloca i32, align 4
+  store ptr %0, ptr %3, align 8
+  store i32 %1, ptr %4, align 4
+  %5 = load ptr, ptr %3, align 8
+  %6 = load i32, ptr %4, align 4
+  %7 = getelementptr inbounds %class.A, ptr %5, i32 0, i32 1
+  %8 = load i32, ptr %7, align 8
+  %9 = add nsw i32 %8, %6
+  store i32 %9, ptr %7, align 8
+  ret void
 }
 
-; Function Attrs: cold noreturn nounwind
-declare void @llvm.trap() #1
-
-; Function Attrs: mustprogress noinline nounwind optnone uwtable
-define dso_local noundef ptr @_Z7getPtr1v() #0 {
-  call void @llvm.trap()
-  unreachable
-}
-
-; Function Attrs: mustprogress noinline nounwind optnone uwtable
-define dso_local noundef ptr @_Z7getPtr2v() #0 {
-  call void @llvm.trap()
-  unreachable
-}
-
-; Function Attrs: mustprogress noinline norecurse nounwind optnone uwtable
+; Function Attrs: mustprogress noinline norecurse optnone uwtable
 define dso_local noundef i32 @main() #2 {
   %1 = alloca i32, align 4
-  %2 = alloca ptr, align 8
-  %3 = alloca ptr, align 8
-  %4 = alloca [3 x i32], align 4
-  %5 = alloca [3 x [4 x i32]], align 16
-  %6 = alloca ptr, align 8
-  %7 = alloca [5 x ptr], align 16
-  %8 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 0
-  %9 = load ptr, ptr %8, align 16
-  %10 = load i32, ptr %9, align 4
-  store i32 %10, ptr %1, align 4
-  %11 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 1
-  %12 = load ptr, ptr %11, align 8
-  %13 = getelementptr inbounds i32, ptr %12, i64 2
-  %14 = load i32, ptr %13, align 4
-  store i32 %14, ptr %1, align 4
-  %15 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 1
-  %16 = load ptr, ptr %15, align 8
-  %17 = load i32, ptr %16, align 4
-  store i32 %17, ptr %1, align 4
-  %18 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 0
-  %19 = load ptr, ptr %18, align 16
-  %20 = getelementptr inbounds i32, ptr %19, i64 1
-  %21 = load i32, ptr %20, align 4
-  store i32 %21, ptr %1, align 4
-  %22 = load i32, ptr %1, align 4
-  %23 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 1
-  %24 = load ptr, ptr %23, align 8
-  store i32 %22, ptr %24, align 4
-  %25 = load i32, ptr %1, align 4
-  %26 = getelementptr inbounds [5 x ptr], ptr %7, i64 0, i64 0
-  %27 = load ptr, ptr %26, align 16
-  %28 = getelementptr inbounds i32, ptr %27, i64 1
-  store i32 %25, ptr %28, align 4
+  %2 = alloca %class.A, align 8
+  %3 = alloca %class.A, align 8
+  %4 = alloca %class.A, align 8
+  call void @_ZN1AC2Ev(ptr noundef nonnull align 8 dereferenceable(16) %2)
+  call void @_ZN1AC2Ei(ptr noundef nonnull align 8 dereferenceable(16) %3, i32 noundef 1)
+  %5 = load i32, ptr %1, align 4
+  call void @_ZN1AC2ERKS_(ptr noundef nonnull align 8 dereferenceable(16) %4, ptr noundef nonnull align 8 dereferenceable(16) %2) #5
+  call void @_Z3fffi1APS_(i32 noundef %5, ptr noundef %4, ptr noundef %3)
   ret i32 0
 }
 
-attributes #0 = { mustprogress noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #1 = { cold noreturn nounwind }
-attributes #2 = { mustprogress noinline norecurse nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+; Function Attrs: noinline nounwind optnone uwtable
+define linkonce_odr dso_local void @_ZN1AC2Ev(ptr noundef nonnull align 8 dereferenceable(16) %0) unnamed_addr #3 comdat align 2 {
+  %2 = alloca ptr, align 8
+  store ptr %0, ptr %2, align 8
+  %3 = load ptr, ptr %2, align 8
+  store ptr getelementptr inbounds ({ [3 x ptr] }, ptr @_ZTV1A, i32 0, inrange i32 0, i32 2), ptr %3, align 8
+  ret void
+}
+
+; Function Attrs: noinline nounwind optnone uwtable
+define linkonce_odr dso_local void @_ZN1AC2Ei(ptr noundef nonnull align 8 dereferenceable(16) %0, i32 noundef %1) unnamed_addr #3 comdat align 2 {
+  %3 = alloca ptr, align 8
+  %4 = alloca i32, align 4
+  store ptr %0, ptr %3, align 8
+  store i32 %1, ptr %4, align 4
+  %5 = load ptr, ptr %3, align 8
+  store ptr getelementptr inbounds ({ [3 x ptr] }, ptr @_ZTV1A, i32 0, inrange i32 0, i32 2), ptr %5, align 8
+  %6 = getelementptr inbounds %class.A, ptr %5, i32 0, i32 1
+  %7 = load i32, ptr %4, align 4
+  store i32 %7, ptr %6, align 8
+  ret void
+}
+
+; Function Attrs: noinline nounwind optnone uwtable
+define linkonce_odr dso_local void @_ZN1AC2ERKS_(ptr noundef nonnull align 8 dereferenceable(16) %0, ptr noundef nonnull align 8 dereferenceable(16) %1) unnamed_addr #3 comdat align 2 {
+  %3 = alloca ptr, align 8
+  %4 = alloca ptr, align 8
+  store ptr %0, ptr %3, align 8
+  store ptr %1, ptr %4, align 8
+  %5 = load ptr, ptr %3, align 8
+  store ptr getelementptr inbounds ({ [3 x ptr] }, ptr @_ZTV1A, i32 0, inrange i32 0, i32 2), ptr %5, align 8
+  %6 = getelementptr inbounds %class.A, ptr %5, i32 0, i32 1
+  %7 = load ptr, ptr %4, align 8
+  %8 = getelementptr inbounds %class.A, ptr %7, i32 0, i32 1
+  call void @llvm.memcpy.p0.p0.i64(ptr align 8 %6, ptr align 8 %8, i64 8, i1 false)
+  ret void
+}
+
+; Function Attrs: mustprogress noinline nounwind optnone uwtable
+define linkonce_odr dso_local void @_ZN1A2ffEv(ptr noundef nonnull align 8 dereferenceable(16) %0) unnamed_addr #1 comdat align 2 {
+  %2 = alloca ptr, align 8
+  store ptr %0, ptr %2, align 8
+  %3 = load ptr, ptr %2, align 8
+  ret void
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: readwrite)
+declare void @llvm.memcpy.p0.p0.i64(ptr noalias nocapture writeonly, ptr noalias nocapture readonly, i64, i1 immarg) #4
+
+attributes #0 = { mustprogress noinline optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #1 = { mustprogress noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #2 = { mustprogress noinline norecurse optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #3 = { noinline nounwind optnone uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #4 = { nocallback nofree nounwind willreturn memory(argmem: readwrite) }
+attributes #5 = { nounwind }
 
 !llvm.module.flags = !{!0, !1, !2, !3, !4}
 !llvm.ident = !{!5}

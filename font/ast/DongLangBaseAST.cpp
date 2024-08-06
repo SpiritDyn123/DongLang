@@ -1,5 +1,6 @@
 #include "font/ast/DongLangBaseAST.h"
-
+#include "llvm/Support/TargetSelect.h"  
+#include "llvm/Target/TargetMachine.h" 
 
 LLVMContext* DongLangBaseAST::llvmCtx = NULL;
 Module* DongLangBaseAST::llvmModule = NULL;
@@ -87,6 +88,13 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 	llvmCtx = new LLVMContext();
 	llvmModule = new Module("spirit lang jit", *llvmCtx);
 	llvmBuilder = new IRBuilder<>(*llvmCtx);
+
+	/*
+	llvm::InitializeAllTargets();
+	llvm::InitializeAllTargetMCs();
+	llvm::InitializeAllAsmParsers();
+	llvm::InitializeAllAsmPrinters();
+	*/
 	mScopes.clear();
 }
 

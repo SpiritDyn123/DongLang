@@ -11,6 +11,16 @@ using namespace std;
 #include "font/antlr4/DongLangLLVMListener.h"
 #include "font/antlr4/DongLangLLVMVarListener.h"
 #include "font/antlr4/DongLangLLVMExprTypeListener.h"
+#include "include/dl_flag.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/TargetParser/TargetParser.h"  
+#include "llvm/Support/TargetSelect.h"  
+#include "llvm/Support/raw_ostream.h"  
+#include "llvm/IR/LegacyPassManager.h"  
+#include "llvm/IRReader/IRReader.h"  
+#include "llvm/Bitcode/BitcodeReader.h"  
+#include "llvm/IR/LegacyPassManager.h" 
+#include "llvm/MC/TargetRegistry.h"
 
 using namespace antlr4;
 
@@ -18,7 +28,11 @@ const string defaultLibContent = R"(
 extern C func int printf(string fmt, ...);
 extern C func byte* memcpy(byte *dst, byte*src, int len);
 )";
-int main() {
+
+
+int main(int argc, char** argv) {
+	//cmd flags
+	initFlags(argc, argv);
 
 	DongLangBaseAST::InitLLVMAST();
 
@@ -28,7 +42,7 @@ int main() {
 
 
 	ifstream codeFile;
-	codeFile.open("./tmp.dl");
+	codeFile.open(FLAGS_in);
 	if (!codeFile.is_open()) {
 		cout << "open file err" << endl;
 		return 0;
@@ -64,9 +78,29 @@ int main() {
 	tree::ParseTreeWalker::DEFAULT.walk(&lis, prog);
 
 	lis.GetRootAST()->genCode();
-	//DongLangBaseAST::llvmModule->dump();
-	DongLangBaseAST::llvmModule->print(errs(), NULL);
 
-	//cout << "hello clang remote linux\n";
+	if (FLAGS_otype == "ll") {
+		if (FLAGS_out == "") {
+			//DongLangBaseAST::llvmModule->dump();
+			lM.print(llvm::errs(), NULL);
+		}
+		else {
+			std::error_code EC;
+			raw_fd_ostream out(FLAGS_out, EC);
+			lM.print(out, NULL);
+		}
+	}
+	else if (FLAGS_otype == "exe") {
+		/*string errStr = "";
+		auto archName = "x86_64-pc-linux-gnu";
+		const  llvm::Target* target = TargetRegistry::lookupTarget(archName, errStr);
+		if (!target) {
+			cout << "get target:" << archName << ",err:" << errStr << endl;
+			return 0;
+		}*/
+		
+	}
+	
+
 	return 0;
 }

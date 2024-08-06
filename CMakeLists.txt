@@ -31,6 +31,7 @@ link_directories(
 # app cpp files
 file(GLOB_RECURSE SRC_FILES 
 	${PROJECT_SOURCE_DIR}/font/*.cpp
+	${PROJECT_SOURCE_DIR}/src/*.cpp
     #${PROJECT_SOURCE_DIR}/font/**/*.cpp # 从src目录及其子目录中查找  
 )  
 
@@ -56,6 +57,7 @@ if(1)
 		tinfo
 		xml2
 		antlr4-runtime
+		gflags
 		gmock
 		gmock_main)
 
