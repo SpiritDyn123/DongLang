@@ -13,7 +13,7 @@ declare i64 @printf(ptr, ...)
 
 declare ptr @memcpy(ptr, ptr, i64)
 
-define void @fff_i_iP_iP_iA4P(i64 %0, ptr %1, ptr %2, ptr %3) {
+define i64 @fff_i_iP_iP_iA4P(i64 %0, ptr %1, ptr %2, ptr %3) {
 entry_fff:
   %a = alloca i64, align 8
   store i64 %0, ptr %a, align 4
@@ -23,20 +23,24 @@ entry_fff:
   store ptr %2, ptr %arr1, align 8
   %arr2 = alloca ptr, align 8
   store ptr %3, ptr %arr2, align 8
-  %4 = load ptr, ptr %arr2, align 8
-  %5 = icmp eq ptr %4, null
-  br i1 %5, label %6, label %7
+  %4 = alloca i64, align 8
+  store i64 1, ptr %a, align 4
+  %5 = load i64, ptr %a, align 4
+  %6 = icmp ne i64 %5, 0
+  br i1 %6, label %7, label %8
 
-6:                                                ; preds = %entry_fff
-  ret void
-  br label %7
+7:                                                ; preds = %entry_fff
+  store i64 5, ptr %4, align 4
+  br label %10
 
-7:                                                ; preds = %6, %entry_fff
-  %8 = load ptr, ptr %arr2, align 8
-  %9 = getelementptr inbounds [4 x i64], ptr %8, i64 1
-  %10 = getelementptr inbounds [4 x i64], ptr %9, i32 0, i64 2
-  store i64 102, ptr %10, align 4
-  ret void
+8:                                                ; preds = %entry_fff
+  %9 = load i64, ptr %a, align 4
+  store i64 %9, ptr %4, align 4
+  br label %10
+
+10:                                               ; preds = %8, %7
+  %11 = load i64, ptr %4, align 4
+  ret i64 %11
 }
 
 define i64 @getV() {
@@ -57,6 +61,7 @@ entry_getPtr2:
 define i64 @main() {
 entry_main:
   call void @global_main_init()
+  %0 = alloca i64, align 8
   %a = alloca i64, align 8
   store i64 0, ptr %a, align 4
   %p = alloca ptr, align 8
@@ -72,36 +77,37 @@ entry_main:
   %parr2 = alloca [5 x ptr], align 8
   store [5 x ptr] zeroinitializer, ptr %parr2, align 8
   store i64 100, ptr %a, align 4
-  %0 = load i64, ptr %a, align 4
-  %1 = icmp ne i64 %0, 0
-  br i1 %1, label %2, label %3
+  %1 = load i64, ptr %a, align 4
+  %2 = icmp ne i64 %1, 0
+  br i1 %2, label %3, label %4
 
-2:                                                ; preds = %entry_main
-  br label %3
+3:                                                ; preds = %entry_main
+  br label %4
 
-3:                                                ; preds = %2, %entry_main
+4:                                                ; preds = %3, %entry_main
   %a1 = alloca i64, align 8
   store i64 2221, ptr %a1, align 4
-  %4 = load i64, ptr %a1, align 4
-  %5 = icmp sgt i64 %4, 10
-  br i1 %5, label %6, label %14
+  %5 = load i64, ptr %a1, align 4
+  %6 = icmp sgt i64 %5, 10
+  br i1 %6, label %7, label %16
 
-6:                                                ; preds = %3
-  %7 = load i64, ptr %a1, align 4
-  %8 = load ptr, ptr %p, align 8
-  %9 = getelementptr inbounds [5 x i64], ptr %arr1, i32 0, i32 0
-  call void @fff_i_iP_iP_iA4P(i64 %7, ptr %8, ptr %9, ptr null)
-  %10 = getelementptr inbounds [3 x [4 x i64]], ptr %arr2, i32 0, i64 1
-  %11 = getelementptr inbounds [4 x i64], ptr %10, i32 0, i64 2
-  %12 = load i64, ptr %11, align 4
-  %13 = call i64 (ptr, ...) @printf(ptr @0, i64 %12)
-  br label %17
+7:                                                ; preds = %4
+  %8 = load i64, ptr %a1, align 4
+  %9 = load ptr, ptr %p, align 8
+  %10 = getelementptr inbounds [5 x i64], ptr %arr1, i32 0, i32 0
+  %11 = call i64 @fff_i_iP_iP_iA4P(i64 %8, ptr %9, ptr %10, ptr null)
+  %12 = getelementptr inbounds [3 x [4 x i64]], ptr %arr2, i32 0, i64 1
+  %13 = getelementptr inbounds [4 x i64], ptr %12, i32 0, i64 2
+  %14 = load i64, ptr %13, align 4
+  %15 = call i64 (ptr, ...) @printf(ptr @0, i64 %14)
+  br label %19
 
-14:                                               ; preds = %3
-  %15 = load i64, ptr %a1, align 4
-  %16 = call i64 (ptr, ...) @printf(ptr @1, i64 %15)
-  br label %17
+16:                                               ; preds = %4
+  %17 = load i64, ptr %a1, align 4
+  %18 = call i64 (ptr, ...) @printf(ptr @1, i64 %17)
+  br label %19
 
-17:                                               ; preds = %14, %6
-  ret i64 0
+19:                                               ; preds = %16, %7
+  %20 = load i64, ptr %0, align 4
+  ret i64 %20
 }

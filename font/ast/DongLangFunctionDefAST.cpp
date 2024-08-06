@@ -43,12 +43,13 @@ Value* DongLangFunctionDefAST::genCode() {
 
 		//var name
 		int indx = 0;
+		Instruction* lastArgInst = NULL;
 		for (auto& arg : fn->args()) {
 			auto& argInfo = args[indx];
 			//arg.setName(argInfo.name);
 
 			Value* argValue = lB.CreateAlloca(arg.getType(), NULL, argInfo.name);
-			lB.CreateStore(&arg, argValue);
+			lastArgInst = lB.CreateStore(&arg, argValue);
 			//save symbol
 			auto symbol = FindSymbol(argInfo.ctx, argInfo.name);
 			auto symbolTypeInfo = symbol->getVarType();
@@ -63,7 +64,6 @@ Value* DongLangFunctionDefAST::genCode() {
 			lB.CreateCall(lM.getFunction("global_main_init"));
 		}
 
-		bool hasRet = false;
 		for (auto expr : body) {
 			auto sv = expr->genCode();
 			if (auto smBB = dyn_cast<BasicBlock>(sv); smBB && smBB != entryBB) {
@@ -73,54 +73,92 @@ Value* DongLangFunctionDefAST::genCode() {
 					break;
 				}
 			}
-			else if (dyn_cast<ReturnInst>(sv)) {
-				hasRet = true;
-			}
 		}
 
-		if (!hasRet) {
-			if (lRetType->isVoidTy()) {
-				lB.CreateRetVoid();
-			}
-			else {
-				lB.CreateRet(Constant::getNullValue(lRetType));
-			}
-		}
-
-		BasicBlock* endBB = NULL;
-		for (BasicBlock& bb : *fn) {
-			endBB = &bb;
-		}
-
-		if (endBB->size() > 1) {
-			auto newBB = BasicBlock::Create(lC, "", fn);
-			newBB->moveAfter(endBB);
-			for (auto it = endBB->begin(); it != endBB->end(); ++it) {
-				if (auto retInst = dyn_cast<ReturnInst>(it)) {
-					//BranchInst::Create(newBB, retInst);
-					//endBB->erase(it, endBB->end());
-					break;
-				}
-			}
-
-			endBB = newBB;
-			//ReturnInst::Create(, endBB);
-		}
-
-		for (BasicBlock& bb : *fn) {
-			if (&bb == endBB) {
+#if 1
+		/*
+		 * return修正，后续TODO成Pass
+		 */
+		BasicBlock* endBB = lB.GetInsertBlock();
+		ReturnInst* retInst = NULL;
+		for (auto it = endBB->begin(); it != endBB->end(); ++it) {
+			if (retInst = dyn_cast<ReturnInst>(it); retInst) {
 				break;
 			}
+		}
 
-			BasicBlock::iterator it;
-			for (it = bb.begin(); it != bb.end();++it) {
-				if (auto retInst = dyn_cast<ReturnInst>(it)) {
-					//BranchInst::Create(endBB, retInst);
-					//bb.erase(it, bb.end());
+		//1、retvalue填充
+		Value* allocRetValue = NULL;
+		if (entryBB != endBB && !lRetType->isVoidTy()) {
+			allocRetValue = lB.CreateAlloca(lRetType);
+			if (lastArgInst) {
+				((AllocaInst*)allocRetValue)->moveAfter(lastArgInst);
+			}
+			else if (entryBB->size()) {
+				((AllocaInst*)allocRetValue)->moveAfter(dyn_cast<Instruction>(entryBB->begin()));
+			}
+
+			if (retInst) {
+				lB.CreateStore(retInst->getReturnValue(), allocRetValue);
+				retInst->eraseFromParent();
+			}
+
+
+			//2、新增endBB
+			if (endBB->size() > 1 && !dyn_cast<ReturnInst>(endBB->begin())) {
+				auto newBB = BasicBlock::Create(lC, "", fn);
+				newBB->moveAfter(endBB);
+				endBB = newBB;
+			}
+			
+			lB.SetInsertPoint(endBB);
+			retInst = lB.CreateRet(lB.CreateLoad(lRetType, allocRetValue));
+		}
+		else {
+			if (!retInst) {
+				lRetType->isVoidTy() ? lB.CreateRetVoid() : lB.CreateRet(Constant::getNullValue(lRetType));
+			}
+		}
+		
+		//3、优化branchinst、returninst
+		for (BasicBlock& bb : *fn) {
+			for (auto it = bb.begin(); it != bb.end(); ++it) {
+				if (auto brInst = dyn_cast<BranchInst>(it)) {
+					break;
+
+				} else if (auto retInst = dyn_cast<ReturnInst>(it)) {
+					if (&bb != endBB) {
+						lB.SetInsertPoint(&bb);
+						if (allocRetValue != NULL) {
+							auto inst = lB.CreateStore(retInst->getReturnValue(), allocRetValue);
+							inst->moveBefore(retInst);
+						}
+
+						BranchInst::Create(endBB, retInst);
+					}
+
 					break;
 				}
 			}
+
+			Instruction* brInst = NULL;
+			for (auto it = bb.begin(); it != bb.end(); ++it) {
+				if (dyn_cast<BranchInst>(it) || dyn_cast<ReturnInst>(it)) {
+					if (++it != bb.end()) {
+						bb.erase(it, bb.end());
+					}
+					brInst = NULL;
+					break;
+				}
+
+				brInst = dyn_cast<Instruction>(it);
+			}
+
+			if (brInst) {
+				BranchInst::Create(endBB, &bb);
+			}
 		}
+#endif
 	}
 
 	return fn;
