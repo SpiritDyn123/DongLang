@@ -15,6 +15,7 @@ func int *getPtr1() {}
 func int **getPtr2() {
 }
 
+
 func int main() {
 	int a;
 	int *p;
@@ -37,3 +38,23 @@ func int main() {
 
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

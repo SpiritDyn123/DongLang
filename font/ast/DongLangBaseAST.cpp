@@ -89,12 +89,13 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 	llvmModule = new Module("spirit lang jit", *llvmCtx);
 	llvmBuilder = new IRBuilder<>(*llvmCtx);
 
-	/*
+	
+	llvm::InitializeAllTargetInfos();
 	llvm::InitializeAllTargets();
 	llvm::InitializeAllTargetMCs();
 	llvm::InitializeAllAsmParsers();
 	llvm::InitializeAllAsmPrinters();
-	*/
+	
 	mScopes.clear();
 }
 
