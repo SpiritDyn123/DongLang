@@ -35,198 +35,31 @@ file(GLOB_RECURSE SRC_FILES
     #${PROJECT_SOURCE_DIR}/font/**/*.cpp # 从src目录及其子目录中查找  
 )  
 
-message(STATUS "SRC_FILES:${PROJECT_SOURCE_DIR} ${SRC_FILES}")
+#message(STATUS "SRC_FILES:${PROJECT_SOURCE_DIR} ${SRC_FILES}")
 
 add_executable(DongLang main.cpp ${SRC_FILES})
+
+execute_process(COMMAND llvm-config --cxxflags
+	OUTPUT_VARIABLE LLVM_CXX_FLAGS
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+#添加会导致有些library报错
+#string(APPEND CMAKE_CXX_FLAGS " ${LLVM_CXX_FLAGS}")  
+
+execute_process(COMMAND llvm-config  --system-libs --libs all
+	OUTPUT_VARIABLE LLVM_LIBS
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+string(REPLACE "\n" " " LLVM_LIBS "${LLVM_LIBS}")
+
+message(STATUS "llvm_cxx_flags:${LLVM_CXX_FLAGS} \n llvm_libs:${LLVM_LIBS}")
 
 # link libraries
 if(1)
 	target_link_libraries(DongLang
-		LLVMWindowsManifest 
-		LLVMXRay 
-		LLVMLibDriver 
-		LLVMDlltoolDriver 
-		LLVMCoverage 
-		LLVMLineEditor 
-		LLVMXCoreDisassembler 
-		LLVMXCoreCodeGen 
-		LLVMXCoreDesc 
-		LLVMXCoreInfo 
-		LLVMX86TargetMCA 
-		LLVMX86Disassembler 
-		LLVMX86AsmParser 
-		LLVMX86CodeGen 
-		LLVMX86Desc 
-		LLVMX86Info 
-		LLVMWebAssemblyDisassembler 
-		LLVMWebAssemblyAsmParser 
-		LLVMWebAssemblyCodeGen 
-		LLVMWebAssemblyDesc 
-		LLVMWebAssemblyUtils 
-		LLVMWebAssemblyInfo 
-		LLVMVEDisassembler 
-		LLVMVEAsmParser 
-		LLVMVECodeGen 
-		LLVMVEDesc 
-		LLVMVEInfo 
-		LLVMSystemZDisassembler 
-		LLVMSystemZAsmParser 
-		LLVMSystemZCodeGen 
-		LLVMSystemZDesc 
-		LLVMSystemZInfo 
-		LLVMSparcDisassembler 
-		LLVMSparcAsmParser 
-		LLVMSparcCodeGen 
-		LLVMSparcDesc 
-		LLVMSparcInfo 
-		LLVMRISCVTargetMCA 
-		LLVMRISCVDisassembler 
-		LLVMRISCVAsmParser 
-		LLVMRISCVCodeGen 
-		LLVMRISCVDesc 
-		LLVMRISCVInfo 
-		LLVMPowerPCDisassembler 
-		LLVMPowerPCAsmParser 
-		LLVMPowerPCCodeGen 
-		LLVMPowerPCDesc 
-		LLVMPowerPCInfo 
-		LLVMNVPTXCodeGen 
-		LLVMNVPTXDesc 
-		LLVMNVPTXInfo 
-		LLVMMSP430Disassembler 
-		LLVMMSP430AsmParser 
-		LLVMMSP430CodeGen 
-		LLVMMSP430Desc 
-		LLVMMSP430Info 
-		LLVMMipsDisassembler 
-		LLVMMipsAsmParser 
-		LLVMMipsCodeGen 
-		LLVMMipsDesc 
-		LLVMMipsInfo 
-		LLVMLoongArchDisassembler 
-		LLVMLoongArchAsmParser 
-		LLVMLoongArchCodeGen 
-		LLVMLoongArchDesc 
-		LLVMLoongArchInfo 
-		LLVMLanaiDisassembler 
-		LLVMLanaiCodeGen 
-		LLVMLanaiAsmParser 
-		LLVMLanaiDesc 
-		LLVMLanaiInfo 
-		LLVMHexagonDisassembler 
-		LLVMHexagonCodeGen 
-		LLVMHexagonAsmParser 
-		LLVMHexagonDesc 
-		LLVMHexagonInfo 
-		LLVMBPFDisassembler 
-		LLVMBPFAsmParser 
-		LLVMBPFCodeGen 
-		LLVMBPFDesc 
-		LLVMBPFInfo 
-		LLVMAVRDisassembler 
-		LLVMAVRAsmParser 
-		LLVMAVRCodeGen 
-		LLVMAVRDesc 
-		LLVMAVRInfo 
-		LLVMARMDisassembler 
-		LLVMARMAsmParser 
-		LLVMARMCodeGen 
-		LLVMARMDesc 
-		LLVMARMUtils 
-		LLVMARMInfo 
-		LLVMAMDGPUTargetMCA 
-		LLVMAMDGPUDisassembler 
-		LLVMAMDGPUAsmParser 
-		LLVMAMDGPUCodeGen 
-		LLVMAMDGPUDesc 
-		LLVMAMDGPUUtils 
-		LLVMAMDGPUInfo 
-		LLVMAArch64Disassembler 
-		LLVMAArch64AsmParser 
-		LLVMAArch64CodeGen 
-		LLVMAArch64Desc 
-		LLVMAArch64Utils 
-		LLVMAArch64Info 
-		LLVMOrcJIT 
-		LLVMWindowsDriver 
-		LLVMMCJIT 
-		LLVMJITLink 
-		LLVMInterpreter 
-		LLVMExecutionEngine 
-		LLVMRuntimeDyld 
-		LLVMOrcTargetProcess 
-		LLVMOrcShared 
-		LLVMDWP 
-		LLVMDebugInfoLogicalView 
-		LLVMDebugInfoGSYM 
-		LLVMOption 
-		LLVMObjectYAML 
-		LLVMObjCopy 
-		LLVMMCA 
-		LLVMMCDisassembler 
-		LLVMLTO 
-		LLVMCFGuard 
-		LLVMFrontendOpenACC 
-		LLVMFrontendHLSL 
-		LLVMExtensions 
-		Polly 
-		PollyISL 
-		LLVMPasses 
-		LLVMCoroutines 
-		LLVMipo 
-		LLVMInstrumentation 
-		LLVMVectorize 
-		LLVMLinker 
-		LLVMFrontendOpenMP 
-		LLVMDWARFLinkerParallel 
-		LLVMDWARFLinker 
-		LLVMGlobalISel 
-		LLVMMIRParser 
-		LLVMAsmPrinter 
-		LLVMSelectionDAG 
-		LLVMCodeGen 
-		LLVMObjCARCOpts 
-		LLVMIRPrinter 
-		LLVMInterfaceStub 
-		LLVMFileCheck 
-		LLVMFuzzMutate 
-		LLVMTarget 
-		LLVMScalarOpts 
-		LLVMInstCombine 
-		LLVMAggressiveInstCombine 
-		LLVMTransformUtils 
-		LLVMBitWriter 
-		LLVMAnalysis 
-		LLVMProfileData 
-		LLVMSymbolize 
-		LLVMDebugInfoPDB 
-		LLVMDebugInfoMSF 
-		LLVMDebugInfoDWARF 
-		LLVMObject 
-		LLVMTextAPI 
-		LLVMMCParser 
-		LLVMIRReader 
-		LLVMAsmParser 
-		LLVMMC 
-		LLVMDebugInfoCodeView 
-		LLVMBitReader 
-		LLVMFuzzerCLI 
-		LLVMCore 
-		LLVMRemarks 
-		LLVMBitstreamReader 
-		LLVMBinaryFormat 
-		LLVMTargetParser 
-		LLVMTableGen 
-		LLVMSupport 
-		LLVMDemangle
-
-		rt
-		dl
-		m
-		z
-		zstd
-		tinfo
-		xml2
+		"${LLVM_LIBS}"
 		antlr4-runtime
 		gflags
 		gmock
