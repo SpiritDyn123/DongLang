@@ -20,6 +20,21 @@
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/TargetParser/Host.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
+#include <llvm/Support/ToolOutputFile.h>
+#include <llvm/Object/ObjectFile.h>
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IRReader/IRReader.h"
+#include "llvm/Object/ObjectFile.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/ErrorOr.h"
+#include "llvm/Support/MemoryBuffer.h"
+#include "llvm/Support/SourceMgr.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
+#include <memory>
+#include <system_error>
 
 using namespace antlr4;
 
@@ -41,9 +56,9 @@ GenBase* createGen(GenBase::emGenType gt) {
 		return new ObjGen();
 	case GenBase::genType_exe:
 		return new ExeGen();
+	default:
+		return NULL;
 	}
-
-	return NULL;
 }
 
 GenBase::GenBase() {
@@ -88,7 +103,9 @@ string GenBase::getOutFileName() {
 	case GenBase::genType_obj:
 		outFile += ".o";
 	case GenBase::genType_exe:
-		outFile = FLAGS_out != "" ? FLAGS_out : outFile;
+		outFile = FLAGS_out != "" ? FLAGS_out : outFile + ".out";
+	default:
+		throw "invalid gen type";
 	}
 
 	return outFile;
@@ -118,12 +135,12 @@ bool GenBase::genWrap(GenBase* srcGen) {
 	}
 
 	genQueue.push_back(this);
-	GenBase* srcGen = NULL;
+	GenBase* sGen = NULL;
 	for (auto curGen : genQueue) {
-		if (!curGen->gen(srcGen, curGen == this)) {
+		if (!curGen->gen(sGen, curGen == this)) {
 			return false;
 		}
-		srcGen = curGen;
+		sGen = curGen;
 	}
 
 	return true;
@@ -189,7 +206,7 @@ bool LLGen::gen(GenBase* srcGen, bool final) {
 		llvm::SMDiagnostic EC;
 		auto module = parseIRFile(FLAGS_in, EC, lC);
 		if (!module) {
-			errs() << "LLGen parseIRFile err:" << EC;
+			errs() << "LLGen parseIRFile err:" << EC.getMessage();
 			return false;
 		}
 
@@ -234,7 +251,9 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 	string outFile = getOutFileName();
 	if (srcGen) {
 		if (srcGen->genType() == genType_asm) {
-
+			string cmd = "clang++ -c ";
+			cmd += FLAGS_in + " -o " + outFile;
+			system(cmd.c_str());
 		}
 		else {
 			auto targetMachine = getTargetMachine();
@@ -259,10 +278,14 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 			pass.run(lM);
 			out.flush();
 		}
-		return true;
 	}
+
+	return true;
 }
 
 bool ExeGen::gen(GenBase* srcGen, bool final) {
-
+	string cmd = "clang++ ";
+	cmd += srcGen->getOutFileName() + " -o " + getOutFileName();
+	system(cmd.c_str());
+	return true;
 }

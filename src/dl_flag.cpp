@@ -46,16 +46,16 @@ MGenType mGenTypes = MGenType{
 };
 
 static bool validatorIn(const char* flag, const string& value) {
-	if (value == "") {
-		errs() << "validator input file empty";
+	int index = value.find_last_of('.');
+	if (index < 0) {
+		errs() << "validator input file name error\n";
 		return false;
 	}
 
-	int index = value.find_last_of('.');
-	string suffix = value.substr(index);
+	string suffix = value.substr(index+1);
 	MGenTypeIter iter = mGenTypes.find(suffix);
 	if (iter == mGenTypes.end() || !(iter->second.opr & genTypeInfoOpr_input)) {
-		errs() << "validator input file formt error";
+		errs() << "validator input file formt error\n";
 		return false;
 	}
 	
@@ -66,7 +66,7 @@ static bool validatorIn(const char* flag, const string& value) {
 static bool validatorOType(const char* flag, const string& value) {
 	MGenTypeIter iter = mGenTypes.find(value);
 	if (iter == mGenTypes.end() || !(iter->second.opr & genTypeInfoOpr_output)) {
-		errs() << "validator otype:" << value << " invalid";
+		errs() << "validator otype:" << value << " invalid\n";
 		return false;
 	}
 
@@ -80,7 +80,7 @@ DEFINE_validator(otype, validatorOType);
 void initFlags(int argc, char** argv) {
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
 	if (inType >= outType) {
-		errs() << "input file:" << FLAGS_in << " already is " << FLAGS_out << " file!!!";
+		errs() << "input file:" << FLAGS_in << " already is " << FLAGS_out << " file!!!\n";
 		exit(1);
 	}
 

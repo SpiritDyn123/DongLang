@@ -83,7 +83,6 @@
     <RemoteCopySourceMethod>sftp</RemoteCopySourceMethod>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="backend\GenBase.cpp" />
     <ClCompile Include="font\antlr4\gen\DongLangBaseListener.cpp" />
     <ClCompile Include="font\antlr4\gen\DongLangBaseVisitor.cpp" />
     <ClCompile Include="font\antlr4\gen\DongLangLexer.cpp" />
@@ -110,7 +109,6 @@
     <ClCompile Include="src\dl_flag.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="backend\GenBase.h" />
     <ClInclude Include="font\antlr4\gen\DongLangBaseListener.h" />
     <ClInclude Include="font\antlr4\gen\DongLangBaseVisitor.h" />
     <ClInclude Include="font\antlr4\gen\DongLangLexer.h" />
