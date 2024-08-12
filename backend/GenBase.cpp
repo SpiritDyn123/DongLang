@@ -65,7 +65,7 @@ GenBase::GenBase() {
 
 }
 
-TargetMachine* GenBase::getTargetMachine() {
+TargetMachine* GenBase::getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx) {
 	string errStr = "";
 	auto defaultTargetTrip = sys::getDefaultTargetTriple();
 	const  llvm::Target* target = TargetRegistry::lookupTarget(defaultTargetTrip, errStr);
@@ -80,8 +80,8 @@ TargetMachine* GenBase::getTargetMachine() {
 	TargetOptions opt;
 	auto RM = FLAGS_fpie ? Reloc::DynamicNoPIC : FLAGS_fpic ? Reloc::PIC_ : optional<Reloc::Model>();
 	auto machine = target->createTargetMachine(defaultTargetTrip, CPU, Features, opt, RM);
-	lM.setDataLayout(machine->createDataLayout());
-	lM.setTargetTriple(defaultTargetTrip);
+	lModule.setDataLayout(machine->createDataLayout());
+	lModule.setTargetTriple(defaultTargetTrip);
 
 	return machine;
 }
@@ -96,16 +96,21 @@ string GenBase::getOutFileName() {
 	switch (genType()) {
 	case GenBase::genType_dl:
 		outFile += ".dl";
+		break;
 	case GenBase::genType_ll:
 		outFile += ".ll";
+		break;
 	case GenBase::genType_asm:
 		outFile += ".s";
+		break;
 	case GenBase::genType_obj:
 		outFile += ".o";
+		break;
 	case GenBase::genType_exe:
 		outFile = FLAGS_out != "" ? FLAGS_out : outFile + ".out";
+		break;
 	default:
-		throw "invalid gen type";
+		break;
 	}
 
 	return outFile;
@@ -135,6 +140,13 @@ bool GenBase::genWrap(GenBase* srcGen) {
 	}
 
 	genQueue.push_back(this);
+
+	llvm::InitializeAllTargetInfos();
+	llvm::InitializeAllTargets();
+	llvm::InitializeAllTargetMCs();
+	llvm::InitializeAllAsmParsers();
+	llvm::InitializeAllAsmPrinters();
+
 	GenBase* sGen = NULL;
 	for (auto curGen : genQueue) {
 		if (!curGen->gen(sGen, curGen == this)) {
@@ -142,6 +154,14 @@ bool GenBase::genWrap(GenBase* srcGen) {
 		}
 		sGen = curGen;
 	}
+
+	for (int i = 1; i < genQueue.size() - 1; i++) {
+		//删除中间文件
+		string tmpFile = genQueue[i]->getOutFileName().c_str();
+		remove(tmpFile.c_str());
+	}
+
+	cout << "gen file:" << this->getOutFileName() << " success\n";
 
 	return true;
 }
@@ -163,6 +183,8 @@ bool DLGen::gen(GenBase* srcGen, bool final) {
 	DongLangLexer lexer(&st);
 	CommonTokenStream tokens(&lexer);
 	DongLangParser parser(&tokens);
+
+	DongLangBaseAST::InitLLVMAST();
 
 	//监听错误
 	DongLangLLVMErrorListener errLis;
@@ -204,15 +226,16 @@ bool LLGen::gen(GenBase* srcGen, bool final) {
 	//转换成Module
 	if (!srcGen) {
 		llvm::SMDiagnostic EC;
-		auto module = parseIRFile(FLAGS_in, EC, lC);
+		DongLangBaseAST::llvmCtx = new llvm::LLVMContext();
+		auto module = parseIRFile(FLAGS_in, EC, *DongLangBaseAST::llvmCtx);
 		if (!module) {
 			errs() << "LLGen parseIRFile err:" << EC.getMessage();
 			return false;
 		}
 
 		//lM重新赋值
-		delete DongLangBaseAST::llvmModule;
-		DongLangBaseAST::llvmModule = module.get();
+
+		DongLangBaseAST::llvmModule = module.release();
 	}
 	
 	return true;
@@ -221,7 +244,7 @@ bool LLGen::gen(GenBase* srcGen, bool final) {
 bool AsmGen::gen(GenBase* srcGen, bool final) {
 	string outFile = getOutFileName();
 	if (srcGen) {
-		auto targetMachine = getTargetMachine();
+		auto targetMachine = getTargetMachine(lM, lC);
 		if (!targetMachine) {
 			return false;
 		}
@@ -253,10 +276,10 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 		if (srcGen->genType() == genType_asm) {
 			string cmd = "clang++ -c ";
 			cmd += FLAGS_in + " -o " + outFile;
-			system(cmd.c_str());
+			return system(cmd.c_str()) == 0;
 		}
 		else {
-			auto targetMachine = getTargetMachine();
+			auto targetMachine = getTargetMachine(lM, lC);
 			if (!targetMachine) {
 				return false;
 			}
@@ -280,12 +303,59 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 		}
 	}
 
+	/*
+		DongLangBaseAST::InitLLVMAST();
+
+		llvm::SMDiagnostic EC;
+		llvm::LLVMContext lc;
+		auto module = parseIRFile("tmp.ll", EC, lc);
+		if (!module) {
+			errs() << "LLGen parseIRFile err:" << EC.getMessage();
+			return 0;
+		}
+
+
+		string errStr = "";
+		auto defaultTargetTrip = sys::getDefaultTargetTriple();
+		const  llvm::Target* target = TargetRegistry::lookupTarget(defaultTargetTrip, errStr);
+		if (!target) {
+			errs() << "get target:" << defaultTargetTrip << ",err:" << errStr;
+			return 0;
+		}
+
+		auto CPU = "generic";
+		auto Features = "";
+
+		TargetOptions opt;
+		auto RM = FLAGS_fpie ? Reloc::DynamicNoPIC : FLAGS_fpic ? Reloc::PIC_ : optional<Reloc::Model>();
+		auto targetMachine = target->createTargetMachine(defaultTargetTrip, CPU, Features, opt, RM);
+		module->setDataLayout(targetMachine->createDataLayout());
+		module->setTargetTriple(defaultTargetTrip);
+
+		std::error_code eEC;
+		raw_fd_ostream out("tmp.s", eEC);
+		if (eEC) {
+			errs() << "AsmGen " << FLAGS_out << " out file open err:" << eEC.message();
+			return 0;
+		}
+
+		auto fileType = CGFT_AssemblyFile;
+		legacy::PassManager pass;
+		if (targetMachine->addPassesToEmitFile(pass, out, NULL, fileType)) {
+			errs() << "AsmGen " << "addPassesToEmitFile err error:" << eEC.message();
+			return 0;
+		}
+
+		pass.run(*module);
+		out.flush();
+
+		return 0;
+	*/
 	return true;
 }
 
 bool ExeGen::gen(GenBase* srcGen, bool final) {
 	string cmd = "clang++ ";
 	cmd += srcGen->getOutFileName() + " -o " + getOutFileName();
-	system(cmd.c_str());
-	return true;
+	return 	system(cmd.c_str()) == 0;
 }

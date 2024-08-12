@@ -16,6 +16,8 @@ set(CMAKE_CXX_COMPILER clang++)
 # µ÷ÊÔÐÅÏ¢
 set(CMAKE_CXX_FLAGS "-g")
 
+add_definitions(-DIN_DEV)
+
 #include
 include_directories(
 	. 

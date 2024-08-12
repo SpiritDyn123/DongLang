@@ -6,11 +6,10 @@
 using namespace antlr4;
 using namespace std;
 
+
 int main(int argc, char** argv) {
 	//cmd flags
 	initFlags(argc, argv);
-
-	DongLangBaseAST::InitLLVMAST();
 
 	auto outGen = createGen(outType);
 	if (!outGen->genWrap(createGen(inType))) {
