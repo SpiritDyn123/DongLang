@@ -26,11 +26,15 @@
 --------------------
 #### 示例代码
 - [type](./test/type_test.dl)
-    ![](./test/type.png)
+
+    ![type](./test/type.png)
 - [function](./test/function_test.dl)
-    ![](./test/function.png)
+
+    ![function](./test/function.png)
 - [if_for](./test/cond_if_for_test.dl)
-    ![](./test/cond_if_for.png)
+
+    ![cond_if_for](./test/cond_if_for.png)
+
 
 #### 1.基本类型 int float byte bool string
 ```
