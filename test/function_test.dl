@@ -1,0 +1,38 @@
+
+func void fn1() {
+	
+	return;
+}
+
+
+func int fn1(int a) {
+	return a;
+}
+
+
+
+func int fn1(int a, int b, int c = 5) {
+	if(a > 0) {
+		return a + b + c;
+	}
+
+	return a - b -c;
+}
+
+func void farr(int index, int[] arr1, int[3][] arr2) {
+	arr1[index] = arr2[index][1];
+}
+
+func int main() {
+	int a = 100;
+	printf("%d, %d,%d\n", fn1(1), fn1(-1, 1), fn1(1,2,3));
+
+	int[5] arr1;
+	int[3][6] arr2;
+	int index = 2;
+	arr2[index][1] = 100;
+	farr(index, arr1, arr2);
+	printf("arr1[%d]:%d\n", index, arr1[index]);
+
+	return 0;
+}

@@ -1,0 +1,10 @@
+
+
+func int main() {
+	int iv = 1;
+	float fv = 22.2;
+	byte bv = 12;
+	bool b_v = true;
+	string strv = "hello donglang";
+	printf("int:%d float:%f byte:%d bool:%d string:%s\n", iv, fv, bv, b_v, strv);
+}

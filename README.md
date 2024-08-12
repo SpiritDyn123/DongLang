@@ -1,6 +1,6 @@
 ### 一、简介
 -------------
-  使用**Antlr4**(也可以使用flex&bison)和**LLVM16**开发的一个简单的类 **C++** 语言，源码可供参考学习。
+#### 使用**Antlr4**(也可以使用flex&bison)和**LLVM16**开发的一个简单的类 **C++** 语言，源码可供参考学习。
   - [Antlr4](https://github.com/antlr/antlr4.git)
   - [LLVM](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/index.html)
   - [gflag](https://github.com/gflags/gflags.git)
@@ -24,6 +24,14 @@
 
 ### 三、语法学习
 --------------------
+#### 示例代码
+- [type](./test/type_test.dl)
+    ![](./test/type.png)
+- [function](./test/function_test.dl)
+    ![](./test/function.png)
+- [if_for](./test/cond_if_for_test.dl)
+    ![](./test/cond_if_for.png)
+
 #### 1.基本类型 int float byte bool string
 ```
 int a, b = 1; // int 类型 其中b默认值1
@@ -144,9 +152,10 @@ func int f1(int a, ...) {
 1. 文件类型：
 - dl代码文件后缀
 - ll后缀，
-- s汇编后缀（asm)，
+- s汇编后缀（asm)
 -  o object文件后缀，
 - 可执行后缀自己指定默认（dl.out)
+
 2.生成ll文件
 ```
 ./DongLang -in xxx.dl -otype ll
@@ -156,7 +165,7 @@ func int f1(int a, ...) {
 ./DongLang -in xxx.dl -otype asm
 ./DongLang -in xxx.ll -otype asm
 ```
-4.
+4.生成object文件
 ```
 ./DongLang -in xxx.dl -otype obj
 ./DongLang -in xxx.ll -otype obj

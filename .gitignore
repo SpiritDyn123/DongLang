@@ -369,3 +369,5 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 DongLang
+*.ll
+*.out

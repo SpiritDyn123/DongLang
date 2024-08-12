@@ -1,0 +1,54 @@
+
+
+func int main() {
+	int iv = 1;
+	float fv = 22.2;
+	byte bv = 12;
+	bool b_v = true;
+	string strv = "hello donglang";
+	
+	//if
+	if(iv) {
+		printf("iv true\n");
+	} else if(fv) {
+		printf("fv true\n");
+	} elif(b_v) {
+		printf("b_v true\n");
+	} else if(strv) {
+		printf("strv true\n");
+	}
+
+	//if calc
+	if(iv > fv || b_v && bv) {
+		printf("iv > fv || b_v && bv true\n");
+	} else {
+		printf("iv > fv || b_v && bv false\n");
+	}
+
+	//for
+	for(iv) {
+		int sum = 0;
+		int[10] arr;
+		int j = 0;
+		for(int i = 1;i < 15;i++) {
+			if(i == 3) {
+				continue;
+			} else if(i > 10) {
+				break;
+			}
+
+			arr[j] = i;
+			sum += i;
+			j++;
+		}
+		printf("arr[");
+		for(int i = 0;i < j;i++) {
+			printf("%d", arr[i]);
+			if(i != j -1) {
+				printf(",");
+			}
+		}
+		printf("],sum:%d\n", sum);
+		break;
+	}
+}
