@@ -15,22 +15,28 @@
 using namespace std;
 using namespace antlr4;
 
+#define GET_LOC_DATA(ctx) \
+	auto stopToken = ctx->getStop();\
+	CodeLocData locData(stopToken->getLine() - defaultLine - 1,\
+		stopToken->getCharPositionInLine(),\
+		ctx->getText());\
+
 void DongLangLLVMErrorListener::syntaxError(Recognizer* recognizer, 
 	Token* offendingSymbol, 
 	size_t line,
 	size_t charPositionInLine, const std::string& msg, 
 	std::exception_ptr e) {
-	lC.emitError("syntaxError line:" + std::to_string(line) + 
+	lC.emitError("syntaxError line:" + std::to_string(line - defaultLine - 1) + 
 		",offset:" + std::to_string(charPositionInLine) + " :" + msg);
 }
-
 
 DongLangBaseAST* DongLangLLVMListener::GetRootAST() {
 	return rootAST;
 }
 
-DongLangLLVMListener::DongLangLLVMListener(DongLangLLVMExprTypeListener* etListener):
-	etListener(etListener) {
+DongLangLLVMListener::DongLangLLVMListener(DongLangLLVMExprTypeListener* etListener, int defaultLine):
+	etListener(etListener),
+	defaultLine(defaultLine) {
 	rootAST = NULL;
 	mExprTypes.clear();
 	mAsts.clear();
@@ -84,10 +90,12 @@ void DongLangLLVMListener::exitFunction_def(DongLangParser::Function_defContext*
 		}
 	}
 	
+	GET_LOC_DATA(ctx);
 	auto funcSymbol = (FuncDLSymbol*)DongLangBaseAST::FindSymbol((DongLangBaseAST::antlr4Ctx)ctx->parent, SYMBOL_ID(ctx));
 	bool isVarArg = ctx->farg_list()->f_varargs();
-	mAsts[ctx] = new DongLangFunctionDefAST(funcSymbol, ctx->IDENTIFIER()->getText(), args, isVarArg,
-		ctx->function_body(), body);
+	mAsts[ctx] = new DongLangFunctionDefAST(funcSymbol, ctx->IDENTIFIER()->getText(), 
+		args, isVarArg, ctx->function_body(), body,
+		locData);
 }
 
 

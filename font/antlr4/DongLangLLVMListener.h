@@ -6,6 +6,9 @@ using namespace antlr4;
 
 class DongLangLLVMExprTypeListener;
 class DongLangLLVMErrorListener : public ANTLRErrorListener {
+public:
+	DongLangLLVMErrorListener(int defaultLine): defaultLine(defaultLine) {}
+
 	virtual void syntaxError(Recognizer* recognizer, Token* offendingSymbol, size_t line,
 		size_t charPositionInLine, const std::string& msg, std::exception_ptr e) override;
 
@@ -17,6 +20,8 @@ class DongLangLLVMErrorListener : public ANTLRErrorListener {
 
 	virtual void reportContextSensitivity(Parser* recognizer, const dfa::DFA& dfa, size_t startIndex, size_t stopIndex,
 		size_t prediction, atn::ATNConfigSet* configs) override {}
+private:
+	int defaultLine;
 };
 
 class DongLangLLVMListener : public DongLangBaseListener {
@@ -79,7 +84,6 @@ public:
 	 void enterId_primary(DongLangParser::Id_primaryContext* ctx) override;
 	 void exitId_primary(DongLangParser::Id_primaryContext* ctx) override;
 
-
 	 void enterPrimary_type(DongLangParser::Primary_typeContext* ctx) override { }
 	 void exitPrimary_type(DongLangParser::Primary_typeContext* ctx) override { }
 
@@ -116,7 +120,7 @@ public:
 	 void visitErrorNode(antlr4::tree::ErrorNode* /*node*/) override {}
 
 public:
-	DongLangLLVMListener(DongLangLLVMExprTypeListener* etListener);
+	DongLangLLVMListener(DongLangLLVMExprTypeListener* etListener, int defaultLine);
 	DongLangBaseAST* GetRootAST();
 
 private:
@@ -124,4 +128,5 @@ private:
 	DongLangLLVMExprTypeListener* etListener;
 	std::map<antlr4::ParserRuleContext*, DongLangTypeInfo*> mExprTypes;
 	std::map<antlr4::ParserRuleContext*, DongLangBaseAST*> mAsts;
+	int defaultLine;
 };

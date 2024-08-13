@@ -1,28 +1,19 @@
+int gbInit();
 
-class A {
-public:
-	A() {}
-	A(int a):a(a) {}
-	void add(int b) {
-		a += b;
-	}
+int g_a = 1;
+int g_b = gbInit();
+int g_arr[] = { 1,2,3 };
+int gbInit() {
+	return 2;
+}
 
-	virtual void ff() {}
-private:
-	int a;
-	int b;
-};
-
-void fff(int a, A o1, A* po1) {
-	o1.add(a);
-	po1->add(a);
+void fff(int a, int* pa) {
+	*pa = a + *pa;
 }
 
  int main() {
-	 int a;
-	 A o1;
-	 A o2(1);
-
-	 fff(a, o1, &o2);
+	 int a = 1;
+	 int* p = &a;
+	 fff(a, p);
 	//fff(a, p, arr1);
 }

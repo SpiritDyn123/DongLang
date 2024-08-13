@@ -19,13 +19,22 @@
 using namespace std;
 using namespace llvm;
 
+struct CodeLocData {
+	int line;
+	int column;
+	string code;
+	CodeLocData() {}
+	CodeLocData(int line, int column, string code):
+		line(line),column(column), code(code) {}
+};
 
 class DongLangBaseAST {
 public:
 	using antlr4Ctx = antlr4::ParserRuleContext*;
 
 	DongLangBaseAST():typeInfo(NULL), leftValue(NULL),farg(false), parent(NULL) {}
-	DongLangBaseAST(DongLangTypeInfo* typeInfo) :typeInfo(typeInfo), leftValue(NULL), farg(false), parent(NULL) {}
+	DongLangBaseAST(DongLangTypeInfo* typeInfo, CodeLocData locData = CodeLocData()):
+		typeInfo(typeInfo), leftValue(NULL), farg(false), parent(NULL), locData(locData) {}
 
 	void setLeftValue(Value* leftV) { leftValue = leftV;  }
 	Value* getLeftValue() { return leftValue; }
@@ -57,6 +66,9 @@ public:
 	//类型系统
 	static llvm::Type* LlvmType(DongLangTypeInfo* spType);
 
+	//位置信息
+	CodeLocData& LocData() { return locData;  }
+
 public:
 	static LLVMContext* llvmCtx;
 	static Module* llvmModule;
@@ -69,6 +81,7 @@ private:
 	Value* leftValue;
 	bool farg;
 	DongLangBaseAST* parent;
+	CodeLocData locData;
 };
 
 

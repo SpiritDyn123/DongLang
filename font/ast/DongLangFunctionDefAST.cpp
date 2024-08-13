@@ -2,7 +2,8 @@
 #include "DongLangVarAST.h"
 
 DongLangFunctionDefAST::DongLangFunctionDefAST(FuncDLSymbol* funcSymbol,
-	string fnName, vector<ArgInfo> args, bool isVarArg, bool hasBody, vector<DongLangBaseAST*> body)
+	string fnName, vector<ArgInfo> args, bool isVarArg, bool hasBody, vector<DongLangBaseAST*> body, 
+	CodeLocData& locData) : DongLangBaseAST(NULL, locData)
 {
 	this->funcSymbol = funcSymbol;
 	this->fnName = fnName;
@@ -17,7 +18,12 @@ const string& DongLangFunctionDefAST::getName() {
 }
 
 Value* DongLangFunctionDefAST::genCode() {
-	//cout << "DongLangFunctionDefAST:" << fnName << endl;
+	cout << "DongLangFunctionDefAST:" << fnName 
+		<<  ",line:" << LocData().line 
+		<<  ",column:" << LocData().column
+		<< ",code:" << LocData().code
+		<< endl;
+	
 	//func_type
 	vector<DongLangTypeInfo*> argTypes;
 	argTypes.clear();

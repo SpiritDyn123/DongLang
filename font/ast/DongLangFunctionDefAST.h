@@ -29,7 +29,7 @@ public:
 	};
 public:
 	DongLangFunctionDefAST(FuncDLSymbol* funcSymbol, string fnName, vector<ArgInfo> args, bool isVarArg,
-		bool hasBody, vector<DongLangBaseAST*> body);
+		bool hasBody, vector<DongLangBaseAST*> body, CodeLocData& locData);
 	virtual Value* genCode() override;
 
 	const string& getName();

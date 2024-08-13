@@ -257,7 +257,8 @@ CMP_GE: '>=';
 CMP_LE: '<=';
 
 //lexer
-SPACE: [ \t\r\n]+ ->skip;
+//SPACE: [ \t\r\n]+ ->skip;
+SPACE: [ \t\r\n]+ -> channel(HIDDEN);
 LINE_COMMENT: '//'  ~[\r\n]* -> channel(HIDDEN);
 COMMENT: '/*' .*? '*/'-> channel(HIDDEN);
 

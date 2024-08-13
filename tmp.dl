@@ -2,11 +2,6 @@
 
 
 func int fff(int a, int* p, int[3] arr1, int[4][] arr2 = NIL) {
-	if(!arr2) {
-		return -1;
-	}
-
-	arr2[1][2] = 100;
 	return a;
 }
 
@@ -15,28 +10,7 @@ func int *getPtr1() {}
 func int **getPtr2() {
 }
 
-
-func int main() {
-	int a;
-	int *p;
-	int **pp;
-
-	int[5] arr1;
-	int[4][3] arr2;
-	int[5]* parr;
-	int*[5] parr2;
-
-	if(a=100) {}
-	if(int a = 2221;a > 10) {
-		fff(a, p, arr1, arr2);
-		int[4][3] arr3;
-	//memcpy(arr2, arr3, 48);
-		printf("%d\n", arr3[1][2]);
-	} else {
-		printf("a:%d <= 10\n", a);
-	}
-
-	
+func int main() {s
 }
 
 
