@@ -1,3 +1,6 @@
+int g_a = 1;
+int g_b;
+
 int ff(int a, int b) {
 	int c =  a + b;
 	return c;

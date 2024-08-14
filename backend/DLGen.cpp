@@ -57,6 +57,6 @@ bool DLGen::gen(GenBase* srcGen, bool final) {
 	DongLangLLVMListener lis(&etLis, defaultLine);
 	tree::ParseTreeWalker::DEFAULT.walk(&lis, prog);
 
-	lis.GetRootAST()->genCode();
+	lis.GetRootAST()->genCodeWrap();
 	return true;
 }

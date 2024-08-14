@@ -40,12 +40,12 @@ Value* DongLangIfExprAST::genCode() {
 		Value* cmpValue = NULL;
 		if (cAst->initAst) {
 			if(!cAst->condAst) cAst->initAst->setFArg();
-			cmpValue = cAst->initAst->genCode();
+			cmpValue = cAst->initAst->genCodeWrap();
 		}
 
 		if (cAst->condAst) {
 			cAst->condAst->setFArg();
-			cmpValue = cAst->condAst->genCode();
+			cmpValue = cAst->condAst->genCodeWrap();
 		}
 
 		bool bElse = !cAst->initAst && !cAst->condAst;
@@ -63,7 +63,7 @@ Value* DongLangIfExprAST::genCode() {
 		BasicBlock* bkOrCtBB = NULL;
 		bool noPreds = false;
 		for (auto smAst : cAst->statements) {
-			auto sv = smAst->genCode();
+			auto sv = smAst->genCodeWrap();
 			if (BranchInst* brSv = dyn_cast<BranchInst>(sv)) {
 				if (brSv->getNumSuccessors() == 1) {
 					bkOrCtBB = brSv->getSuccessor(0);
@@ -117,7 +117,7 @@ DongLangForExprAST::DongLangForExprAST(DongLangBaseAST* initAst,
 
 Value* DongLangForExprAST::genCode() {
 	if (initAst) {
-		initAst->genCode();
+		initAst->genCodeWrap();
 	}
 
 	auto mainBB = lB.GetInsertBlock();
@@ -130,7 +130,7 @@ Value* DongLangForExprAST::genCode() {
 
 		//main->iter
 		lB.SetInsertPoint(iterBB);
-		iterAst->genCode();
+		iterAst->genCodeWrap();
 		lB.CreateBr(condBB);
 	}
 
@@ -141,7 +141,7 @@ Value* DongLangForExprAST::genCode() {
 	lB.SetInsertPoint(condBB);
 	if (condAst) {
 		condAst->setFArg();
-		auto cmpValue = condAst->genCode();
+		auto cmpValue = condAst->genCodeWrap();
 		auto trueBB = BasicBlock::Create(lC, "", mainBB->getParent());
 
 		trueBB->moveAfter(lB.GetInsertBlock());
@@ -156,7 +156,7 @@ Value* DongLangForExprAST::genCode() {
 	bool noPreds = false;
 
 	for (auto smAst : statements) {
-		auto sv = smAst->genCode();
+		auto sv = smAst->genCodeWrap();
 
 		//continue or break?
 		if (BranchInst* brSv = dyn_cast<BranchInst>(sv)) {

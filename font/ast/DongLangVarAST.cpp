@@ -19,7 +19,7 @@ DongLangVarDeclareAST::DongLangVarDeclareAST(antlr4Ctx ctx,
 Value* DongLangVarDeclareAST::genCode() {
 	//DongLangArrayAST 带值初始化自己完成
 	if (spType->isArray() && value != NULL) {
-		auto idValue = value->genCode();
+		auto idValue = value->genCodeWrap();
 		if (idValue && getFArg()) {
 			idValue = TransValue(spType, idValue);
 		}
@@ -49,7 +49,7 @@ Value* DongLangVarDeclareAST::genCode() {
 
 	if (value) {
 		if (isPrimary) {
-			auto rValue = value->genCode();
+			auto rValue = value->genCodeWrap();
 			if (isGlobal) {
 				auto gValue = ((GlobalVariable*)idValue);
 				gValue->setInitializer((Constant*)rValue);
@@ -67,7 +67,7 @@ Value* DongLangVarDeclareAST::genCode() {
 			}
 				
 			value->setLeftValue(idValue);
-			value->genCode();
+			value->genCodeWrap();
 
 			if (isGlobal) {
 				lB.SetInsertPoint(curBB); //还原
@@ -107,11 +107,11 @@ Value* DongLangVarAST::genCode() {
 	auto llType = typeInfo->LlvmType(&lB);
 	if (value != NULL) {
 		if (isPrimary) {
-			lB.CreateStore(value->genCode(), idValue);
+			lB.CreateStore(value->genCodeWrap(), idValue);
 		}
 		else {
 			value->setLeftValue(idValue);
-			value->genCode();
+			value->genCodeWrap();
 		}
 	}
 
@@ -135,14 +135,14 @@ DongLangAssignAST::DongLangAssignAST(DongLangBaseAST* idAst,
 }
 
 Value* DongLangAssignAST::genCode() {
-	Value* idValue = idAst->genCode();
+	Value* idValue = idAst->genCodeWrap();
 	if (valueAst) {
 		if (isPrimary) {
-			lB.CreateStore(valueAst->genCode(), idValue);
+			lB.CreateStore(valueAst->genCodeWrap(), idValue);
 		}
 		else {
 			valueAst->setLeftValue(idValue);
-			valueAst->genCode();
+			valueAst->genCodeWrap();
 		}
 	}
 	

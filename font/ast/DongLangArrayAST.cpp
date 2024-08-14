@@ -7,7 +7,7 @@ Constant* DongLangArrayAST::genConstantValue() {
 
 	vector<Constant*> arrItemValues;
 	for (auto cAst : arrAsts) {
-		arrItemValues.push_back((Constant*)cAst->genCode());
+		arrItemValues.push_back((Constant*)cAst->genCodeWrap());
 	}
 
 	auto eleTypeInfo = DongLangTypeInfo(*typeInfo);
@@ -39,7 +39,7 @@ void DongLangArrayAST::genUnPrimaryArrayItem(bool isGlobal, DongLangBaseAST* ast
 			indxValues.push_back(lB.getInt64(index));
 		}
 
-		Value* idValue = ast->genCode();
+		Value* idValue = ast->genCodeWrap();
 		auto* curBB = lB.GetInsertBlock();
 		if (isGlobal) {
 			auto& entryBB = GetGlobalMainInit()->getEntryBlock();

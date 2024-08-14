@@ -165,7 +165,7 @@ DIType* DongLangTypeInfo::getDebugType() {
 			diType = lDB.createPointerType(diType, 64);
 		}
 		else {
-			diType = lDB.createArrayType(it->array_len, 0, diType);
+			diType = lDB.createArrayType(it->array_len, 0, diType, DINodeArray());
 		}
 	}
 

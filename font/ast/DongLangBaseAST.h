@@ -45,8 +45,9 @@ public:
 	virtual void setFArg() { farg = true; }
 	virtual bool getFArg() { return farg;  }
 
+	Value* genCodeWrap();
 	virtual Value* genCode() { return NULL;  }
-
+	
 	void setParent(DongLangBaseAST* parent) { this->parent = parent;  }
 	DongLangBaseAST* getParent() { return parent;  }
 
@@ -97,7 +98,7 @@ public:
 	Value* genCode() override {
 		Value* retValue = NULL;
 		for (auto varAst : vars) {
-			retValue = varAst->genCode();
+			retValue = varAst->genCodeWrap();
 		}
 		return retValue;
 	}

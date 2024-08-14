@@ -102,7 +102,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 		idTypeInfo = symbol->getVarType();
 	}
 	else { //idAst
-		idValue = idAst->genCode();
+		idValue = idAst->genCodeWrap();
 		idTypeInfo = idAst->exprType();
 	}
 
@@ -127,7 +127,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 		int arrIndex = 0;
 		for (auto arrIndexAst : arrAsts) {
 			arrIndexAst->setFArg();
-			auto arrIndexV = arrIndexAst->genCode();
+			auto arrIndexV = arrIndexAst->genCodeWrap();
 			auto arrLLType = tmpTypeInfo.LlvmType(&lB);
 			if (arrLLType->isPointerTy()) {
 				tmpTypeInfo.DelPointArrayItem(PointOrArray(false));
@@ -205,7 +205,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 	}
 	else { //idAst
 		idAst->setFArg();
-		idValue = idAst->genCode();
+		idValue = idAst->genCodeWrap();
 		tmpTypeInfo = *(idAst->exprType());
 	}
 
@@ -214,7 +214,7 @@ Value* DongLangIdPrimaryAST::genCode() {
 	if (arrOprCnt) {
 		for (auto arrIndexAst : arrAsts) {
 			arrIndexAst->setFArg();
-			auto arrIndexV = arrIndexAst->genCode();
+			auto arrIndexV = arrIndexAst->genCodeWrap();
 			auto arrLLType = tmpTypeInfo.LlvmType(&lB);
 			if (arrLLType->isArrayTy()) {
 				idValue = lB.CreateInBoundsGEP(arrLLType, idValue, { lB.getInt32(0), arrIndexV });

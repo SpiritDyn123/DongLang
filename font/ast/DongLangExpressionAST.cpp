@@ -144,8 +144,8 @@ Value* DongLangExpressionAST::addExpr(DongLangExpressionAST* ast) {
 
 	ast->lhs->setFArg();
 	ast->rhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	Value* rValue = ast->rhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
+	Value* rValue = ast->rhs->genCodeWrap();
 	Value* retValue = NULL;
 	if (lhsTS == "int") {
 		retValue = lB.CreateAdd(lValue, rValue);
@@ -171,8 +171,8 @@ Value* DongLangExpressionAST::subExpr(DongLangExpressionAST* ast) {
 
 	ast->lhs->setFArg();
 	ast->rhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	Value* rValue = ast->rhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
+	Value* rValue = ast->rhs->genCodeWrap();
 	Value* retValue = NULL;
 	if (lhsTS == "int") {
 		retValue = lB.CreateSub(lValue, rValue);
@@ -200,8 +200,8 @@ Value* DongLangExpressionAST::mulExpr(DongLangExpressionAST* ast) {
 
 	ast->lhs->setFArg();
 	ast->rhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	Value* rValue = ast->rhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
+	Value* rValue = ast->rhs->genCodeWrap();
 	Value* retValue = NULL;
 	if (lhsTS == "int") {
 		retValue = lB.CreateMul(lValue, rValue);
@@ -225,8 +225,8 @@ Value* DongLangExpressionAST::divExpr(DongLangExpressionAST* ast) {
 
 	ast->lhs->setFArg();
 	ast->rhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	Value* rValue = ast->rhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
+	Value* rValue = ast->rhs->genCodeWrap();
 	Value* retValue = NULL;
 	if (lhsTS == "int") {
 		retValue = lB.CreateSDiv(lValue, rValue);
@@ -245,7 +245,7 @@ Value* DongLangExpressionAST::divExpr(DongLangExpressionAST* ast) {
 
 Value* DongLangExpressionAST::notExpr(DongLangExpressionAST* ast) {
 	ast->lhs->setFArg();
-	return lB.CreateNot(ast->lhs->genCode());
+	return lB.CreateNot(ast->lhs->genCodeWrap());
 }
 
 Value* DongLangExpressionAST::andExpr(DongLangExpressionAST* ast) {
@@ -254,8 +254,8 @@ Value* DongLangExpressionAST::andExpr(DongLangExpressionAST* ast) {
 
 	ast->lhs->setFArg();
 	ast->rhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	Value* rValue = ast->rhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
+	Value* rValue = ast->rhs->genCodeWrap();
 	return lB.CreateAnd(lValue, rValue);
 }
 
@@ -265,8 +265,8 @@ Value* DongLangExpressionAST::orExpr(DongLangExpressionAST* ast) {
 
 	ast->lhs->setFArg();
 	ast->rhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	Value* rValue = ast->rhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
+	Value* rValue = ast->rhs->genCodeWrap();
 	return lB.CreateOr(lValue, rValue);
 }
 
@@ -276,8 +276,8 @@ Value* DongLangExpressionAST::xorExpr(DongLangExpressionAST* ast) {
 
 	ast->lhs->setFArg();
 	ast->rhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	Value* rValue = ast->rhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
+	Value* rValue = ast->rhs->genCodeWrap();
 	return lB.CreateXor(lValue, rValue);
 }
 
@@ -287,8 +287,8 @@ Value* DongLangExpressionAST::cmpExpr(DongLangExpressionAST* ast) {
 
 	ast->lhs->setFArg();
 	ast->rhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
-	Value* rValue = ast->rhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
+	Value* rValue = ast->rhs->genCodeWrap();
 	Value* retValue = NULL;
 
 	string op = ast->op;
@@ -328,7 +328,7 @@ Value* DongLangExpressionAST::cmpExpr(DongLangExpressionAST* ast) {
 
 Value* DongLangExpressionAST::ifNotExpr(DongLangExpressionAST* ast) {
 	ast->lhs->setFArg();
-	return lB.CreateNot(ast->lhs->genCode());
+	return lB.CreateNot(ast->lhs->genCodeWrap());
 }
 
 #define CUR_BB lB.GetInsertBlock()
@@ -338,7 +338,7 @@ Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
 	auto curBB = lB.GetInsertBlock();
 
 	ast->lhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
 	auto cCurBB = CUR_BB;
 	if (cCurBB == curBB) { //说明lhs不是expression嵌套
 		ast->trueBB = BasicBlock::Create(lC, "", curBB->getParent());
@@ -405,7 +405,7 @@ Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
 
 	lB.SetInsertPoint(ast->trueBB);
 	ast->rhs->setFArg();
-	Value* rValue = ast->rhs->genCode();
+	Value* rValue = ast->rhs->genCodeWrap();
 	cCurBB = CUR_BB;
 	ast->phi->addIncoming(rValue, cCurBB);
 
@@ -426,7 +426,7 @@ Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
 	auto curBB = lB.GetInsertBlock();
 
 	ast->lhs->setFArg();
-	Value* lValue = ast->lhs->genCode();
+	Value* lValue = ast->lhs->genCodeWrap();
 	auto cCurBB = CUR_BB;
 	if (cCurBB == curBB) { //说明lhs不是expression嵌套
 		ast->trueBB = BasicBlock::Create(lC, "", curBB->getParent());
@@ -494,7 +494,7 @@ Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
 
 	lB.SetInsertPoint(ast->falseBB);
 	ast->rhs->setFArg();
-	Value* rValue = ast->rhs->genCode();
+	Value* rValue = ast->rhs->genCodeWrap();
 	cCurBB = CUR_BB;
 	ast->phi->addIncoming(rValue, cCurBB);
 
@@ -526,7 +526,7 @@ Value* DongLangExpressionAST::ifThreeOrExpr(DongLangExpressionAST* ast) {
 	ast->phi = CREATE_PHI(LlvmType(lhsAst->exprType()), 2);
 
 	condAst->setFArg();
-	Value* cmpValue = condAst->genCode();
+	Value* cmpValue = condAst->genCodeWrap();
 
 	curBB = CUR_BB;
 	BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, CUR_BB);
@@ -534,14 +534,14 @@ Value* DongLangExpressionAST::ifThreeOrExpr(DongLangExpressionAST* ast) {
 	ast->trueBB->moveAfter(curBB);
 	lB.SetInsertPoint(ast->trueBB);
 	lhsAst->setFArg();
-	ast->phi->addIncoming(lhsAst->genCode(), ast->trueBB);
+	ast->phi->addIncoming(lhsAst->genCodeWrap(), ast->trueBB);
 	lB.CreateBr(endBB);
 
 	curBB = CUR_BB;
 	ast->falseBB->moveAfter(curBB);
 	lB.SetInsertPoint(ast->falseBB);
 	rhsAst->setFArg();
-	ast->phi->addIncoming(rhsAst->genCode(), ast->falseBB);
+	ast->phi->addIncoming(rhsAst->genCodeWrap(), ast->falseBB);
 	lB.CreateBr(endBB);
 
 	curBB = CUR_BB;

@@ -21,6 +21,7 @@ bool DongLangDebugInfo::leaveScope() {
 	}
 
 	scopes.pop_back();
+	return true;
 }
 
 DIScope* DongLangDebugInfo::curScope() {

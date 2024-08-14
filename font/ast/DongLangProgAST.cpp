@@ -50,7 +50,7 @@ Value* DongLangProgAST::genCode() {
 
 #if 1
 	for (auto line : lineAsts) {
-		Value* v = line->genCode();
+		Value* v = line->genCodeWrap();
 	}
 
 	auto globalMainInitFunc = GetGlobalMainInit(false);

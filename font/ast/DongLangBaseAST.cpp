@@ -10,6 +10,11 @@ DongLangDebugInfo DongLangBaseAST::dbgInfo;
 map<DongLangBaseAST::antlr4Ctx, DongLangScope*> DongLangBaseAST::mScopes;
 DongLangScope* DongLangBaseAST::rootScope = NULL;
 
+Value* DongLangBaseAST::genCodeWrap() {
+	if(G_DEBUG) lDI.emitLocation(this);
+	return this->genCode();
+}
+
 Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* curValue) {
 	if (!typeInfo) {
 		return curValue;

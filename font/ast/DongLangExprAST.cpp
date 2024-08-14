@@ -16,7 +16,7 @@ Value* DongLangCallExprAST::genCode() {
 	std::vector<Value*> fArgs(args.size());
 	for (auto i = 0; i < args.size(); i++) {
 		args[i]->setFArg();
-		auto value = args[i]->genCode();
+		auto value = args[i]->genCodeWrap();
 
 		//auto argType = args[i]->exprType();
 		//if (argType->isArray() && argDefaultTypes[i]->isArray()) {// value->getType()->isArrayTy()
@@ -48,7 +48,7 @@ Value* DongLangRetExprAST::genCode() {
 	}
 
 	expr->setFArg();
-	Value *retValue = expr->genCode();
+	Value *retValue = expr->genCodeWrap();
 	auto retTypeInfo = expr->exprType();
 	//if (retTypeInfo->isArray() && defaultTypeInfo->isArray()) { //&& retValue->getType()->isArrayTy()
 	//	retValue = lB.CreateGEP(defaultTypeInfo->LlvmType(&lB), retValue, { lB.getInt32(0), lB.getInt32(0) });

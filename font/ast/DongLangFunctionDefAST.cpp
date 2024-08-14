@@ -68,6 +68,9 @@ Value* DongLangFunctionDefAST::genCode() {
 				DISubprogram::SPFlagDefinition);
 			fn->setSubprogram(debugSp);
 			lDI.enterScope(debugSp);
+
+			// break not stay in function def line
+			lDI.emitLocation(NULL);
 		}
 
 		//var name
@@ -104,7 +107,7 @@ Value* DongLangFunctionDefAST::genCode() {
 		}*/
 
 		for (auto expr : body) {
-			auto sv = expr->genCode();
+			auto sv = expr->genCodeWrap();
 			if (auto smBB = dyn_cast<BasicBlock>(sv); smBB && smBB != entryBB) {
 				//当前模块不存在preds,可能内存存在break continue 导致的不可达代码
 				if (pred_begin(smBB) == pred_end(smBB)) {
