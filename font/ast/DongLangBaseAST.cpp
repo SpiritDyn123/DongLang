@@ -5,6 +5,8 @@
 LLVMContext* DongLangBaseAST::llvmCtx = NULL;
 Module* DongLangBaseAST::llvmModule = NULL;
 IRBuilder<>* DongLangBaseAST::llvmBuilder = NULL;
+DongLangDebugInfo DongLangBaseAST::dbgInfo;
+
 map<DongLangBaseAST::antlr4Ctx, DongLangScope*> DongLangBaseAST::mScopes;
 DongLangScope* DongLangBaseAST::rootScope = NULL;
 
@@ -89,6 +91,11 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 	llvmModule = new Module("spirit lang jit", *llvmCtx);
 	llvmBuilder = new IRBuilder<>(*llvmCtx);
 
+	//开启debug
+	if (G_DEBUG) {
+		dbgInfo.Init();
+	}
+
 	mScopes.clear();
 }
 
@@ -166,4 +173,48 @@ DongLangScope* DongLangBaseAST::CurScope(antlr4Ctx ctx) {
 
  llvm::Type* DongLangBaseAST::LlvmType(DongLangTypeInfo* spType) {
 	 return spType->LlvmType(llvmBuilder);
+ }
+
+ llvm::Function* DongLangBaseAST::GetGlobalMainInit(bool create) {
+	 string fnName = "global_main_init";
+	 Function* fn = lM.getFunction(fnName);
+	 if (fn || !create) {
+		 return fn;
+	 }
+
+	 // 创建一个全局构造函数  
+	 llvm::FunctionType* fnType = llvm::FunctionType::get(llvm::Type::getVoidTy(lC), false);
+	 fn = llvm::Function::Create(fnType,
+		 llvm::Function::InternalLinkage, fnName, lM);
+	 auto entryBB = BasicBlock::Create(lC, "entry_" + fnName, fn); // entry bb
+
+	 // 定义结构体类型来存储函数指针和优先级  
+	 std::vector<llvm::Type*> fields;
+	 fields.push_back(llvm::Type::getInt32Ty(lC)); // 优先级  
+	 fields.push_back(llvm::PointerType::getUnqual(fnType));       // 函数指针  
+	 llvm::StructType* ctorEntryType = llvm::StructType::create(lC, fields, "global_ctor_ele_type");
+
+	 // 创建一个全局数组来存储构造函数条目  
+	 llvm::ArrayType* arrayType = llvm::ArrayType::get(ctorEntryType, 1); // 假设只有一个构造函数  
+	 std::vector<llvm::Constant*> arrayElements = {};
+	 arrayElements.push_back(llvm::ConstantStruct::get(
+		 ctorEntryType,
+		 {
+			 llvm::ConstantInt::get(llvm::Type::getInt32Ty(lC), 65535), // 优先级  
+			 llvm::ConstantExpr::getBitCast(fn, llvm::PointerType::getUnqual(fnType)) // 函数指针  
+		 }
+	 ));
+	 llvm::Constant* initializer = llvm::ConstantArray::get(arrayType, arrayElements);
+
+	 // 创建全局变量（注意：这里我们没有直接指定段名，这通常是通过链接器脚本或后端特性来处理的）  
+	 llvm::GlobalVariable* globalCtors = new llvm::GlobalVariable(
+		 lM,
+		 arrayType,
+		 false, // isConstant  
+		 llvm::GlobalValue::AppendingLinkage,
+		 initializer,
+		 "llvm.global_ctors" 
+	 );
+
+	 return fn;
  }

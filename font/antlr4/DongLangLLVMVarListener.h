@@ -2,11 +2,12 @@
 
 #include "font/antlr4/gen/DongLangBaseListener.h"
 #include "font/ast/DongLangBaseAST.h"
+#include "DongLangLLVMBaseListener.h"
 
 /**
  vars scopes
  */
-class DongLangLLVMVarListener : public DongLangBaseListener {
+class DongLangLLVMVarListener : public DongLangBaseListener, public DongLangLLVMBaseListener {
 public:
 	void enterProg(DongLangParser::ProgContext* ctx) override;
 
@@ -31,5 +32,7 @@ public:
 	void enterCond_statement(DongLangParser::Cond_statementContext* ctx) override;
 
 public:
+	DongLangLLVMVarListener(int defaultLine) : DongLangLLVMBaseListener(defaultLine) {}
+
 	static DongLangTypeInfo* analyseDLTypeInfo(DongLangParser::Type_typeContext* typeTypeCtx);
 };

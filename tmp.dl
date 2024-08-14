@@ -1,16 +1,16 @@
-// eg: donglang
-
-
 func int fff(int a, int* p, int[3] arr1, int[4][] arr2 = NIL) {
 	return a;
 }
 
-func int getV() {}
+func int getV() { return 3;}
 func int *getPtr1() {}
 func int **getPtr2() {
 }
 
-func int main() {s
+
+func int main() {
+	int[] arr2 = { 1, 2, 3};
+	printf("+++++++++++%d\n", arr2[1]);
 }
 
 

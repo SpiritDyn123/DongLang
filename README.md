@@ -15,12 +15,16 @@
 #### 2. 安装CMakeLists.txt里所缺少的库进行安装
 #### 3. 两种启动调试方法
 - **wsl** 需要再visualstudio 中查看设置linux远程端口，使用vs的远程调试开发
-- **linux** 下直接cmake和gdb调试即可
+    - 启动wsl2 建议ubuntu20系统
+	- 进入ubuntu，设置sshd的端口为2232 ，启动sshd
+	- 点击执行根目录下的WslSSH.bat批处理，映射wsl的ssh端口到127.0.0.1本机
+
+-  **linux** 下直接cmake和gdb调试即可
     - cmake .
 	- make
 	- ./DongLang执行
 
-	****建议使用vs远程开发（效率高），cmake编译****
+- ****建议使用vs远程开发（效率高），编译调试使用cmake，vs远程调试很慢，不方便****
 
 ### 三、语法学习
 --------------------

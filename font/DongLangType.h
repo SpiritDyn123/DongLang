@@ -37,10 +37,12 @@ struct DongLangTypeInfo {
 	void AddPointArrayItem(PointOrArray pa);
 	bool DelPointArrayItem(PointOrArray pa);
 	PointOrArray* getArrayPA(uint offset = 0);
+	DIType* getDebugType();
 
 	static bool arrToPtr(DongLangTypeInfo* typeInfo);
-
 	static bool checkArrayOpr(string& opr);
+	
+
 	static DongLangTypeInfo* typeCheckTrans(DongLangTypeInfo* t1, DongLangTypeInfo* t2, string opr = "", bool errReport = false, string reportStr = "");
 	static DongLangTypeInfo* IntType;
 	static DongLangTypeInfo* ConstIntType;

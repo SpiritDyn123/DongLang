@@ -42,7 +42,7 @@ void DongLangArrayAST::genUnPrimaryArrayItem(bool isGlobal, DongLangBaseAST* ast
 		Value* idValue = ast->genCode();
 		auto* curBB = lB.GetInsertBlock();
 		if (isGlobal) {
-			auto& entryBB = lM.getFunction("global_main_init")->getEntryBlock();
+			auto& entryBB = GetGlobalMainInit()->getEntryBlock();
 			lB.SetInsertPoint(&entryBB);
 		}
 
@@ -76,7 +76,7 @@ Value* DongLangArrayAST::genCode() {
 	auto arrValue = isGlobal ? (Value*)lM.getOrInsertGlobal(id, arrT) : (Value*)lB.CreateAlloca(arrT, NULL, id);
 	if (isGlobal) {
 		auto gvar = (GlobalVariable*)arrValue;
-		gvar->setLinkage(GlobalValue::ExternalLinkage);
+		//gvar->setLinkage(GlobalValue::ExternalLinkage);
 		gvar->setDSOLocal(true);
 	}
 

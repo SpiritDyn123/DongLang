@@ -16,7 +16,8 @@ using namespace std;
 #define COPY_SP_TYPE_INFO(ptr) new DongLangTypeInfo(*ptr)
 
 //=========================DongLangLLVMExprTypeListener==============================
-DongLangLLVMExprTypeListener::DongLangLLVMExprTypeListener() {
+DongLangLLVMExprTypeListener::DongLangLLVMExprTypeListener(int defaultLine):
+	DongLangLLVMBaseListener(defaultLine) {
 	mExprTypes.clear();
 	mDefaultExprTypes.clear();
 	mVarArrValueTypes.clear();

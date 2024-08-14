@@ -16,6 +16,9 @@
 #include "font/DongLangScope.h"
 #include "antlr4-runtime.h"
 #include "include/dl_version.h"
+#include "llvm/IR/DIBuilder.h"
+#include "font/DongLangDbg.h"
+
 using namespace std;
 using namespace llvm;
 
@@ -62,17 +65,20 @@ public:
 	static FuncDLSymbol* FindFuncSymbol(antlr4Ctx, string id, vector<DongLangTypeInfo*> argTypes = {}, bool isVarArg = false);
 	static vector<FuncDLSymbol*>* FindFuncSymbolList(antlr4Ctx ctx, string baseId);
 	static DongLangScope* RootScope() { return rootScope;  }
+	static Function* GetGlobalMainInit(bool create = true);
 
 	//类型系统
 	static llvm::Type* LlvmType(DongLangTypeInfo* spType);
 
 	//位置信息
 	CodeLocData& LocData() { return locData;  }
-
+	int getLocLine() { return locData.line; }
+	int getLocColumn() { return locData.column; }
 public:
 	static LLVMContext* llvmCtx;
 	static Module* llvmModule;
 	static IRBuilder<>* llvmBuilder;
+	static DongLangDebugInfo dbgInfo;
 
 private:
 	static DongLangScope* rootScope;
@@ -122,3 +128,5 @@ public:
 #define lC (*DongLangBaseAST::llvmCtx)
 #define lB (*DongLangBaseAST::llvmBuilder)
 #define lM (*DongLangBaseAST::llvmModule)
+#define lDI (DongLangBaseAST::dbgInfo)
+#define lDB (*DongLangBaseAST::dbgInfo.Builder())

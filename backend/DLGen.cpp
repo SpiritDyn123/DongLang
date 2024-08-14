@@ -9,11 +9,7 @@
 #include "font/antlr4/DongLangLLVMListener.h"
 #include "font/antlr4/DongLangLLVMVarListener.h"
 #include "font/antlr4/DongLangLLVMExprTypeListener.h"
-
-const string defaultLibContent = R"(
-extern C func int printf(string fmt, ...);
-extern C func byte* memcpy(byte *dst, byte*src, int len);
-)";
+#include "include/default_lib.h"
 
 bool DLGen::gen(GenBase* srcGen, bool final) {
 	ifstream codeFile;
@@ -50,11 +46,11 @@ bool DLGen::gen(GenBase* srcGen, bool final) {
 	DongLangParser::ProgContext* prog = parser.prog();
 
 	//1:vars and scopes
-	DongLangLLVMVarListener varLis;
+	DongLangLLVMVarListener varLis(defaultLine);
 	tree::ParseTreeWalker::DEFAULT.walk(&varLis, prog);
 
 	//2:expression type analyse
-	DongLangLLVMExprTypeListener etLis;
+	DongLangLLVMExprTypeListener etLis(defaultLine);
 	tree::ParseTreeWalker::DEFAULT.walk(&etLis, prog);
 
 	//3: lang

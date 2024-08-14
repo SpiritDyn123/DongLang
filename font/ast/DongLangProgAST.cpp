@@ -1,13 +1,13 @@
 #include "DongLangProgAST.h"
 #include "DongLangFunctionDefAST.h"
 #include "llvm/IR/Type.h"
-
+#include "include/dl_flag.h"
 
 DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& lineAsts) {
 	this->lineAsts = lineAsts;
 
 	//global_main_init
-	auto rootScope = CurScope(NULL);
+	/*auto rootScope = CurScope(NULL);
 	auto mainRetType = new DongLangTypeInfo("void");
 	vector<DongLangTypeInfo*> mainArgTs = {};
 	vector<VarDLSymbol*> mainArgSs = {};
@@ -17,7 +17,7 @@ DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& lineAsts) {
 	
 	CodeLocData locData(0, 0, "");
 	auto mainInitFn = new DongLangFunctionDefAST(gloablMainInitFuncSs, "global_main_init", {}, false, true, {}, locData);
-	this->lineAsts.insert(this->lineAsts.begin(), mainInitFn);
+	this->lineAsts.insert(this->lineAsts.begin(), mainInitFn);*/
 
 	doSysExternFuncs();
 
@@ -35,10 +35,10 @@ DongLangProgAST::DongLangProgAST(vector<DongLangBaseAST*>& lineAsts) {
 	}
 
 	if (!hasMain) {
-		auto mainFuncSs = FuncDLSymbol::Create("main",
+		/*auto mainFuncSs = FuncDLSymbol::Create("main",
 			mainRetType, mainArgSs, mainArgTs, NULL, true, false);
 		rootScope->AddSymbol("main", func_main_id, mainFuncSs);
-		this->lineAsts.insert(this->lineAsts.end(), new DongLangFunctionDefAST(mainFuncSs, "main", {}, false, true, {}, locData));
+		this->lineAsts.insert(this->lineAsts.end(), new DongLangFunctionDefAST(mainFuncSs, "main", {}, false, true, {}, locData));*/
 	}
 }
 
@@ -53,6 +53,16 @@ Value* DongLangProgAST::genCode() {
 		Value* v = line->genCode();
 	}
 
+	auto globalMainInitFunc = GetGlobalMainInit(false);
+	if (globalMainInitFunc) {
+		auto& entryBB = globalMainInitFunc->getEntryBlock();
+		lB.SetInsertPoint(&entryBB);
+		lB.CreateRetVoid();
+	}
+
+	if (FLAGS_g) {
+		lDB.finalize();
+	}
 #else 
 	testStudy();
 #endif

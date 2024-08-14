@@ -33,8 +33,18 @@ Value* DongLangVarDeclareAST::genCode() {
 	auto idValue = isGlobal ? (Value*)lM.getOrInsertGlobal(id, llType) : (Value*)lB.CreateAlloca(llType, NULL, id);
 	if (isGlobal) {
 		auto gvar = (GlobalVariable*)idValue;
-		gvar->setLinkage(GlobalValue::ExternalLinkage);
+		//gvar->setLinkage(GlobalValue::ExternalLinkage);
 		gvar->setDSOLocal(true);
+	}
+
+	if (!value || !isPrimary) {
+		Value* zeroInit = Constant::getNullValue(llType);
+		if (isGlobal) { //全局分配一个默认值
+			((GlobalVariable*)idValue)->setInitializer((Constant*)zeroInit);
+		}
+		else if(!value){
+			lB.CreateStore(zeroInit, idValue); //默认值
+		}
 	}
 
 	if (value) {
@@ -51,7 +61,8 @@ Value* DongLangVarDeclareAST::genCode() {
 		else {
 			auto* curBB = lB.GetInsertBlock();
 			if (isGlobal) {
-				auto& entryBB = lM.getFunction("global_main_init")->getEntryBlock();
+
+				auto& entryBB = GetGlobalMainInit()->getEntryBlock();
 				lB.SetInsertPoint(&entryBB);
 			}
 				
@@ -64,15 +75,7 @@ Value* DongLangVarDeclareAST::genCode() {
 
 		}
 	}
-	else {
-		Value* zeroInit = Constant::getNullValue(llType);
-		if (isGlobal) { //全局分配一个默认值
-			((GlobalVariable*)idValue)->setInitializer((Constant*)zeroInit);
-		}
-		else {
-			lB.CreateStore(zeroInit, idValue); //默认值
-		}
-	}
+	
 
 	symbol->setVal(idValue);
 

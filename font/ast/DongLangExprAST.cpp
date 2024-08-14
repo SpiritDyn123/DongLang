@@ -29,7 +29,8 @@ Value* DongLangCallExprAST::genCode() {
 	auto* curBB = lB.GetInsertBlock();
 	Value* callValue = NULL;
 	if ( isGlobal) {
-		auto& entryBB = lM.getFunction("global_main_init")->getEntryBlock();
+		Function* globalMainInitFunc = GetGlobalMainInit();
+		auto& entryBB = globalMainInitFunc->getEntryBlock();
 		lB.SetInsertPoint(&entryBB);
 		callValue = lB.CreateCall(fn, fArgs);
 		lB.SetInsertPoint(curBB); //»¹Ô­

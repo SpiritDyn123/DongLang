@@ -17,6 +17,7 @@ DEFINE_string(out,
 DEFINE_string(otype, "exe", "output dl file type: ll,asm,obj,exe; gen library use system tools: ar,cmake...");
 DEFINE_bool (fpic, false, "link fpic");
 DEFINE_bool(fpie, true, "link fpie");
+DEFINE_bool(g, false, "compiler gdb");
 
 GenType inType = GenType::genType_invalid;
 GenType outType = GenType::genType_invalid;

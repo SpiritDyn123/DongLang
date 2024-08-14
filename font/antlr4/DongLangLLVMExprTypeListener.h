@@ -2,10 +2,11 @@
 
 #include "font/antlr4/gen/DongLangBaseListener.h"
 #include "font/ast/DongLangBaseAST.h"
+#include "DongLangLLVMBaseListener.h"
 
-class DongLangLLVMExprTypeListener : public DongLangBaseListener {
+class DongLangLLVMExprTypeListener : public DongLangBaseListener, public DongLangLLVMBaseListener {
 public:
-	DongLangLLVMExprTypeListener();
+	DongLangLLVMExprTypeListener(int defaultLine);
 	DongLangTypeInfo* ExprType(DongLangParser::ExpressionContext* ctx, bool hasDefault = false);
 	DongLangTypeInfo* ExprDefaultType(DongLangParser::ExpressionContext* ctx);
 	DongLangTypeInfo* VarArrValueType(DongLangParser::Var_arr_valueContext* ctx);

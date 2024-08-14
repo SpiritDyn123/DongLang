@@ -18,11 +18,11 @@ const string& DongLangFunctionDefAST::getName() {
 }
 
 Value* DongLangFunctionDefAST::genCode() {
-	cout << "DongLangFunctionDefAST:" << fnName 
+	/*cout << "DongLangFunctionDefAST:" << fnName 
 		<<  ",line:" << LocData().line 
 		<<  ",column:" << LocData().column
 		<< ",code:" << LocData().code
-		<< endl;
+		<< endl;*/
 	
 	//func_type
 	vector<DongLangTypeInfo*> argTypes;
@@ -47,6 +47,29 @@ Value* DongLangFunctionDefAST::genCode() {
 		auto entryBB = BasicBlock::Create(lC, "entry_" + fnName, fn);
 		lB.SetInsertPoint(entryBB);
 
+		int scopeLine = getLocLine();
+		DISubprogram* debugSp = NULL;
+		DIFile* dUnit = NULL;
+		if (G_DEBUG) {
+			dUnit = lDB.createFile(lDI.cu->getFilename(),
+				lDI.cu->getDirectory());
+			SmallVector<Metadata*, 8> argMetas;
+			argMetas.push_back(funcSymbol->getVarType()->getDebugType()); // return meta type
+			for (auto argSs : funcSymbol->argSymbol()) { // args meta type
+				auto argTypeInfo = argSs->getVarType();
+				argMetas.push_back(argTypeInfo->getDebugType());
+			}
+
+			 debugSp = lDB.createFunction(
+				dUnit, fnName, StringRef(), dUnit, scopeLine,
+				lDB.createSubroutineType(lDB.getOrCreateTypeArray(argMetas)),
+				scopeLine,
+				DINode::FlagPrototyped, 
+				DISubprogram::SPFlagDefinition);
+			fn->setSubprogram(debugSp);
+			lDI.enterScope(debugSp);
+		}
+
 		//var name
 		int indx = 0;
 		Instruction* lastArgInst = NULL;
@@ -64,11 +87,21 @@ Value* DongLangFunctionDefAST::genCode() {
 			}
 			symbol->setVal(argValue);
 			indx++;
+
+			if (G_DEBUG) {
+				DILocalVariable* debugValue = lDB.createParameterVariable(
+					debugSp, argInfo.name, indx, dUnit, scopeLine, symbolTypeInfo->getDebugType(),
+					true);
+				lDB.insertDeclare(argValue, debugValue, lDB.createExpression(),
+					DILocation::get(debugSp->getContext(), scopeLine, 0, debugSp),
+					lB.GetInsertBlock());
+			}
+
 		}
 
-		if (fnName == "main") {
+		/*if (fnName == "main") {
 			lB.CreateCall(lM.getFunction("global_main_init"));
-		}
+		}*/
 
 		for (auto expr : body) {
 			auto sv = expr->genCode();
@@ -165,6 +198,10 @@ Value* DongLangFunctionDefAST::genCode() {
 			}
 		}
 #endif
+
+		if (G_DEBUG) {
+			lDI.leaveScope();
+		}
 	}
 
 	return fn;

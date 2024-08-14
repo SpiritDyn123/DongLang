@@ -121,6 +121,57 @@ PointOrArray* DongLangTypeInfo::getArrayPA(uint offset) {
 	return  NULL;
 }
 
+
+DIType* DongLangTypeInfo::getDebugType() {
+	DIType* diType = NULL;
+	int size = 0;
+	unsigned encoding = 0;
+	if (primary_type == "int") {
+		size = 64;
+		encoding = dwarf::DW_ATE_signed;
+	}
+	else if (primary_type == "string") {
+		diType = lDB.createStringType(primary_type, 8);
+	}
+	else if (primary_type == "float") {
+		size = 64;
+		encoding = dwarf::DW_ATE_float;
+	}
+	else if (primary_type == "bool") {
+		size = 8;
+		encoding = dwarf::DW_ATE_boolean;
+	}
+	else if (primary_type == "void") {
+		return NULL;
+	}
+	else if (primary_type == "byte") {
+		size = 8;
+		encoding = dwarf::DW_ATE_signed_char;
+	}
+	else if (primary_type == "bit") {
+		size = 1;
+		encoding = dwarf::DW_ATE_signed;
+	}
+	else {
+		return NULL;
+	}
+
+	if (!diType) {
+		diType = lDB.createBasicType(primary_type, size, encoding);
+	}
+
+	for (auto it = pas.begin(); it != pas.end(); ++it) {
+		if (it->pointOrArr) {
+			diType = lDB.createPointerType(diType, 64);
+		}
+		else {
+			diType = lDB.createArrayType(it->array_len, 0, diType);
+		}
+	}
+
+	return diType;
+}
+
 bool DongLangTypeInfo::arrToPtr(DongLangTypeInfo* typeInfo) {
 	if (typeInfo->isArray()) {
 		typeInfo->pas[typeInfo->pas.size() - 1].pointOrArr = true;
@@ -231,3 +282,4 @@ DongLangTypeInfo* DongLangTypeInfo::typeCheckTrans(DongLangTypeInfo* t1, DongLan
 
 	return NULL;
 }
+

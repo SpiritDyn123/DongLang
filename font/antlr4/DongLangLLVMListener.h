@@ -2,12 +2,14 @@
 
 #include "font/antlr4/gen/DongLangBaseListener.h"
 #include "font/ast/DongLangBaseAST.h"
+#include "DongLangLLVMBaseListener.h"
+
 using namespace antlr4;
 
 class DongLangLLVMExprTypeListener;
-class DongLangLLVMErrorListener : public ANTLRErrorListener {
+class DongLangLLVMErrorListener : public ANTLRErrorListener, public DongLangLLVMBaseListener {
 public:
-	DongLangLLVMErrorListener(int defaultLine): defaultLine(defaultLine) {}
+	DongLangLLVMErrorListener(int defaultLine): DongLangLLVMBaseListener(defaultLine) {}
 
 	virtual void syntaxError(Recognizer* recognizer, Token* offendingSymbol, size_t line,
 		size_t charPositionInLine, const std::string& msg, std::exception_ptr e) override;
@@ -20,11 +22,9 @@ public:
 
 	virtual void reportContextSensitivity(Parser* recognizer, const dfa::DFA& dfa, size_t startIndex, size_t stopIndex,
 		size_t prediction, atn::ATNConfigSet* configs) override {}
-private:
-	int defaultLine;
 };
 
-class DongLangLLVMListener : public DongLangBaseListener {
+class DongLangLLVMListener : public DongLangBaseListener, public DongLangLLVMBaseListener {
 public:
 	 void enterProg(DongLangParser::ProgContext* ctx) override;
 	 void exitProg(DongLangParser::ProgContext* ctx) override;
@@ -128,5 +128,4 @@ private:
 	DongLangLLVMExprTypeListener* etListener;
 	std::map<antlr4::ParserRuleContext*, DongLangTypeInfo*> mExprTypes;
 	std::map<antlr4::ParserRuleContext*, DongLangBaseAST*> mAsts;
-	int defaultLine;
 };

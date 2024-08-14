@@ -11,23 +11,25 @@
 #include <memory>
 #include "font/antlr4/DongLangLLVMExprTypeListener.h"
 #include "DongLangLLVMVarListener.h"
+#include "DongLangLLVMBaseListener.h"
 
 using namespace std;
 using namespace antlr4;
-
-#define GET_LOC_DATA(ctx) \
-	auto stopToken = ctx->getStop();\
-	CodeLocData locData(stopToken->getLine() - defaultLine - 1,\
-		stopToken->getCharPositionInLine(),\
-		ctx->getText());\
 
 void DongLangLLVMErrorListener::syntaxError(Recognizer* recognizer, 
 	Token* offendingSymbol, 
 	size_t line,
 	size_t charPositionInLine, const std::string& msg, 
 	std::exception_ptr e) {
-	lC.emitError("syntaxError line:" + std::to_string(line - defaultLine - 1) + 
-		",offset:" + std::to_string(charPositionInLine) + " :" + msg);
+
+	int curLine = line - defaultLine - 1;
+	string codeLineTxt = getLineTxt(NULL, curLine, defaultLine);
+	if (curLine <= 0) {
+		curLine += defaultLine + 1;
+	}
+
+	lC.emitError("syntaxError line:" + std::to_string(curLine) +
+		",offset:" + std::to_string(charPositionInLine) + " :" + msg + ", code:" + codeLineTxt);
 }
 
 DongLangBaseAST* DongLangLLVMListener::GetRootAST() {
@@ -36,7 +38,7 @@ DongLangBaseAST* DongLangLLVMListener::GetRootAST() {
 
 DongLangLLVMListener::DongLangLLVMListener(DongLangLLVMExprTypeListener* etListener, int defaultLine):
 	etListener(etListener),
-	defaultLine(defaultLine) {
+	DongLangLLVMBaseListener(defaultLine) {
 	rootAST = NULL;
 	mExprTypes.clear();
 	mAsts.clear();
