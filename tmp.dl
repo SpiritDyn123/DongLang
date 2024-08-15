@@ -16,10 +16,10 @@ func int ff(int a, int b) {
 	
 	 else if (int ifb = 1; ifb > 0) {
 		 int ifb1 = 1;
-	 }
+	 }/*
 	 else if(int ifc = 1; ifc > 0){
 		 int ifc1 = 2;
-	 }
+	 }*/
 	 else {
 		 int ifz = 1;
 	 }

@@ -44,6 +44,7 @@ Value* DongLangIfExprAST::genCode() {
 				cAst->locData.column);
 
 			lDI.enterScope(debugScope1);
+			lDI.emitLocation(this);
 		}
 
 		//Ë³Ðò cmp BBS ===> trueBB ==> trueStatements BBS ==> falseBB
@@ -68,6 +69,7 @@ Value* DongLangIfExprAST::genCode() {
 					cAst->locData.line,
 					cAst->locData.column);
 				lDI.enterScope(debugScope2);
+				lDI.emitLocation(this);
 			}
 		}
 
@@ -192,6 +194,7 @@ Value* DongLangForExprAST::genCode() {
 		auto trueBB = BasicBlock::Create(lC, "", mainBB->getParent());
 
 		trueBB->moveAfter(lB.GetInsertBlock());
+		lDI.emitLocation(this);
 		BranchInst::Create(trueBB, endBB, cmpValue, condBB);
 
 		lB.SetInsertPoint(trueBB);
