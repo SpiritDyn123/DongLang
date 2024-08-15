@@ -19,6 +19,7 @@ class DongLangBaseAST;
 struct DongLangDebugInfo {
 	DIBuilder* builder;
 	DICompileUnit* cu;
+	DIFile* file;
 	std::vector<DIScope*> scopes;
 
 	void Init();

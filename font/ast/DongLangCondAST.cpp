@@ -1,6 +1,6 @@
 #include "DongLangCondAST.h"
 #include "DongLangExpressionAST.h"
-DongLangBreakAST::DongLangBreakAST(antlr4Ctx ctx):ctx(ctx) {
+DongLangBreakAST::DongLangBreakAST(antlr4Ctx ctx, CodeLocData& locData): DongLangBaseAST(NULL, locData), ctx(ctx) {
 
 }
 
@@ -8,7 +8,7 @@ Value* DongLangBreakAST::genCode() {
 	return 	lB.CreateBr(CurScope(ctx)->getForInfo()->getLoopEndBB());
 }
 
-DongLangContinueAST::DongLangContinueAST(antlr4Ctx ctx) : ctx(ctx) {
+DongLangContinueAST::DongLangContinueAST(antlr4Ctx ctx, CodeLocData& locData): DongLangBaseAST(NULL, locData), ctx(ctx) {
 	
 }
 
@@ -16,7 +16,8 @@ Value* DongLangContinueAST::genCode() {
 	return 	lB.CreateBr(CurScope(ctx)->getForInfo()->getLoopBeginBB());
 }
 
-DongLangIfExprAST::DongLangIfExprAST(vector<DongLangIfExprItem*>& ifItems):
+DongLangIfExprAST::DongLangIfExprAST(CodeLocData& locData, vector<DongLangIfExprItem*>& ifItems):
+	DongLangBaseAST(NULL, locData),
 	ifItems(ifItems){
 }
 
@@ -35,6 +36,16 @@ Value* DongLangIfExprAST::genCode() {
 
 	int index = 0;
 	for (auto cAst : ifItems) {
+		if (G_DEBUG) {
+			auto debugScope1 = lDB.createLexicalBlock(
+				lDI.curScope(),
+				lDI.file,
+				cAst->locData.line,
+				cAst->locData.column);
+
+			lDI.enterScope(debugScope1);
+		}
+
 		//À≥–Ú cmp BBS ===> trueBB ==> trueStatements BBS ==> falseBB
 		auto BB1 = lB.GetInsertBlock();
 		Value* cmpValue = NULL;
@@ -49,6 +60,17 @@ Value* DongLangIfExprAST::genCode() {
 		}
 
 		bool bElse = !cAst->initAst && !cAst->condAst;
+		if (G_DEBUG) {
+			if (!bElse) {
+				auto debugScope2 = lDB.createLexicalBlock(
+					lDI.curScope(),
+					lDI.file,
+					cAst->locData.line,
+					cAst->locData.column);
+				lDI.enterScope(debugScope2);
+			}
+		}
+
 		auto BB2 = lB.GetInsertBlock();
 		BasicBlock* trueBB = mIfBBs[cAst];
 		BasicBlock* nextIfBB = NULL;
@@ -94,18 +116,31 @@ Value* DongLangIfExprAST::genCode() {
 			lB.SetInsertPoint(nextIfBB);
 			nextIfBB->moveAfter(BB2);
 		}
+
+		if (G_DEBUG) {
+			if (!bElse) {
+				lDI.leaveScope();
+			}
+		}
 	}
-	
+
+	if (G_DEBUG) {
+		for (auto cAst : ifItems) {
+			lDI.leaveScope();
+		}
+	}
+
 	lB.SetInsertPoint(endBB);
 
 	return endBB;
 }
 
 
-DongLangForExprAST::DongLangForExprAST(DongLangBaseAST* initAst,
+DongLangForExprAST::DongLangForExprAST(CodeLocData& locData, DongLangBaseAST* initAst,
 	DongLangBaseAST* condAst,
 	DongLangBaseAST* iterAst,
 	vector<DongLangBaseAST*> statements):
+	DongLangBaseAST(NULL, locData),
 	initAst(initAst),
 	condAst(condAst),
 	iterAst(iterAst),
@@ -116,6 +151,16 @@ DongLangForExprAST::DongLangForExprAST(DongLangBaseAST* initAst,
 }
 
 Value* DongLangForExprAST::genCode() {
+	if (G_DEBUG) {
+		auto debugScope = lDB.createLexicalBlock(
+			lDI.curScope(),
+			lDI.file,
+			getLocLine(),
+			getLocColumn());
+
+		lDI.enterScope(debugScope);
+	}
+
 	if (initAst) {
 		initAst->genCodeWrap();
 	}
@@ -139,6 +184,8 @@ Value* DongLangForExprAST::genCode() {
 	lB.CreateBr(condBB);
 
 	lB.SetInsertPoint(condBB);
+	
+
 	if (condAst) {
 		condAst->setFArg();
 		auto cmpValue = condAst->genCodeWrap();
@@ -198,6 +245,9 @@ Value* DongLangForExprAST::genCode() {
 	//ªÿµΩΩ· ¯BB
 	lB.SetInsertPoint(endBB);
 
+	if (G_DEBUG) {
+		lDI.leaveScope();
+	}
 
 	return endBB;
 }

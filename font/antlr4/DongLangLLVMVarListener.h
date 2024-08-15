@@ -23,10 +23,6 @@ public:
 
 	void enterIf_expression(DongLangParser::If_expressionContext* ctx) override;
 
-	void enterElif_expr(DongLangParser::Elif_exprContext* ctx) override;
-
-	void enterElse_expr(DongLangParser::Else_exprContext* ctx) override;
-
 	void enterFor_expression(DongLangParser::For_expressionContext* ctx) override;
 
 	void enterCond_statement(DongLangParser::Cond_statementContext* ctx) override;

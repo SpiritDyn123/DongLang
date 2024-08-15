@@ -48,11 +48,8 @@ Value* DongLangFunctionDefAST::genCode() {
 		lB.SetInsertPoint(entryBB);
 
 		int scopeLine = getLocLine();
-		DISubprogram* debugSp = NULL;
-		DIFile* dUnit = NULL;
+		DISubprogram* debugScope = NULL;
 		if (G_DEBUG) {
-			dUnit = lDB.createFile(lDI.cu->getFilename(),
-				lDI.cu->getDirectory());
 			SmallVector<Metadata*, 8> argMetas;
 			argMetas.push_back(funcSymbol->getVarType()->getDebugType()); // return meta type
 			for (auto argSs : funcSymbol->argSymbol()) { // args meta type
@@ -60,16 +57,16 @@ Value* DongLangFunctionDefAST::genCode() {
 				argMetas.push_back(argTypeInfo->getDebugType());
 			}
 
-			 debugSp = lDB.createFunction(
-				dUnit, fnName, StringRef(), dUnit, scopeLine,
+			debugScope = lDB.createFunction(
+				 lDI.file, fnName, StringRef(), lDI.file, scopeLine,
 				lDB.createSubroutineType(lDB.getOrCreateTypeArray(argMetas)),
 				scopeLine,
 				DINode::FlagPrototyped, 
 				DISubprogram::SPFlagDefinition);
-			fn->setSubprogram(debugSp);
-			lDI.enterScope(debugSp);
+			fn->setSubprogram(debugScope);
+			lDI.enterScope(debugScope);
 
-			// break not stay in function def line
+			// break not stay in function def line; args no !dbg
 			lDI.emitLocation(NULL);
 		}
 
@@ -93,10 +90,10 @@ Value* DongLangFunctionDefAST::genCode() {
 
 			if (G_DEBUG) {
 				DILocalVariable* debugValue = lDB.createParameterVariable(
-					debugSp, argInfo.name, indx, dUnit, scopeLine, symbolTypeInfo->getDebugType(),
+					debugScope, argInfo.name, indx, lDI.file, scopeLine, symbolTypeInfo->getDebugType(),
 					true);
 				lDB.insertDeclare(argValue, debugValue, lDB.createExpression(),
-					DILocation::get(debugSp->getContext(), scopeLine, 0, debugSp),
+					DILocation::get(debugScope->getContext(), scopeLine, 0, debugScope),
 					lB.GetInsertBlock());
 			}
 

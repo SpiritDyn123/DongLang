@@ -26,8 +26,9 @@ DongLangExpressionAST::MEXPRESSION_HANDLERS DongLangExpressionAST::mExpressionHa
 
 #define CREATE_PHI(llType, NUM)  lB.CreatePHI(llType->isArrayTy() ? llType->getPointerTo() : llType, NUM);
 
-DongLangExpressionAST::DongLangExpressionAST(std::string op, DongLangBaseAST* lhs,
-	DongLangBaseAST* rhs, DongLangBaseAST* exths, DongLangTypeInfo* typeInfo, DongLangTypeInfo* defaultTypeInfo): DongLangBaseAST(typeInfo),
+DongLangExpressionAST::DongLangExpressionAST(CodeLocData& locData, std::string op, DongLangBaseAST* lhs,
+	DongLangBaseAST* rhs, DongLangBaseAST* exths, DongLangTypeInfo* typeInfo, DongLangTypeInfo* defaultTypeInfo)
+	: DongLangBaseAST(typeInfo, locData),
 	defaultTypeInfo(defaultTypeInfo), 
 	trueBB(NULL),
 	falseBB(NULL),
@@ -111,23 +112,6 @@ void DongLangExpressionAST::assetOpearation() {
 	else {
 		lC.emitError("expression invalid operation:" + op);
 		return;
-	}
-}
-
-DongLangExpressionAST* DongLangExpressionAST::createCmpAst(string op, vector<DongLangBaseAST*> cAsts,
-	DongLangTypeInfo* typeInfo, DongLangTypeInfo* defaultTypeInfo) {
-	assert(cAsts.size() > 0);
-
-	if (cAsts.size() > 1) {
-		auto exprAst = new DongLangExpressionAST(op, cAsts[0], cAsts[1], NULL, typeInfo, defaultTypeInfo);
-		for (int i = 2; i < cAsts.size(); i++) {
-			exprAst = new DongLangExpressionAST(op, exprAst, cAsts[i], NULL,typeInfo, NULL);
-		}
-
-		return exprAst;
-	}
-	else {
-		return new DongLangExpressionAST(op, cAsts[0], NULL, NULL, typeInfo, defaultTypeInfo);
 	}
 }
 

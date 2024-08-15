@@ -45,7 +45,7 @@ class DongLangFunctionDefAST;
 class DongLangVarDeclareAST : public DongLangBaseAST {
 public:
     friend class DongLangFunctionDefAST;
-    DongLangVarDeclareAST(antlr4Ctx ctx, DongLangTypeInfo* spType, string id, DongLangBaseAST* defaultValue=NULL,
+    DongLangVarDeclareAST(antlr4Ctx ctx, CodeLocData& locData, DongLangTypeInfo* spType, string id, DongLangBaseAST* defaultValue=NULL,
         bool isGlobal = false, DongLangTypeInfo* typeInfo = NULL, bool isPrimary = false);
 	Value* genCode() override;
 private:
@@ -59,7 +59,7 @@ private:
 
 class DongLangVarAST : public DongLangBaseAST {
 public:
-    DongLangVarAST(antlr4Ctx ctx, string id, DongLangBaseAST* defaultValue = NULL, DongLangTypeInfo* typeInfo = NULL, bool isPrimary = false);
+    DongLangVarAST(antlr4Ctx ctx, CodeLocData& locData, string id, DongLangBaseAST* defaultValue = NULL, DongLangTypeInfo* typeInfo = NULL, bool isPrimary = false);
      Value* genCode() override;
 private:
     antlr4Ctx ctx;
@@ -72,7 +72,7 @@ using DongLangVarsAST = DongLangVectorAST<DongLangBaseAST>;
 
 class DongLangAssignAST : public DongLangBaseAST {
 public:
-    DongLangAssignAST(DongLangBaseAST* idAst, DongLangBaseAST* valueAst, DongLangTypeInfo* typeInfo = NULL, bool isPrimary =false);
+    DongLangAssignAST(DongLangBaseAST* idAst, CodeLocData& locData, DongLangBaseAST* valueAst, DongLangTypeInfo* typeInfo = NULL, bool isPrimary =false);
     Value* genCode() override;
 private:
     DongLangBaseAST* idAst;

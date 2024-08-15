@@ -2,7 +2,8 @@
 #include "llvm/IR/Constants.h"
 #include "DongLangExprAST.h"
 
-DongLangNumPrimaryAST::DongLangNumPrimaryAST(std::string value, DongLangTypeInfo* typeInfo): DongLangBaseAST(typeInfo),
+DongLangNumPrimaryAST::DongLangNumPrimaryAST(CodeLocData& locData, std::string value, 
+	DongLangTypeInfo* typeInfo): DongLangBaseAST(typeInfo, locData),
 	value(value){
 }
 
@@ -31,7 +32,8 @@ Value* DongLangNumPrimaryAST::genCode() {
 	return idValue;
 }
 
-DongLangStrPrimaryAST::DongLangStrPrimaryAST(std::string s, DongLangTypeInfo* typeInfo) : DongLangBaseAST(typeInfo) {
+DongLangStrPrimaryAST::DongLangStrPrimaryAST(CodeLocData& locData, std::string s, 
+	DongLangTypeInfo* typeInfo) : DongLangBaseAST(typeInfo, locData) {
 	value = s.substr(1, s.length() - 2);
 
 	value = regex_replace(value, regex("\\\\r\\\\n"), "\n");
@@ -55,7 +57,8 @@ Value* DongLangStrPrimaryAST::genCode() {
 	return idValue;
 }
 
-DongLangBoolPrimaryAST::DongLangBoolPrimaryAST(std::string s, DongLangTypeInfo* typeInfo) : DongLangBaseAST(typeInfo) {
+DongLangBoolPrimaryAST::DongLangBoolPrimaryAST(CodeLocData& locData, std::string s, 
+	DongLangTypeInfo* typeInfo) : DongLangBaseAST(typeInfo, locData) {
 	value = s == "true" ? true : false;
 }
 
@@ -64,11 +67,11 @@ Value* DongLangBoolPrimaryAST::genCode() {
 	return idValue;
 }
 
-DongLangIdPrimaryAST::DongLangIdPrimaryAST(antlr4Ctx ctx, std::string id, 
+DongLangIdPrimaryAST::DongLangIdPrimaryAST(CodeLocData& locData, antlr4Ctx ctx, std::string id,
 	DongLangBaseAST* idAst, 
 	vector<DongLangBaseAST*>& arrAsts, 
 	DongLangTypeInfo* typeInfo, 
-	DongLangTypeInfo* defaultTypeInfo) : DongLangBaseAST(typeInfo), 
+	DongLangTypeInfo* defaultTypeInfo) : DongLangBaseAST(typeInfo, locData),
 	id(id),
 	idAst(idAst), 
 	ctx(ctx), arrAsts(arrAsts),

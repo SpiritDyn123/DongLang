@@ -1,4 +1,4 @@
-### 一、简介
+### 一、简介(仅供学习)
 -------------
 #### 使用**Antlr4**(也可以使用flex&bison)和**LLVM16**开发的一个简单的类 **C++** 语言，源码可供参考学习。
   - [Antlr4](https://github.com/antlr/antlr4.git)
@@ -188,3 +188,14 @@ func int f1(int a, ...) {
 -otype 默认就是exe 可以不写
 ```
 6、TODO支持静态库
+
+### 四、gdb调试
+---------------------
+#### 因为是仿照cpp语言，通过 -g 可以生成DWARF调试信息进行gdb调试
+```
+./DongLang -in xxx.dl -g
+```
+#### 代码
+![](./test/gdb_code.png)
+#### gdb
+![](./test/gdb.png)

@@ -145,25 +145,27 @@ void DongLangLLVMListener::exitCond_statement(DongLangParser::Cond_statementCont
 		}
 	}
 
+	GET_LOC_DATA(ctx);
 	if (ctx->BREAK()) {
-		mAsts[ctx] = new DongLangBreakAST(forCtx);
+		mAsts[ctx] = new DongLangBreakAST(forCtx, locData);
 	}
 
 	if (ctx->CONTINUE()) {
-		mAsts[ctx] = new DongLangContinueAST(forCtx);
+		mAsts[ctx] = new DongLangContinueAST(forCtx, locData);
 	}
 }
 
 void DongLangLLVMListener::enterRet_expression(DongLangParser::Ret_expressionContext* ctx) { }
 
 void DongLangLLVMListener::exitRet_expression(DongLangParser::Ret_expressionContext* ctx) { 
+	GET_LOC_DATA(ctx);
 	if (ctx->expression()) {
-		mAsts[ctx] = new DongLangRetExprAST(mAsts[ctx->expression()], 
+		mAsts[ctx] = new DongLangRetExprAST(locData, mAsts[ctx->expression()], 
 			etListener->ExprType(ctx->expression()), 
 			etListener->ExprDefaultType(ctx->expression()));
 	}
 	else {
-		mAsts[ctx] = new DongLangRetExprAST();
+		mAsts[ctx] = new DongLangRetExprAST(locData);
 	}
 }
 
@@ -203,7 +205,11 @@ void DongLangLLVMListener::exitExpression(DongLangParser::ExpressionContext* ctx
 			endl;*/
 	}
 
-	mAsts[ctx] = new DongLangExpressionAST(opr,
+	GET_LOC_DATA(ctx);
+
+	mAsts[ctx] = new DongLangExpressionAST(
+		locData,
+		opr,
 		mAsts[ctx->expression(0)],
 		rhs,
 		exths,
@@ -250,16 +256,18 @@ void DongLangLLVMListener::exitVar_expression(DongLangParser::Var_expressionCont
 
 
 #define GEN_IF_COND_AST(condExprCtx) GEN_COND_AST(condExprCtx, if_cond) \
-	ifExprItems.push_back(new DongLangIfExprAST::DongLangIfExprItem(initAst, condAst, statements));
+	ifExprItems.push_back(new DongLangIfExprAST::DongLangIfExprItem(locData, initAst, condAst, statements));
 
 void DongLangLLVMListener::exitIf_expression(DongLangParser::If_expressionContext* ctx)  { 
 	vector<DongLangIfExprAST::DongLangIfExprItem*> ifExprItems;
 	ifExprItems.clear();
 	{
+		GET_LOC_DATA(ctx);
 		GEN_IF_COND_AST(ctx)
 	}
 
 	for (auto elifCtx : ctx->elif_expr()) {
+		GET_LOC_DATA(elifCtx);
 		GEN_IF_COND_AST(elifCtx)
 	}
 
@@ -269,10 +277,13 @@ void DongLangLLVMListener::exitIf_expression(DongLangParser::If_expressionContex
 		for (auto smCtx : ctx->else_expr()->cond_statement()) {
 			statements.push_back(mAsts[smCtx]);  
 		}
-		ifExprItems.push_back(new DongLangIfExprAST::DongLangIfExprItem(NULL, NULL, statements));
+
+		GET_LOC_DATA(ctx->else_expr());
+		ifExprItems.push_back(new DongLangIfExprAST::DongLangIfExprItem(locData, NULL, NULL, statements));
 	}
 
-	mAsts[ctx] = new DongLangIfExprAST(ifExprItems);
+	GET_LOC_DATA(ctx);
+	mAsts[ctx] = new DongLangIfExprAST(locData, ifExprItems);
 }
 
 void DongLangLLVMListener::enterFor_expression(DongLangParser::For_expressionContext* ctx) { 
@@ -286,7 +297,9 @@ void DongLangLLVMListener::exitFor_expression(DongLangParser::For_expressionCont
 		iterAst = mAsts[condCtx->assigns()];
 	} 
 
-	auto forAst = new DongLangForExprAST(initAst, condAst, iterAst, statements);
+	GET_LOC_DATA(ctx);
+
+	auto forAst = new DongLangForExprAST(locData, initAst, condAst, iterAst, statements);
 	DongLangBaseAST::CurScope(ctx)->AddForInfo(forAst);
 	mAsts[ctx] = forAst;
 }
@@ -329,7 +342,8 @@ void DongLangLLVMListener::exitCall_expr(DongLangParser::Call_exprContext* ctx) 
 		}
 	}
 
-	mAsts[ctx] = new DongLangCallExprAST(funcSymbol, args, argDefaultTypes, isGlobal);
+	GET_LOC_DATA(ctx);
+	mAsts[ctx] = new DongLangCallExprAST(locData, funcSymbol, args, argDefaultTypes, isGlobal);
 }
 
 void DongLangLLVMListener::enterExpr_list(DongLangParser::Expr_listContext* ctx) { }
@@ -339,23 +353,24 @@ void DongLangLLVMListener::exitExpr_list(DongLangParser::Expr_listContext* ctx) 
 
 void DongLangLLVMListener::enterValue_primary(DongLangParser::Value_primaryContext* ctx) { }
 void DongLangLLVMListener::exitValue_primary(DongLangParser::Value_primaryContext* ctx) { 
+	GET_LOC_DATA(ctx);
 	auto exprCtx = (DongLangParser::ExpressionContext*)ctx->parent->parent;
 	antlr4::ParserRuleContext* child = ctx->num_primary();
 	if (child) {
 		string numStr = ctx->num_primary()->NIL() ? "0" : child->getText();
-		mAsts[ctx] = new DongLangNumPrimaryAST(child->getText(), etListener->ExprType(exprCtx, true));
+		mAsts[ctx] = new DongLangNumPrimaryAST(locData, child->getText(), etListener->ExprType(exprCtx, true));
 		return;
 	}
 
 	child = ctx->bool_primary();
 	if (child) {
-		mAsts[ctx] = new DongLangBoolPrimaryAST(child->getText(), etListener->ExprType(exprCtx, true));
+		mAsts[ctx] = new DongLangBoolPrimaryAST(locData, child->getText(), etListener->ExprType(exprCtx, true));
 		return;
 	}
 
 	child = ctx->str_primary();
 	if (child) {
-		mAsts[ctx] = new DongLangStrPrimaryAST(((DongLangParser::Str_primaryContext*)child)->STRING_LITERAL()->getText(),
+		mAsts[ctx] = new DongLangStrPrimaryAST(locData, ((DongLangParser::Str_primaryContext*)child)->STRING_LITERAL()->getText(),
 			etListener->ExprType(exprCtx, true));
 		return;
 	}
@@ -421,6 +436,7 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 	}
 
 	bool noOpr = ctx->id_primary_p_addrs()->POINT().size() == 0 && ctx->id_primary_p_addrs()->POINTADDR().size() ==  0 && ctx->array_index().size() == 0;
+	GET_LOC_DATA(ctx);
 
 	DongLangTypeInfo* exprTypeInfo = NULL;
 	DongLangTypeInfo* exprDefaultTypeInfo = NULL;
@@ -439,7 +455,7 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 					etListener->ExprType(assignCtx->expression()) : 
 					DongLangTypeInfo::typeCheckTrans(exprDefaultTypeInfo, DongLangTypeInfo::IntType, assignCtx->INCREMENT() ? "+" : "-"));
 			mAsts[assignCtx] =
-				new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, assignTypeInfo, exprDefaultTypeInfo);
+				new DongLangIdPrimaryAST(locData, ctx, id, idAst, arrAsts, assignTypeInfo, exprDefaultTypeInfo);
 		}
 	}
 
@@ -458,7 +474,7 @@ void DongLangLLVMListener::exitId_primary(DongLangParser::Id_primaryContext* ctx
 		mAsts[ctx] = idAst;
 	}
 	else {
-		mAsts[ctx] = new DongLangIdPrimaryAST(ctx, id, idAst, arrAsts, exprTypeInfo, exprDefaultTypeInfo);
+		mAsts[ctx] = new DongLangIdPrimaryAST(locData, ctx, id, idAst, arrAsts, exprTypeInfo, exprDefaultTypeInfo);
 	}
 
 }
@@ -529,8 +545,8 @@ void DongLangLLVMListener::exitVar_arr_value(DongLangParser::Var_arr_valueContex
 		}
 	}
 
-
-	mAsts[ctx] = new DongLangArrayAST(idSymbol, isPrimary, arrAsts, typeInfo, varExprTypeInfo);
+	GET_LOC_DATA(ctx);
+	mAsts[ctx] = new DongLangArrayAST(locData, idSymbol, isPrimary, arrAsts, typeInfo, varExprTypeInfo);
 }
 
 void DongLangLLVMListener::enterVar(DongLangParser::VarContext* ctx) {
@@ -560,6 +576,7 @@ void DongLangLLVMListener::exitVars(DongLangParser::VarsContext* ctx) {
 	}
 #endif
 
+	GET_LOC_DATA(ctx);
 	vector<DongLangBaseAST*> vars;
 	vars.clear();
 	for (auto child : ctx->var()) {
@@ -570,6 +587,7 @@ void DongLangLLVMListener::exitVars(DongLangParser::VarsContext* ctx) {
 			valueCtx->expression()->primary() &&
 			valueCtx->expression()->primary()->value_primary();
 		vars.push_back(new DongLangVarAST(ctx,
+			locData,
 			child->IDENTIFIER()->getText(),
 			value,
 			varExprTypeInfo,
@@ -604,6 +622,8 @@ void DongLangLLVMListener::exitVar_declares(DongLangParser::Var_declaresContext*
 	}
 #endif
 
+	GET_LOC_DATA(ctx);
+
 	for (auto child : ctx->vars()->var()) {
 		auto valueCtx = child->var_value();
 		auto valueAst = valueCtx ? mAsts[valueCtx] : NULL;
@@ -612,6 +632,7 @@ void DongLangLLVMListener::exitVar_declares(DongLangParser::Var_declaresContext*
 			valueCtx->expression()->primary() &&
 			valueCtx->expression()->primary()->value_primary();
 		vars.push_back(new DongLangVarDeclareAST(ctx,
+			locData,
 			varTypeInfo,
 			child->IDENTIFIER()->getText(),
 			valueAst,
@@ -647,6 +668,8 @@ void DongLangLLVMListener::exitAssigns(DongLangParser::AssignsContext* ctx) {
 	}
 #endif
 
+	GET_LOC_DATA(ctx);
+
 	vector<DongLangAssignAST*> assigns;
 	assigns.clear();
 	for (auto child : ctx->assign()) {
@@ -668,11 +691,13 @@ void DongLangLLVMListener::exitAssigns(DongLangParser::AssignsContext* ctx) {
 			else {
 				defaultCTypeInfo = cTypeInfo->isPoint() ? cTypeInfo : DongLangTypeInfo::typeCheckTrans(cTypeInfo,
 					DongLangTypeInfo::IntType, opr);
-				valueAst = new DongLangNumPrimaryAST("1", cTypeInfo->isPoint() ? DongLangTypeInfo::IntType :
+				valueAst = new DongLangNumPrimaryAST(locData, "1", cTypeInfo->isPoint() ? DongLangTypeInfo::IntType :
 					DongLangTypeInfo::typeCheckTrans(cTypeInfo, DongLangTypeInfo::IntType, opr));
 			}
 
-			valueAst = new DongLangExpressionAST(opr,
+			valueAst = new DongLangExpressionAST(
+				locData,
+				opr,
 				mAsts[child],
 				valueAst,
 				NULL,
@@ -682,7 +707,7 @@ void DongLangLLVMListener::exitAssigns(DongLangParser::AssignsContext* ctx) {
 			isPrimary = false;
 		}
 		
-		assigns.push_back(new DongLangAssignAST(idAst, valueAst, varExprTypeInfo, isPrimary));
+		assigns.push_back(new DongLangAssignAST(idAst, locData,valueAst, varExprTypeInfo, isPrimary));
 	}
 
 	mAsts[ctx] = new DongLangVectorAST<DongLangAssignAST>(assigns);

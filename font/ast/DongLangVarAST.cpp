@@ -2,12 +2,13 @@
 #include "DongLangPrimaryAST.h"
 
 DongLangVarDeclareAST::DongLangVarDeclareAST(antlr4Ctx ctx,
+	CodeLocData& locData,
 	DongLangTypeInfo* spType,
 	string id, 
 	DongLangBaseAST* defaultValue,
 	bool isGlobal,
 	DongLangTypeInfo* typeInfo,
-	bool isPrimary): DongLangBaseAST(typeInfo) {
+	bool isPrimary): DongLangBaseAST(typeInfo, locData) {
 	this->ctx = ctx;
 	this->spType = spType;
 	this->id = id;
@@ -30,11 +31,40 @@ Value* DongLangVarDeclareAST::genCode() {
 	auto symbol = FindSymbol(ctx, id);
 	auto llType = LlvmType(spType);
 
-	auto idValue = isGlobal ? (Value*)lM.getOrInsertGlobal(id, llType) : (Value*)lB.CreateAlloca(llType, NULL, id);
+	Value* idValue = NULL;
 	if (isGlobal) {
-		auto gvar = (GlobalVariable*)idValue;
+		auto gIdValue = lM.getOrInsertGlobal(id, llType);
+		auto gVar = (GlobalVariable*)gIdValue;
 		//gvar->setLinkage(GlobalValue::ExternalLinkage);
-		gvar->setDSOLocal(true);
+		gVar->setDSOLocal(true);
+		idValue = gIdValue;
+
+		if (G_DEBUG) {
+			auto debugSp = lDI.curScope();
+			lDB.createGlobalVariableExpression(
+				debugSp,
+				symbol->ID(),
+				symbol->ID(),
+				lDI.file,
+				getLocLine(),
+				spType->getDebugType(),
+				false
+			);
+		}
+	}
+	else {
+		lDI.emitLocation(NULL);
+		idValue = lB.CreateAlloca(llType, NULL, id);
+
+		if (G_DEBUG) {
+			auto debugSp = lDI.curScope();
+			DILocalVariable* debugValue = lDB.createParameterVariable(
+				debugSp, symbol->ID(), 0, lDI.file, getLocLine(), spType->getDebugType(),
+				true);
+			lDB.insertDeclare(idValue, debugValue, lDB.createExpression(),
+				DILocation::get(debugSp->getContext(), getLocLine(), 0, debugSp),
+				lB.GetInsertBlock());
+		}
 	}
 
 	if (!value || !isPrimary) {
@@ -61,7 +91,6 @@ Value* DongLangVarDeclareAST::genCode() {
 		else {
 			auto* curBB = lB.GetInsertBlock();
 			if (isGlobal) {
-
 				auto& entryBB = GetGlobalMainInit()->getEntryBlock();
 				lB.SetInsertPoint(&entryBB);
 			}
@@ -72,7 +101,6 @@ Value* DongLangVarDeclareAST::genCode() {
 			if (isGlobal) {
 				lB.SetInsertPoint(curBB); //»¹Ô­
 			}
-
 		}
 	}
 	
@@ -88,10 +116,11 @@ Value* DongLangVarDeclareAST::genCode() {
 }
 
 DongLangVarAST::DongLangVarAST(antlr4Ctx ctx,
+	CodeLocData& locData,
 	string id,
 	DongLangBaseAST* defaultValue, 
 	DongLangTypeInfo* typeInfo, 
-	bool isPrimary) : DongLangBaseAST(typeInfo) {
+	bool isPrimary) : DongLangBaseAST(typeInfo, locData) {
 	this->ctx = ctx;
 	this->id = id;
 	this->value = defaultValue;
@@ -125,10 +154,11 @@ Value* DongLangVarAST::genCode() {
 
 
 DongLangAssignAST::DongLangAssignAST(DongLangBaseAST* idAst, 
+	CodeLocData& locData,
 	DongLangBaseAST* valueAst, 
 	DongLangTypeInfo* typeInfo, 
 	bool isPrimary) :
-	DongLangBaseAST(typeInfo),
+	DongLangBaseAST(typeInfo, locData),
 	idAst(idAst),
 	valueAst(valueAst),
 	isPrimary(isPrimary){

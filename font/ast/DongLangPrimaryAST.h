@@ -28,7 +28,7 @@ value_primary:
 
 class DongLangNumPrimaryAST : public DongLangBaseAST {
 public:
-	DongLangNumPrimaryAST(std::string, DongLangTypeInfo* typeInfo = NULL) ;
+	DongLangNumPrimaryAST(CodeLocData& locData, std::string, DongLangTypeInfo* typeInfo = NULL) ;
 	virtual Value* genCode() override;
 private:
 	string value;
@@ -36,7 +36,7 @@ private:
 
 class DongLangStrPrimaryAST : public DongLangBaseAST {
 public:
-	DongLangStrPrimaryAST(std::string, DongLangTypeInfo* typeInfo = NULL);
+	DongLangStrPrimaryAST(CodeLocData& locData, std::string, DongLangTypeInfo* typeInfo = NULL);
 	virtual Value* genCode() override;
 private:
 	std::string value;
@@ -44,7 +44,7 @@ private:
 
 class DongLangBoolPrimaryAST : public DongLangBaseAST {
 public:
-	DongLangBoolPrimaryAST(std::string, DongLangTypeInfo* typeInfo = NULL);
+	DongLangBoolPrimaryAST(CodeLocData& locData, std::string, DongLangTypeInfo* typeInfo = NULL);
 	virtual Value* genCode() override;
 private:
 	bool value;
@@ -53,7 +53,7 @@ private:
 
 class DongLangIdPrimaryAST : public DongLangBaseAST, public ICanAddressAST {
 public:
-	DongLangIdPrimaryAST(antlr4Ctx, std::string, DongLangBaseAST* idAst, vector<DongLangBaseAST*>& arrAsts,
+	DongLangIdPrimaryAST(CodeLocData& locData, antlr4Ctx, std::string, DongLangBaseAST* idAst, vector<DongLangBaseAST*>& arrAsts,
 		DongLangTypeInfo* typeInfo, 
 		DongLangTypeInfo* defaultTypeInfo);
 	virtual bool isAddressed() override;

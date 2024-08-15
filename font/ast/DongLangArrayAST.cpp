@@ -73,15 +73,41 @@ Value* DongLangArrayAST::genCode() {
 	string id = idSymbol->ID();
 	bool isGlobal = idSymbol->getScope() == RootScope();
 	
-	auto arrValue = isGlobal ? (Value*)lM.getOrInsertGlobal(id, arrT) : (Value*)lB.CreateAlloca(arrT, NULL, id);
+	Value* arrValue = NULL;
 	if (isGlobal) {
-		auto gvar = (GlobalVariable*)arrValue;
+		auto gArrValue = lM.getOrInsertGlobal(id, arrT);
+		auto gVar = (GlobalVariable*)gArrValue;
 		//gvar->setLinkage(GlobalValue::ExternalLinkage);
-		gvar->setDSOLocal(true);
+		gVar->setDSOLocal(true);
+		arrValue = gArrValue;
+		if (G_DEBUG) {
+			auto debugSp = lDI.curScope();
+			lDB.createGlobalVariableExpression(
+				debugSp,
+				idSymbol->ID(),
+				idSymbol->ID(),
+				lDI.file,
+				getLocLine(),
+				spType->getDebugType(),
+				false
+			);
+		}
+	}
+	else {
+		lDI.emitLocation(NULL);
+		arrValue = lB.CreateAlloca(arrT, NULL, id);
+		if (G_DEBUG) {
+			auto debugSp = lDI.curScope();
+			DILocalVariable* debugValue = lDB.createParameterVariable(
+				debugSp, idSymbol->ID(), 0, lDI.file, getLocLine(), spType->getDebugType(),
+				true);
+			lDB.insertDeclare(arrValue, debugValue, lDB.createExpression(),
+				DILocation::get(debugSp->getContext(), getLocLine(), 0, debugSp),
+				lB.GetInsertBlock());
+		}
 	}
 
 	arrValue->setName(id);
-
 	if (isPrimary) {
 		auto arrV = genConstantValue();
 		if (isGlobal) {

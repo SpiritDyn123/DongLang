@@ -214,15 +214,20 @@ void DongLangLLVMVarListener::enterIf_cond(DongLangParser::If_condContext* ctx) 
 }
 
 void DongLangLLVMVarListener::enterIf_expression(DongLangParser::If_expressionContext* ctx) {
-	DongLangBaseAST::AddScope(ctx);
-}
+	//if
+	auto ifScope = DongLangBaseAST::AddScope(ctx->if_cond());
+	DongLangBaseAST::AddScope(ctx, false, "", ifScope);
 
-void DongLangLLVMVarListener::enterElif_expr(DongLangParser::Elif_exprContext* ctx) {
-	DongLangBaseAST::AddScope(ctx);
-}
+	//elif
+	for (auto elifCtx : ctx->elif_expr()) {
+		ifScope = DongLangBaseAST::AddScope(elifCtx->if_cond(), false, "", ifScope);
+		DongLangBaseAST::AddScope(elifCtx, false, "", ifScope);
+	}
 
-void DongLangLLVMVarListener::enterElse_expr(DongLangParser::Else_exprContext* ctx) {
-	DongLangBaseAST::AddScope(ctx);
+	//else
+	if (ctx->else_expr()) {
+		DongLangBaseAST::AddScope(ctx->else_expr(), false, "", ifScope);
+	}
 }
 
 void DongLangLLVMVarListener::enterFor_expression(DongLangParser::For_expressionContext* ctx) {

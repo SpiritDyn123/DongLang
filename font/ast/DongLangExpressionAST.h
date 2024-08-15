@@ -21,7 +21,7 @@ using namespace llvm;
 
 class DongLangExpressionAST : public DongLangBaseAST {
 public:
-	DongLangExpressionAST(std::string op, 
+	DongLangExpressionAST(CodeLocData& locData, std::string op,
 		DongLangBaseAST* lhs, 
 		DongLangBaseAST* rhs, 
 		DongLangBaseAST* exths,
@@ -29,9 +29,6 @@ public:
 		DongLangTypeInfo* defaultTypeInfo);
 	virtual Value* genCode() override;
 	void assetOpearation();
-
-	static DongLangExpressionAST* createCmpAst(string op, vector<DongLangBaseAST*> cAsts, DongLangTypeInfo* typeInfo, DongLangTypeInfo* defaultTypeInfo);
-
 private:
 	std::string op;
 	DongLangBaseAST* lhs;

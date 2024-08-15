@@ -104,13 +104,16 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 	mScopes.clear();
 }
 
- void DongLangBaseAST::AddScope(antlr4Ctx ctx, bool isRoot, string name) {
-	 auto scope = mScopes.find(ctx);
-	 if (scope != mScopes.end()) {
-		 return;
+ DongLangScope* DongLangBaseAST::AddScope(antlr4Ctx ctx, bool isRoot, string name, DongLangScope* parent) {
+	 auto it = mScopes.find(ctx);
+	 if (it != mScopes.end()) {
+		 return it->second;
 	 }
 
-	 auto parent = CurScope(ctx);
+	 if (!parent) {
+		 parent = CurScope(ctx);
+	 }
+	 
 	 if (name == "") {
 		 name = std::to_string((long long)ctx);
 	 }
@@ -123,6 +126,7 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 	 if (isRoot) {
 		 rootScope = mScopes[ctx];
 	 }
+	 return mScopes[ctx];
 }
 
 DongLangScope* DongLangBaseAST::CurScope(antlr4Ctx ctx) {

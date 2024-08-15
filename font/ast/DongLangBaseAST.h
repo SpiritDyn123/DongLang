@@ -59,7 +59,7 @@ public:
 	static void InitLLVMAST();
 
 	//Scope相关 (todo 以后改为stack mod)
-	static void AddScope(antlr4Ctx, bool isRoot = false, string name= "");
+	static DongLangScope* AddScope(antlr4Ctx, bool isRoot = false, string name= "", DongLangScope * parent = NULL);
 	static DongLangScope* CurScope(antlr4Ctx);
 	static DLSymbol* FindSymbol(antlr4Ctx, string);
 	static DLSymbol* FindSymbol(antlr4Ctx, SYMBOL_ID id);

@@ -1,10 +1,11 @@
 #include "DongLangExprAST.h"
 
 
-DongLangCallExprAST::DongLangCallExprAST(FuncDLSymbol* funcSymbol,
+DongLangCallExprAST::DongLangCallExprAST(CodeLocData& locData, 
+	FuncDLSymbol* funcSymbol,
 	std::vector<DongLangBaseAST*>& args,
 	std::vector<DongLangTypeInfo*>& argDefaultTypes,
-	bool isGlobal) : DongLangBaseAST(funcSymbol->getVarType()),
+	bool isGlobal) : DongLangBaseAST(funcSymbol->getVarType(),locData),
 	funcSymbol(funcSymbol),
 	args(args),
 	argDefaultTypes(argDefaultTypes),

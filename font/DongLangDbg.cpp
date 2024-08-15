@@ -4,10 +4,13 @@
 void DongLangDebugInfo::Init() {
 	builder = new DIBuilder(lM);
 
-	cu = builder->createCompileUnit(dwarf::DW_LANG_C,
+	cu = builder->createCompileUnit(dwarf::DW_LANG_C_plus_plus_11, //c++11
 		builder->createFile(FLAGS_in, "."),
 		"DongLang Debuger", 0, "", 0);
 	scopes = {};
+
+	file = builder->createFile(cu->getFilename(),
+		cu->getDirectory());
 }
 
 
@@ -33,6 +36,10 @@ DIScope* DongLangDebugInfo::curScope() {
 }
 
 void DongLangDebugInfo::emitLocation(DongLangBaseAST* ast) {
+	if (!G_DEBUG) {
+		return;
+	}
+
 	if (!ast)
 		return lB.SetCurrentDebugLocation(DebugLoc());
 	DIScope* scope = curScope();

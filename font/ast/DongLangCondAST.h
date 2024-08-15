@@ -21,7 +21,7 @@ class DongLangForExprAST;
 
 class DongLangBreakAST : public DongLangBaseAST{
 public:
-	DongLangBreakAST(antlr4Ctx ctx);
+	DongLangBreakAST(antlr4Ctx ctx, CodeLocData& locData);
 	Value* genCode() override;
 private:
 	antlr4Ctx ctx;
@@ -29,7 +29,7 @@ private:
 
 class DongLangContinueAST : public DongLangBaseAST {
 public:
-	DongLangContinueAST(antlr4Ctx ctx);
+	DongLangContinueAST(antlr4Ctx ctx, CodeLocData& locData);
 	Value* genCode() override;
 
 private:
@@ -40,17 +40,19 @@ private:
 class DongLangIfExprAST : public DongLangBaseAST {
 public:
 	struct DongLangIfExprItem {
-		DongLangIfExprItem(DongLangBaseAST* initAst, DongLangBaseAST* condAst, vector<DongLangBaseAST*>& statements) :
+		DongLangIfExprItem(CodeLocData& locData, DongLangBaseAST* initAst, DongLangBaseAST* condAst, vector<DongLangBaseAST*>& statements) :
+			locData(locData),
 			initAst(initAst),
 			condAst(condAst),
 			statements(statements) {}
+		CodeLocData locData;
 		DongLangBaseAST* initAst;
 		DongLangBaseAST* condAst;
 		vector<DongLangBaseAST*> statements;
 	};
 
 public:
-	DongLangIfExprAST(vector<DongLangIfExprItem*>& ifItems);
+	DongLangIfExprAST(CodeLocData& locData, vector<DongLangIfExprItem*>& ifItems);
 	Value* genCode() override;
 private:
 	vector<DongLangIfExprItem*> ifItems;
@@ -60,7 +62,7 @@ private:
 class DongLangForExprAST : public DongLangBaseAST, public DongLangScopeForInfo {
 
 public:
-	DongLangForExprAST(DongLangBaseAST* initAst,
+	DongLangForExprAST(CodeLocData& locData, DongLangBaseAST* initAst,
 	DongLangBaseAST* condAst,
 	DongLangBaseAST* iterAst,
 	vector<DongLangBaseAST*> statements);
