@@ -25,6 +25,7 @@
 #include "llvm/Support/SourceMgr.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/raw_ostream.h"
+
 #include <memory>
 #include <system_error>
 #include "DLGen.h"
@@ -68,9 +69,6 @@ TargetMachine* GenBase::getTargetMachine(llvm::Module& lModule, llvm::LLVMContex
 	TargetOptions opt;
 	auto RM = FLAGS_fpie ? Reloc::DynamicNoPIC : FLAGS_fpic ? Reloc::PIC_ : optional<Reloc::Model>();
 	auto machine = target->createTargetMachine(defaultTargetTrip, CPU, Features, opt, RM);
-	lModule.setDataLayout(machine->createDataLayout());
-	lModule.setTargetTriple(defaultTargetTrip);
-
 	return machine;
 }
 
@@ -172,7 +170,7 @@ bool LLGen::gen(GenBase* srcGen, bool final) {
 	if (!srcGen) {
 		llvm::SMDiagnostic EC;
 		DongLangBaseAST::llvmCtx = new llvm::LLVMContext();
-		auto module = parseIRFile(FLAGS_in, EC, *DongLangBaseAST::llvmCtx);
+		auto module = parseIRFile(FLAGS_in, EC, lC);
 		if (!module) {
 			errs() << "LLGen parseIRFile err:" << EC.getMessage();
 			return false;

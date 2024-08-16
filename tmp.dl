@@ -12,6 +12,8 @@ func int ff(int a, int b) {
 	 
 	 if (int ifa = 1; ifa > 0) {
 		 int ifa1 = 1;
+
+		
 	 }
 	
 	 else if (int ifb = 1; ifb > 0) {

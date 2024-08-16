@@ -2,6 +2,11 @@
 #include "font/ast/DongLangBaseAST.h"
 
 void DongLangDebugInfo::Init() {
+	lM.addModuleFlag(llvm::Module::Max, "Dwarf Version", 5);
+
+	lM.addModuleFlag(Module::Warning, "Debug Info Version",
+		DEBUG_METADATA_VERSION);
+
 	builder = new DIBuilder(lM);
 
 	cu = builder->createCompileUnit(dwarf::DW_LANG_C_plus_plus_11, //c++11

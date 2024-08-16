@@ -12,17 +12,19 @@ int main() {
 
 	if (int ifa = 1; ifa > 0) {
 		int ifa1 = 1;
+
+
 	}
-	/*
-	 else if (int ifb = 1; ifb > 0) {
-		 int ifb1 = 1;
-	 }
-	 else if(int ifc = 1; ifc > 0){
-		 int ifc1 = 2;
-	 }
-	 else {
-		 int ifz = 1;
-	 }*/
+
+	else if (int ifb = 1; ifb > 0) {
+		int ifb1 = 1;
+	}/*
+	else if(int ifc = 1; ifc > 0){
+		int ifc1 = 2;
+	}*/
+	else {
+		int ifz = 1;
+	}
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -30,6 +32,4 @@ int main() {
 	}
 
 	return 0;
-	
-	 return 0;
 }

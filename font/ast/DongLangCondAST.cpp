@@ -61,6 +61,24 @@ Value* DongLangIfExprAST::genCode() {
 		}
 
 		bool bElse = !cAst->initAst && !cAst->condAst;
+
+		auto BB2 = lB.GetInsertBlock();
+		BasicBlock* trueBB = mIfBBs[cAst];
+		BasicBlock* nextIfBB = NULL;
+		if (!bElse) {
+			nextIfBB =  (index >= ifItems.size() - (elseBB ? 2 : 1)) 
+				? (elseBB ? elseBB : endBB) : 
+				BasicBlock::Create(lC, "", BB2->getParent(), endBB);
+
+			auto condBr = lB.CreateCondBr(cmpValue, trueBB, nextIfBB);
+		
+			//BranchInst::Create(trueBB, nextIfBB, cmpValue, BB2); //无调试信息
+		}
+
+		trueBB->moveAfter(BB2);
+
+		lB.SetInsertPoint(trueBB);
+
 		if (G_DEBUG) {
 			if (!bElse) {
 				auto debugScope2 = lDB.createLexicalBlock(
@@ -73,17 +91,6 @@ Value* DongLangIfExprAST::genCode() {
 			}
 		}
 
-		auto BB2 = lB.GetInsertBlock();
-		BasicBlock* trueBB = mIfBBs[cAst];
-		BasicBlock* nextIfBB = NULL;
-		if (!bElse) {
-			nextIfBB =  (index >= ifItems.size() - (elseBB ? 2 : 1)) ? (elseBB ? elseBB : endBB) : BasicBlock::Create(lC, "", BB2->getParent(), endBB);
-			BranchInst::Create(trueBB, nextIfBB, cmpValue, BB2);
-		}
-
-		trueBB->moveAfter(BB2);
-
-		lB.SetInsertPoint(trueBB);
 		BasicBlock* bkOrCtBB = NULL;
 		bool noPreds = false;
 		for (auto smAst : cAst->statements) {
@@ -194,8 +201,8 @@ Value* DongLangForExprAST::genCode() {
 		auto trueBB = BasicBlock::Create(lC, "", mainBB->getParent());
 
 		trueBB->moveAfter(lB.GetInsertBlock());
-		lDI.emitLocation(this);
-		BranchInst::Create(trueBB, endBB, cmpValue, condBB);
+		auto condBr = lB.CreateCondBr(cmpValue, trueBB, endBB);
+		//BranchInst::Create(trueBB, endBB, cmpValue, condBB); //没有自动添加dbg
 
 		lB.SetInsertPoint(trueBB);
 	}

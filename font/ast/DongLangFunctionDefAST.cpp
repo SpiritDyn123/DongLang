@@ -172,8 +172,9 @@ Value* DongLangFunctionDefAST::genCode() {
 							auto inst = lB.CreateStore(retInst->getReturnValue(), allocRetValue);
 							inst->moveBefore(retInst);
 						}
-
-						BranchInst::Create(endBB, retInst);
+						auto br = lB.CreateBr(endBB);
+						br->moveBefore(retInst);
+						//BranchInst::Create(endBB, retInst);
 					}
 
 					break;
@@ -194,7 +195,9 @@ Value* DongLangFunctionDefAST::genCode() {
 			}
 
 			if (brInst) {
-				BranchInst::Create(endBB, &bb);
+				lB.SetInsertPoint(&bb);
+				auto br = lB.CreateBr(endBB);
+				//BranchInst::Create(endBB, &bb);
 			}
 		}
 #endif

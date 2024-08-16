@@ -1,6 +1,8 @@
 #include "font/ast/DongLangBaseAST.h"
 #include "llvm/Support/TargetSelect.h"  
 #include "llvm/Target/TargetMachine.h" 
+#include "llvm/TargetParser/Host.h"
+#include "backend/GenBase.h"
 
 LLVMContext* DongLangBaseAST::llvmCtx = NULL;
 Module* DongLangBaseAST::llvmModule = NULL;
@@ -95,6 +97,10 @@ Value* DongLangBaseAST::TransValue(DongLangTypeInfo* defaultTypeInfo, Value* cur
 	llvmCtx = new LLVMContext();
 	llvmModule = new Module("spirit lang jit", *llvmCtx);
 	llvmBuilder = new IRBuilder<>(*llvmCtx);
+
+	auto defaultTargetTrip = sys::getDefaultTargetTriple();
+	llvmModule->setTargetTriple(defaultTargetTrip);
+	llvmModule->setDataLayout(GenBase::getTargetMachine(lM, lC)->createDataLayout());
 
 	//¿ªÆôdebug
 	if (G_DEBUG) {

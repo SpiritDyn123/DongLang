@@ -331,7 +331,8 @@ Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
 		ast->phi = CREATE_PHI(lValue->getType(), 2);
 
 		ast->phi->addIncoming(lValue, cCurBB);
-		BranchInst::Create(ast->trueBB, ast->falseBB, lValue, cCurBB);
+		//BranchInst::Create(ast->trueBB, ast->falseBB, lValue, cCurBB);
+		lB.CreateCondBr(lValue, ast->trueBB, ast->falseBB);
 	}
 	else {
 		BasicBlock* cFirstBB = cCurBB->getPrevNode();
@@ -370,7 +371,11 @@ Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
 		if(brInst->getSuccessor(0) != cFirstBB) { // == "||"
 			lastInst->eraseFromParent();
 			ast->phi->removeIncomingValue(startBB);
-			BranchInst::Create(ast->trueBB, cFirstBB, cmpValue, startBB);
+			//BranchInst::Create(ast->trueBB, cFirstBB, cmpValue, startBB);
+
+			lB.SetInsertPoint(startBB);
+			lB.CreateCondBr(cmpValue, ast->trueBB, cFirstBB);
+			lB.SetInsertPoint(cCurBB);
 		}
 
 		//修改子trueBB的br
@@ -384,7 +389,10 @@ Value* DongLangExpressionAST::ifAndExpr(DongLangExpressionAST* ast) {
 		}
 		lastInst->eraseFromParent();
 
-		BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, cFirstBB);
+		//BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, cFirstBB);
+		lB.SetInsertPoint(cFirstBB);
+		lB.CreateCondBr(cmpValue, ast->trueBB, ast->falseBB);
+		lB.SetInsertPoint(cCurBB);
 	}
 
 	lB.SetInsertPoint(ast->trueBB);
@@ -420,7 +428,8 @@ Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
 		ast->phi = CREATE_PHI(lValue->getType(), 0); 
 
 		ast->phi->addIncoming(lValue, cCurBB);
-		BranchInst::Create(ast->trueBB, ast->falseBB, lValue, cCurBB);
+		//BranchInst::Create(ast->trueBB, ast->falseBB, lValue, cCurBB);
+		lB.CreateCondBr(lValue, ast->trueBB, ast->falseBB);
 	}
 	else {
 		BasicBlock* cFirstBB = cCurBB->getPrevNode(); // 子block1
@@ -459,7 +468,11 @@ Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
 		if (brInst->getSuccessor(1) != cFirstBB) { // == "&&"
 			lastInst->eraseFromParent();
 			ast->phi->removeIncomingValue(startBB);
-			BranchInst::Create(cFirstBB, ast->falseBB, cmpValue, startBB);
+			//BranchInst::Create(cFirstBB, ast->falseBB, cmpValue, startBB);
+
+			lB.SetInsertPoint(startBB);
+			lB.CreateCondBr(cmpValue, ast->trueBB, cFirstBB);
+			lB.SetInsertPoint(cCurBB);
 		}
 
 		//修改子trueBB的br
@@ -473,7 +486,10 @@ Value* DongLangExpressionAST::ifOrExpr(DongLangExpressionAST* ast) {
 		}
 		lastInst->eraseFromParent();
 
-		BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, cFirstBB);
+		//BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, cFirstBB);
+		lB.SetInsertPoint(cFirstBB);
+		lB.CreateCondBr(cmpValue, ast->trueBB, ast->falseBB);
+		lB.SetInsertPoint(cCurBB);
 	}
 
 	lB.SetInsertPoint(ast->falseBB);
@@ -513,7 +529,8 @@ Value* DongLangExpressionAST::ifThreeOrExpr(DongLangExpressionAST* ast) {
 	Value* cmpValue = condAst->genCodeWrap();
 
 	curBB = CUR_BB;
-	BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, CUR_BB);
+	//BranchInst::Create(ast->trueBB, ast->falseBB, cmpValue, CUR_BB);
+	lB.CreateCondBr(cmpValue, ast->trueBB, ast->falseBB);
 
 	ast->trueBB->moveAfter(curBB);
 	lB.SetInsertPoint(ast->trueBB);

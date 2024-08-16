@@ -38,8 +38,9 @@ public:
 	virtual emGenType genType() { return genType_invalid; }
 
 	bool genWrap(GenBase*);
-	TargetMachine* getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx);
 	string getOutFileName();
+
+	static TargetMachine* getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx);
 protected:
 	virtual bool gen(GenBase* srcGen, bool final) { return false; }
 
