@@ -54,6 +54,8 @@ GenBase::GenBase() {
 
 }
 
+legacy::PassManager GenBase::passMgr;
+
 TargetMachine* GenBase::getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx) {
 	string errStr = "";
 	auto defaultTargetTrip = sys::getDefaultTargetTriple();
@@ -200,13 +202,12 @@ bool AsmGen::gen(GenBase* srcGen, bool final) {
 		}
 
 		auto fileType = CGFT_AssemblyFile ;
-		legacy::PassManager pass;
-		if (targetMachine->addPassesToEmitFile(pass, out, NULL, fileType)) {
+		if (targetMachine->addPassesToEmitFile(passMgr, out, NULL, fileType)) {
 			errs() << "AsmGen " << "addPassesToEmitFile err error:" << EC.message();
 			return false;
 		}
 
-		pass.run(lM);
+		passMgr.run(lM);
 		out.flush();
 	}
 
@@ -235,13 +236,13 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 			}
 
 			auto fileType = CGFT_ObjectFile;
-			legacy::PassManager pass;
-			if (targetMachine->addPassesToEmitFile(pass, out, NULL, fileType)) {
+			legacy::PassManager passMgr;
+			if (targetMachine->addPassesToEmitFile(passMgr, out, NULL, fileType)) {
 				errs() << "ObjGen " << "addPassesToEmitFile err error:" << EC.message();
 				return false;
 			}
 
-			pass.run(lM);
+			passMgr.run(lM);
 			out.flush();
 		}
 	}

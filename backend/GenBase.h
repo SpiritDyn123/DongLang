@@ -41,6 +41,8 @@ public:
 	string getOutFileName();
 
 	static TargetMachine* getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx);
+public:
+	static legacy::PassManager passMgr;
 protected:
 	virtual bool gen(GenBase* srcGen, bool final) { return false; }
 
