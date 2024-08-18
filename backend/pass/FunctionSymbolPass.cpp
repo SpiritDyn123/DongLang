@@ -12,6 +12,10 @@ using namespace std;
 
 namespace llvm {
 
+static RegisterPass<FunctionSymbolPass> reg("fun_symbol", "fun_symbol", false, false);
+
+char FunctionSymbolPass::ID = 0;
+
 void FunctionSymbolPass::getAnalysisUsage(AnalysisUsage& Info) const {
 
 }
@@ -35,7 +39,7 @@ bool FunctionSymbolPass::runOnFunction(Function& F) {
 	for (auto& bb : F) {
 		mBBSymbols[&bb] = 0;
 		for (auto& inst : bb) {
-			if (dyn_cast<AllocaInst>(inst)) {
+			if (dyn_cast<AllocaInst>(&inst)) {
 				mBBSymbols[&bb]++;
 			}
 		}

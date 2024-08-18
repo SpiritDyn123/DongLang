@@ -4,10 +4,12 @@
 
 namespace llvm {
 	class FunctionSymbolPass : public FunctionPass {
+	public:
+		static char ID;
 		virtual void getAnalysisUsage(AnalysisUsage& Info) const override;
 
 		virtual bool runOnFunction(Function& F) override;
 	};
 
-	static RegisterPass<FunctionPass> reg("fun_symbol", "fun_symbol", false, false);
 }
+

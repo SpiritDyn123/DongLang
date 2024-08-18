@@ -1,0 +1,8 @@
+#ifndef CUSTOM_PASS
+#  error Please define the macro CUSTOM_PASS(passName)
+#endif
+
+#CUSTOM_PASS(FunctionSymbolPass)
+
+
+#undef CUSTOM_PASS

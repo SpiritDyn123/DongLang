@@ -50,6 +50,10 @@ GenBase* createGen(GenBase::emGenType gt) {
 	}
 }
 
+void InitCustomPass() {
+#define CUSTOM_PASS(passName) \#include "backend/pass/##passName.h"
+#include "backend/pass/PassConfig.def"
+}
 GenBase::GenBase() {
 
 }
@@ -134,6 +138,9 @@ bool GenBase::genWrap(GenBase* srcGen) {
 	llvm::InitializeAllTargetMCs();
 	llvm::InitializeAllAsmParsers();
 	llvm::InitializeAllAsmPrinters();
+
+	//pass
+	InitCustomPass();
 
 	GenBase* sGen = NULL;
 	for (auto curGen : genQueue) {
