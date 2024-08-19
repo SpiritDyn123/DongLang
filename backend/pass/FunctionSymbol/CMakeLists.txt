@@ -1,2 +1,2 @@
-add_llvm_pass_plugin(funSymbol 
-FunctionSymbolPass.cpp)
+add_library(funSymbol SHARED
+	FunctionSymbolPass.cpp)

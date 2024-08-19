@@ -58,11 +58,11 @@ void InitCustomPass() {
 GenBase::GenBase() {
 
 }
-#ifndef NEW_PASS_VER
- legacy::PassManager passMgr;
-#else
- ModulePassManager passMgr;
-#endif
+//#ifndef NEW_PASS_VER
+ legacy::PassManager GenBase::passMgr;
+//#else
+// ModulePassManager GenBase::passMgr;
+//#endif
 
 TargetMachine* GenBase::getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx) {
  

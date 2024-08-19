@@ -1,17 +1,25 @@
 #pragma once
-#include "../Pass.h"
+
+#include "llvm/IR/PassManager.h"
+#include "llvm/Pass.h"
 
 using namespace std;
 using namespace llvm;
 
 namespace {
-	class FunctionSymbolPass : public PassInfoMixin<FunctionSymbolPass>, public FunctionPass {
+	void runCustom(Function& F);
+
+	class LeFunctionSymbolPass :  public FunctionPass {
 	public:
-		FunctionSymbolPass();
+		LeFunctionSymbolPass();
 		static char ID;
 
-		void runCustom(Function& F);
 		virtual bool runOnFunction(Function& F) override;
+	};
+
+	class FunctionSymbolPass : public PassInfoMixin<FunctionSymbolPass> {
+	public:
 		PreservedAnalyses run(Function& F, FunctionAnalysisManager& AM);
 	};
 }
+

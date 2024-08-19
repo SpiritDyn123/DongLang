@@ -17,11 +17,12 @@
 using namespace std;
 
 namespace {
-	FunctionSymbolPass::FunctionSymbolPass(): FunctionPass(ID) {
+	
+	void runCustom(Function& F) {
+		if (F.isIntrinsic()) {
+			return;
+		}
 
-	}
-
-	void FunctionSymbolPass::runCustom(Function& F) {
 		stringstream ss;
 		ss << "Function: " << string(F.getName()) << "(";
 
@@ -48,15 +49,20 @@ namespace {
 
 		ss << "\n\tBlockNums:" << mBBSymbols.size();
 		for (auto it = mBBSymbols.begin(); it != mBBSymbols.end(); ++it) {
-			ss << "\n\t\t" << string(it->first->getName()) << " symbols:" << it->second;
+			ss << "\n\t\t" << it->first->getName().str() << " symbols:" << it->second;
 		}
 
 		ss << "\n\n";
-
+		cout << ss.str();
 	}
 
-	bool FunctionSymbolPass::runOnFunction(Function& F) {
-		runCustom(F); 
+	char LeFunctionSymbolPass::ID = 0;
+
+	LeFunctionSymbolPass::LeFunctionSymbolPass() : FunctionPass(ID) {
+	}
+
+	bool LeFunctionSymbolPass::runOnFunction(Function& F) {
+		runCustom(F);
 		return true;
 	}
 
@@ -64,36 +70,39 @@ namespace {
 		runCustom(F);
 		return PreservedAnalyses::all();
 	}
+}
 
-	char FunctionSymbolPass::ID = 0;
+#ifdef BUILD_LEGACY_PASS
+static RegisterPass<LeFunctionSymbolPass> X("funsymbol", "function symbol",
+	false /* Only looks at CFG */,
+	false /* Analysis Pass */);
+#endif
 
 
-	static RegisterPass<FunctionSymbolPass> X("funsymbol", "function symbol",
-		false /* Only looks at CFG */,
-		false /* Analysis Pass */);
+/* New PM Registration */
+llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
+	return { LLVM_PLUGIN_API_VERSION, "funsymbol", LLVM_VERSION_STRING,
+			[](PassBuilder& PB) {
+				PB.registerVectorizerStartEPCallback(
+					[](llvm::FunctionPassManager& PM, OptimizationLevel Level) {
 
-	/* New PM Registration */
-	llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
-		return { LLVM_PLUGIN_API_VERSION, "funsymbol", LLVM_VERSION_STRING,
-				[](PassBuilder& PB) {
-				  PB.registerVectorizerStartEPCallback(
-					  [](llvm::FunctionPassManager& PM, OptimizationLevel Level) {
+					//cout << "===============registerVectorizerStartEPCallback:" << endl;
+					PM.addPass(FunctionSymbolPass());
+					});
+				PB.registerPipelineParsingCallback(
+					[](StringRef Name, llvm::FunctionPassManager& PM,
+						ArrayRef<llvm::PassBuilder::PipelineElement>) {
+					//cout << "===============registerPipelineParsingCallback:" << string(Name) << endl;
+					if (Name == "funsymbol") {
 						PM.addPass(FunctionSymbolPass());
-					  });
-				  PB.registerPipelineParsingCallback(
-					  [](StringRef Name, llvm::FunctionPassManager& PM,
-						 ArrayRef<llvm::PassBuilder::PipelineElement>) {
-						if (Name == "funsymbol") {
-						  PM.addPass(FunctionSymbolPass());
-						  return true;
-						}
-						return false;
-					  });
-				} };
-	}
+						return true;
+					}
+					return false;
+					});
+			} };
+}
 
-	extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo llvmGetPassPluginInfo() {
-		return getFunctionSymbolPluginInfo();
-	}
 
+extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo llvmGetPassPluginInfo() {
+	return getFunctionSymbolPluginInfo();
 }

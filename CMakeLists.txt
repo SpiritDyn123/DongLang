@@ -34,14 +34,19 @@ link_directories(
 file(GLOB_RECURSE SRC_FILES 
 	${PROJECT_SOURCE_DIR}/font/*.cpp
 	${PROJECT_SOURCE_DIR}/src/*.cpp
-	${PROJECT_SOURCE_DIR}/backend/*.cpp
-
-    #${PROJECT_SOURCE_DIR}/font/**/*.cpp # 从src目录及其子目录中查找  
+	#${PROJECT_SOURCE_DIR}/backend/*.cpp
 )  
 
+file(GLOB SRC_BK_FILES
+	${PROJECT_SOURCE_DIR}/backend/*.cpp
+	${PROJECT_SOURCE_DIR}/backend/pass/*.cpp
+	#${PROJECT_SOURCE_DIR}/backend/pass/FunctionSymbol/*.cpp
+)
 #message(STATUS "SRC_FILES:${PROJECT_SOURCE_DIR} ${SRC_FILES}")
 
-add_executable(DongLang main.cpp ${SRC_FILES})
+add_executable(DongLang main.cpp ${SRC_FILES}
+	${SRC_BK_FILES}
+)
 
 execute_process(COMMAND llvm-config --cxxflags
 	OUTPUT_VARIABLE LLVM_CXX_FLAGS
@@ -58,7 +63,7 @@ execute_process(COMMAND llvm-config  --system-libs --libs all
 
 string(REPLACE "\n" " " LLVM_LIBS "${LLVM_LIBS}")
 
-message(STATUS "llvm_cxx_flags:${LLVM_CXX_FLAGS} \n llvm_libs:${LLVM_LIBS}")
+#message(STATUS "llvm_cxx_flags:${LLVM_CXX_FLAGS} \n llvm_libs:${LLVM_LIBS}")
 
 # link libraries
 if(1)

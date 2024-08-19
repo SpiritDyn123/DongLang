@@ -13,6 +13,7 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Target/TargetMachine.h"
+#include "llvm/IR/LegacyPassManager.h"
 #include <map>
 #include "font/DongLangScope.h"
 #include "antlr4-runtime.h"
@@ -42,11 +43,11 @@ public:
 
 	static TargetMachine* getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx);
 public:
-#ifndef NEW_PASS_VER
+//#ifndef NEW_PASS_VER
 	static legacy::PassManager passMgr;
-#else
-	static ModulePassManager passMgr;
-#endif
+//#else
+//	static ModulePassManager passMgr;
+//#endif
 
 protected:
 	virtual bool gen(GenBase* srcGen, bool final) { return false; }
