@@ -1,3 +1,4 @@
 #pragma once
 
-char gPassId = 0;
+#include "llvm/IR/PassManager.h"
+#include "llvm/Pass.h"

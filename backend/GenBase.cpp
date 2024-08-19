@@ -51,16 +51,21 @@ GenBase* createGen(GenBase::emGenType gt) {
 }
 
 void InitCustomPass() {
-#define CUSTOM_PASS(passName) \#include "backend/pass/##passName.h"
-#include "backend/pass/PassConfig.def"
+//#define CUSTOM_PASS(passName) \#include "backend/pass/##passName.h"
+//#include "backend/pass/PassConfig.def"
 }
+
 GenBase::GenBase() {
 
 }
-
-legacy::PassManager GenBase::passMgr;
+#ifndef NEW_PASS_VER
+ legacy::PassManager passMgr;
+#else
+ ModulePassManager passMgr;
+#endif
 
 TargetMachine* GenBase::getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx) {
+ 
 	string errStr = "";
 	auto defaultTargetTrip = sys::getDefaultTargetTriple();
 	const  llvm::Target* target = TargetRegistry::lookupTarget(defaultTargetTrip, errStr);
@@ -215,6 +220,7 @@ bool AsmGen::gen(GenBase* srcGen, bool final) {
 		}
 
 		passMgr.run(lM);
+		
 		out.flush();
 	}
 
