@@ -54,7 +54,8 @@ GenBase* createGen(GenBase::emGenType gt) {
 	}
 }
 
-legacy::PassManagerBase* GenBase::passMgr = NULL;
+legacy::PassManager GenBase::passMgr;
+legacy::FunctionPassManager* GenBase::funPassMgr = NULL;
 
 GenBase::GenBase() {
 
@@ -192,7 +193,7 @@ bool LLGen::gen(GenBase* srcGen, bool final) {
 	}
 	
 	//pass
-	InitCustomPass(passMgr, lM);
+	InitCustomPass(&passMgr, funPassMgr, lM);
 	
 	return true;
 }
@@ -213,22 +214,29 @@ bool AsmGen::gen(GenBase* srcGen, bool final) {
 		}
 
 		auto fileType = CGFT_AssemblyFile ;
-		if (targetMachine->addPassesToEmitFile(*passMgr, out, NULL, fileType)) {
+		if (targetMachine->addPassesToEmitFile(passMgr, out, NULL, fileType)) {
 			errs() << "AsmGen " << "addPassesToEmitFile err error:" << EC.message();
 			return false;
 		}
-
 #if defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 1  //function pass
-		auto funPassMgr = (legacy::FunctionPassManager*)passMgr;
-		for (auto& fun : lM) {
-			if (fun.isDeclaration() || fun.isIntrinsic()) continue;
+		funPassMgr->doFinalization();
+		for (Function& fun : lM) {
+			if (fun.isDeclaration() || fun.isIntrinsic()) {
+				continue;
+			}
 			funPassMgr->run(fun);
 		}
-#elif !defined(CUSTOM_PASS_OPR) || CUSTOM_PASS_OPR == 0
-		((legacy::PassManager*)passMgr)->run(lM);
-#elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
 
+		funPassMgr->doFinalization();
+#elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
+		for (Function& fun : lM) {
+			if (fun.isDeclaration() || fun.isIntrinsic()) {
+				continue;
+			}
+			FPM.run(fun, FAM);
+		}
 #endif
+		passMgr.run(lM);
 		out.flush();
 	}
 
@@ -257,22 +265,30 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 			}
 
 			auto fileType = CGFT_ObjectFile;
-			if (targetMachine->addPassesToEmitFile(*passMgr, out, NULL, fileType)) {
+			if (targetMachine->addPassesToEmitFile(passMgr, out, NULL, fileType)) {
 				errs() << "ObjGen " << "addPassesToEmitFile err error:" << EC.message();
 				return false;
 			}
 
 #if defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 1  //function pass
-			auto funPassMgr = (legacy::FunctionPassManager*)passMgr;
-			for (auto& fun : lM) {
-				if (fun.isDeclaration() || fun.isIntrinsic()) continue;
+			funPassMgr->doFinalization();
+			for (Function& fun : lM) {
+				if (fun.isDeclaration() || fun.isIntrinsic()) {
+					continue;
+				}
 				funPassMgr->run(fun);
 			}
-#elif !defined(CUSTOM_PASS_OPR) || CUSTOM_PASS_OPR == 0
-			((legacy::PassManager*)passMgr)->run(lM);
-#elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
 
+			funPassMgr->doFinalization();
+#elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
+			for (Function& fun : lM) {
+				if (fun.isDeclaration() || fun.isIntrinsic()) {
+					continue;
+				}
+				FPM.run(fun, FAM);
+			}
 #endif
+			passMgr.run(lM);
 			out.flush();
 		}
 	}

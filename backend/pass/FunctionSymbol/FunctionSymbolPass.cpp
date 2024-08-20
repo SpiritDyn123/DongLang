@@ -89,12 +89,14 @@ llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
 			[](PassBuilder& PB) {
 				PB.registerVectorizerStartEPCallback(
 					[](llvm::FunctionPassManager& PM, OptimizationLevel Level) {
-
+						cout << "111111111111111\n";
 					PM.addPass(FunctionSymbolPass());
 					});
 				PB.registerPipelineParsingCallback(
 					[](StringRef Name, llvm::FunctionPassManager& PM,
 						ArrayRef<llvm::PassBuilder::PipelineElement>) {
+							cout << "111111111111111\n";
+
 					if (Name == "funsymbol") {
 						PM.addPass(FunctionSymbolPass());
 						return true;

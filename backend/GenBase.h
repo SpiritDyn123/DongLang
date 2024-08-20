@@ -43,7 +43,8 @@ public:
 
 	static TargetMachine* getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx);
 public:
-	static legacy::PassManagerBase* passMgr;
+	static legacy::PassManager passMgr;
+	static legacy::FunctionPassManager* funPassMgr;
 protected:
 	virtual bool gen(GenBase* srcGen, bool final) { return false; }
 

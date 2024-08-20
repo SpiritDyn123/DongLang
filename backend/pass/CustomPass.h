@@ -7,7 +7,15 @@
 #include "llvm/IR/Module.h"
 
 using namespace llvm;
-void InitCustomPass(legacy::PassManagerBase*& passMgr, Module& lm);
+extern PassBuilder PB;
+extern FunctionAnalysisManager FAM;
+extern FunctionPassManager FPM;
+extern LoopAnalysisManager LAM;
+extern CGSCCAnalysisManager CGAM;
+extern ModuleAnalysisManager MAM;
+
+void InitCustomPass(legacy::PassManager* passMgr, 
+	legacy::FunctionPassManager*& funPassMgr, Module& lm);
 
 #ifdef CUSTOM_PASS_OPR
 #if CUSTOM_PASS_OPR == 1
