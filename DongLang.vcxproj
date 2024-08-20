@@ -85,6 +85,9 @@
   <ItemGroup>
     <ClCompile Include="backend\DLGen.cpp" />
     <ClCompile Include="backend\GenBase.cpp" />
+    <ClCompile Include="backend\pass\CustomPass.cpp" />
+    <ClCompile Include="backend\pass\FunctionSymbol\FunctionSymbolPass.cpp" />
+    <ClCompile Include="font\antlr4\DongLangLLVMBaseListener.cpp" />
     <ClCompile Include="font\antlr4\gen\DongLangBaseListener.cpp" />
     <ClCompile Include="font\antlr4\gen\DongLangBaseVisitor.cpp" />
     <ClCompile Include="font\antlr4\gen\DongLangLexer.cpp" />
@@ -104,16 +107,22 @@
     <ClCompile Include="font\ast\DongLangProgAST.cpp" />
     <ClCompile Include="font\ast\DongLangVarAST.cpp" />
     <ClCompile Include="font\custom\Lexer.cpp" />
+    <ClCompile Include="font\DongLangDbg.cpp" />
     <ClCompile Include="font\DongLangScope.cpp" />
     <ClCompile Include="font\DongLangSymbol.cpp" />
     <ClCompile Include="font\DongLangType.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\dl_flag.cpp" />
     <ClCompile Include="test\eg\debug.cpp" />
+    <ClCompile Include="test\study\pass_test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="backend\pass\CustomPass.h" />
     <ClInclude Include="backend\DLGen.h" />
     <ClInclude Include="backend\GenBase.h" />
+    <ClInclude Include="backend\pass\FunctionSymbol\FunctionSymbolPass.h" />
+    <ClInclude Include="backend\pass\Pass.h" />
+    <ClInclude Include="font\antlr4\DongLangLLVMBaseListener.h" />
     <ClInclude Include="font\antlr4\gen\DongLangBaseListener.h" />
     <ClInclude Include="font\antlr4\gen\DongLangBaseVisitor.h" />
     <ClInclude Include="font\antlr4\gen\DongLangLexer.h" />
@@ -133,14 +142,18 @@
     <ClInclude Include="font\ast\DongLangVarAST.h" />
     <ClInclude Include="font\custom\Lexer.h" />
     <ClInclude Include="font\ast\DongLangBaseAST.h" />
+    <ClInclude Include="font\DongLangDbg.h" />
     <ClInclude Include="font\DongLangScope.h" />
     <ClInclude Include="font\DongLangSymbol.h" />
     <ClInclude Include="font\DongLangType.h" />
     <ClInclude Include="include\dl_flag.h" />
     <ClInclude Include="include\dl_version.h" />
+    <ClInclude Include="include\default_lib.h" />
     <ClInclude Include="test\eg\KaleidoscopeJIT.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="backend\PassConfig.def" />
+    <None Include="backend\pass\README.md" />
     <None Include="font\antlr4\gen\DongLang.interp" />
     <None Include="font\antlr4\gen\DongLang.tokens" />
     <None Include="font\antlr4\gen\DongLangLexer.interp" />
@@ -156,6 +169,7 @@
     <ClCompile>
       <CppLanguageStandard>c++17</CppLanguageStandard>
       <AdditionalIncludeDirectories>/data/app/antlr4-runtime/cpp/include/antlr4-runtime;$(ProjectDir);/data/app/llvm/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CUSTOM_PASS_OPR 2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>/data/app/llvm/lib/;/data/app/antlr4-runtime/cpp/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -166,6 +180,7 @@
     <ClCompile>
       <CppLanguageStandard>c++17</CppLanguageStandard>
       <AdditionalIncludeDirectories>/data/app/antlr4-runtime/cpp/include/antlr4-runtime;/data/app/llvm/include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CUSTOM_PASS_OPR 2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>/data/app/llvm/lib/;/data/app/antlr4-runtime/cpp/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

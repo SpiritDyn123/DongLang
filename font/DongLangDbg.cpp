@@ -2,7 +2,7 @@
 #include "font/ast/DongLangBaseAST.h"
 
 void DongLangDebugInfo::Init() {
-	lM.addModuleFlag(llvm::Module::Max, "Dwarf Version", 5);
+	lM.addModuleFlag(llvm::Module::Max, "Dwarf Version", 4);
 
 	lM.addModuleFlag(Module::Warning, "Debug Info Version",
 		DEBUG_METADATA_VERSION);

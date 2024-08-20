@@ -1,18 +1,17 @@
 #include "FunctionSymbolPass.h"
-#include <iostream>
-#include <sstream>
 #include "llvm/IR/Function.h"
 #include "llvm/IR/GlobalIFunc.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/Support/Casting.h"
-#include <map>
-#include <vector>
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
-
+#include <iostream>
+#include <sstream>
+#include <map>
+#include <vector>
 
 using namespace std;
 
@@ -72,27 +71,30 @@ namespace {
 	}
 }
 
-#ifdef BUILD_LEGACY_PASS
+#if defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 1
+Pass* createLeFunctionSymbolPass() {
+	return new LeFunctionSymbolPass();
+}
+#endif
+
+#ifdef OPT_LEGACY_PASS
 static RegisterPass<LeFunctionSymbolPass> X("funsymbol", "function symbol",
 	false /* Only looks at CFG */,
 	false /* Analysis Pass */);
 #endif
 
-
 /* New PM Registration */
 llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
-	return { LLVM_PLUGIN_API_VERSION, "funsymbol", LLVM_VERSION_STRING,
+	return { LLVM_PLUGIN_API_VERSION, "functionSymbol", LLVM_VERSION_STRING,
 			[](PassBuilder& PB) {
 				PB.registerVectorizerStartEPCallback(
 					[](llvm::FunctionPassManager& PM, OptimizationLevel Level) {
 
-					//cout << "===============registerVectorizerStartEPCallback:" << endl;
 					PM.addPass(FunctionSymbolPass());
 					});
 				PB.registerPipelineParsingCallback(
 					[](StringRef Name, llvm::FunctionPassManager& PM,
 						ArrayRef<llvm::PassBuilder::PipelineElement>) {
-					//cout << "===============registerPipelineParsingCallback:" << string(Name) << endl;
 					if (Name == "funsymbol") {
 						PM.addPass(FunctionSymbolPass());
 						return true;

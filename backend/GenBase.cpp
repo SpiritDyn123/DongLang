@@ -25,11 +25,15 @@
 #include "llvm/Support/SourceMgr.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/raw_ostream.h"
-
+#include "llvm/Passes/PassBuilder.h"
+#include "llvm/Passes/PassPlugin.h"
 #include <memory>
 #include <system_error>
 #include "DLGen.h"
 #include "font/ast/DongLangBaseAST.h"
+#ifdef CUSTOM_PASS_OPR
+#include "backend/pass/CustomPass.h"
+#endif
 
 using namespace antlr4;
 
@@ -50,19 +54,12 @@ GenBase* createGen(GenBase::emGenType gt) {
 	}
 }
 
-void InitCustomPass() {
-//#define CUSTOM_PASS(passName) \#include "backend/pass/##passName.h"
-//#include "backend/pass/PassConfig.def"
-}
+legacy::PassManagerBase* GenBase::passMgr = NULL;
 
 GenBase::GenBase() {
 
 }
-//#ifndef NEW_PASS_VER
- legacy::PassManager GenBase::passMgr;
-//#else
-// ModulePassManager GenBase::passMgr;
-//#endif
+
 
 TargetMachine* GenBase::getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx) {
  
@@ -144,9 +141,6 @@ bool GenBase::genWrap(GenBase* srcGen) {
 	llvm::InitializeAllAsmParsers();
 	llvm::InitializeAllAsmPrinters();
 
-	//pass
-	InitCustomPass();
-
 	GenBase* sGen = NULL;
 	for (auto curGen : genQueue) {
 		if (!curGen->gen(sGen, curGen == this)) {
@@ -193,7 +187,12 @@ bool LLGen::gen(GenBase* srcGen, bool final) {
 		//lMÖØÐÂ¸³Öµ
 
 		DongLangBaseAST::llvmModule = module.release();
+
+	
 	}
+	
+	//pass
+	InitCustomPass(passMgr, lM);
 	
 	return true;
 }
@@ -214,13 +213,22 @@ bool AsmGen::gen(GenBase* srcGen, bool final) {
 		}
 
 		auto fileType = CGFT_AssemblyFile ;
-		if (targetMachine->addPassesToEmitFile(passMgr, out, NULL, fileType)) {
+		if (targetMachine->addPassesToEmitFile(*passMgr, out, NULL, fileType)) {
 			errs() << "AsmGen " << "addPassesToEmitFile err error:" << EC.message();
 			return false;
 		}
 
-		passMgr.run(lM);
-		
+#if defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 1  //function pass
+		auto funPassMgr = (legacy::FunctionPassManager*)passMgr;
+		for (auto& fun : lM) {
+			if (fun.isDeclaration() || fun.isIntrinsic()) continue;
+			funPassMgr->run(fun);
+		}
+#elif !defined(CUSTOM_PASS_OPR) || CUSTOM_PASS_OPR == 0
+		((legacy::PassManager*)passMgr)->run(lM);
+#elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
+
+#endif
 		out.flush();
 	}
 
@@ -249,13 +257,22 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 			}
 
 			auto fileType = CGFT_ObjectFile;
-			legacy::PassManager passMgr;
-			if (targetMachine->addPassesToEmitFile(passMgr, out, NULL, fileType)) {
+			if (targetMachine->addPassesToEmitFile(*passMgr, out, NULL, fileType)) {
 				errs() << "ObjGen " << "addPassesToEmitFile err error:" << EC.message();
 				return false;
 			}
 
-			passMgr.run(lM);
+#if defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 1  //function pass
+			auto funPassMgr = (legacy::FunctionPassManager*)passMgr;
+			for (auto& fun : lM) {
+				if (fun.isDeclaration() || fun.isIntrinsic()) continue;
+				funPassMgr->run(fun);
+			}
+#elif !defined(CUSTOM_PASS_OPR) || CUSTOM_PASS_OPR == 0
+			((legacy::PassManager*)passMgr)->run(lM);
+#elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
+
+#endif
 			out.flush();
 		}
 	}

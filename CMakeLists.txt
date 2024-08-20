@@ -10,13 +10,15 @@ message(STATUS "processor_cnt:${PROCESSOR_COUNT}")
 set(CMAKE_BUILD_PARALLEL_LEVEL ${PROCESSOR_COUNT})
 
 #可能不起作用
-
 set(CMAKE_CXX_COMPILER clang++)
 
 # 调试信息
 set(CMAKE_CXX_FLAGS "-g")
 
+#macro
+
 add_definitions(-DIN_DEV)
+add_definitions(-DCUSTOM_PASS_OPR=1) #pass操作0无pass 1使用legacy  2使用new
 
 #include
 include_directories(
@@ -34,27 +36,26 @@ link_directories(
 file(GLOB_RECURSE SRC_FILES 
 	${PROJECT_SOURCE_DIR}/font/*.cpp
 	${PROJECT_SOURCE_DIR}/src/*.cpp
-	#${PROJECT_SOURCE_DIR}/backend/*.cpp
 )  
 
 file(GLOB SRC_BK_FILES
 	${PROJECT_SOURCE_DIR}/backend/*.cpp
 	${PROJECT_SOURCE_DIR}/backend/pass/*.cpp
-	#${PROJECT_SOURCE_DIR}/backend/pass/FunctionSymbol/*.cpp
+	${PROJECT_SOURCE_DIR}/backend/pass/FunctionSymbol/*.cpp
 )
+
+#llvm pass nortti需要单独设置编译选项
+set_source_files_properties(
+	${PROJECT_SOURCE_DIR}/backend/pass/FunctionSymbol/FunctionSymbolPass.cpp
+	${PROJECT_SOURCE_DIR}/backend/pass/CustomPass.cpp
+	PROPERTIES COMPILE_FLAGS "-fno-rtti"
+)
+
 #message(STATUS "SRC_FILES:${PROJECT_SOURCE_DIR} ${SRC_FILES}")
 
 add_executable(DongLang main.cpp ${SRC_FILES}
 	${SRC_BK_FILES}
 )
-
-execute_process(COMMAND llvm-config --cxxflags
-	OUTPUT_VARIABLE LLVM_CXX_FLAGS
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-#添加会导致有些library报错
-#string(APPEND CMAKE_CXX_FLAGS " ${LLVM_CXX_FLAGS}")  
 
 execute_process(COMMAND llvm-config  --system-libs --libs all
 	OUTPUT_VARIABLE LLVM_LIBS
@@ -66,12 +67,10 @@ string(REPLACE "\n" " " LLVM_LIBS "${LLVM_LIBS}")
 #message(STATUS "llvm_cxx_flags:${LLVM_CXX_FLAGS} \n llvm_libs:${LLVM_LIBS}")
 
 # link libraries
-if(1)
-	target_link_libraries(DongLang
-		"${LLVM_LIBS}"
-		antlr4-runtime
-		gflags
-		gmock
-		gmock_main)
+target_link_libraries(DongLang
+	"${LLVM_LIBS}"
+	antlr4-runtime
+	gflags
+	gmock
+	gmock_main)
 
-endif()
