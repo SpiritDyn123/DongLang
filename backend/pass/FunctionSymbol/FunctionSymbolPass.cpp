@@ -87,22 +87,28 @@ static RegisterPass<LeFunctionSymbolPass> X("funsymbol", "function symbol",
 llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
 	return { LLVM_PLUGIN_API_VERSION, "functionSymbol", LLVM_VERSION_STRING,
 			[](PassBuilder& PB) {
+#ifdef OPT_LOAD_PLUGIN
 				PB.registerVectorizerStartEPCallback(
 					[](llvm::FunctionPassManager& PM, OptimizationLevel Level) {
-						cout << "111111111111111\n";
 					PM.addPass(FunctionSymbolPass());
 					});
 				PB.registerPipelineParsingCallback(
 					[](StringRef Name, llvm::FunctionPassManager& PM,
 						ArrayRef<llvm::PassBuilder::PipelineElement>) {
-							cout << "111111111111111\n";
-
 					if (Name == "funsymbol") {
 						PM.addPass(FunctionSymbolPass());
 						return true;
 					}
 					return false;
 					});
+#else
+			PB.registerPipelineStartEPCallback(
+				[](ModulePassManager& MPM, OptimizationLevel Level) {
+					FunctionPassManager FPM;
+					FPM.addPass(FunctionSymbolPass());
+					MPM.addPass(createModuleToFunctionPassAdaptor(std::move(FPM)));
+				});
+#endif
 			} };
 }
 

@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClCompile Include="backend\DLGen.cpp" />
     <ClCompile Include="backend\GenBase.cpp" />
+    <ClCompile Include="backend\pass\CustomPass.cpp" />
     <ClCompile Include="backend\pass\FunctionSymbol\FunctionSymbolPass.cpp" />
     <ClCompile Include="font\antlr4\gen\DongLangBaseListener.cpp" />
     <ClCompile Include="font\antlr4\gen\DongLangBaseVisitor.cpp" />
@@ -115,6 +116,7 @@
   <ItemGroup>
     <ClInclude Include="backend\DLGen.h" />
     <ClInclude Include="backend\GenBase.h" />
+    <ClInclude Include="backend\pass\CustomPass.h" />
     <ClInclude Include="backend\pass\FunctionSymbol\FunctionSymbolPass.h" />
     <ClInclude Include="font\antlr4\gen\DongLangBaseListener.h" />
     <ClInclude Include="font\antlr4\gen\DongLangBaseVisitor.h" />
@@ -159,6 +161,7 @@
     <ClCompile>
       <CppLanguageStandard>c++17</CppLanguageStandard>
       <AdditionalIncludeDirectories>/data/app/antlr4-runtime/cpp/include/antlr4-runtime;$(ProjectDir);/data/app/llvm/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CUSTOM_PASS_OPR=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>/data/app/llvm/lib/;/data/app/antlr4-runtime/cpp/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
