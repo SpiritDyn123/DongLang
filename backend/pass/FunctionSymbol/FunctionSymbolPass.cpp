@@ -71,10 +71,16 @@ namespace {
 	}
 }
 
-#if defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 1
-Pass* createLeFunctionSymbolPass() {
-	return new LeFunctionSymbolPass();
+#if defined(CUSTOM_PASS_OPR)
+#if CUSTOM_PASS_OPR == 1
+void addLeFunctionSymbolPass(legacy::FunctionPassManager*& funPassMgr) {
+	funPassMgr->add(new LeFunctionSymbolPass());
 }
+#elif CUSTOM_PASS_OPR == 2
+void addFunctionSymbolPass(FunctionPassManager& FPM) {
+	FPM.addPass(FunctionSymbolPass());
+}
+#endif
 #endif
 
 #ifdef OPT_LEGACY_PASS
@@ -83,11 +89,12 @@ static RegisterPass<LeFunctionSymbolPass> X("funsymbol", "function symbol",
 	false /* Analysis Pass */);
 #endif
 
+#ifdef OPT_LOAD_PLUGIN
 /* New PM Registration */
 llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
 	return { LLVM_PLUGIN_API_VERSION, "functionSymbol", LLVM_VERSION_STRING,
 			[](PassBuilder& PB) {
-#ifdef OPT_LOAD_PLUGIN
+
 				PB.registerVectorizerStartEPCallback(
 					[](llvm::FunctionPassManager& PM, OptimizationLevel Level) {
 					PM.addPass(FunctionSymbolPass());
@@ -101,14 +108,12 @@ llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
 					}
 					return false;
 					});
-#else
-			PB.registerPipelineStartEPCallback(
+			/*PB.registerPipelineStartEPCallback(
 				[](ModulePassManager& MPM, OptimizationLevel Level) {
 					FunctionPassManager FPM;
 					FPM.addPass(FunctionSymbolPass());
 					MPM.addPass(createModuleToFunctionPassAdaptor(std::move(FPM)));
-				});
-#endif
+				});*/
 			} };
 }
 
@@ -116,3 +121,5 @@ llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
 extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo llvmGetPassPluginInfo() {
 	return getFunctionSymbolPluginInfo();
 }
+
+#endif

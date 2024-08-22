@@ -19,11 +19,14 @@ void InitCustomPass(legacy::PassManager* passMgr,
 
 #ifdef CUSTOM_PASS_OPR
 #if CUSTOM_PASS_OPR == 1
-#define CUSTOM_PASS(passPlugin)  llvm::Pass* createLe##passPlugin##Pass();
+#define CUSTOM_PASS(passClass)     void addLe##passClass##Pass(legacy::FunctionPassManager*& funPassMgr);
 #include "backend/pass/PassConfig.def"
+#define CUSTOM_ADD_PASS(passClass) addLe##passClass##Pass(funPassMgr);
+
 #elif CUSTOM_PASS_OPR == 2
-#define CUSTOM_PASS(passPlugin)  llvm::PassPluginLibraryInfo get##passPlugin##PluginInfo();
+#define CUSTOM_PASS(passClass)  	void add##passClass##Pass(FunctionPassManager& FPM);
 #include "backend/pass/PassConfig.def"
+#define CUSTOM_ADD_PASS(passClass) add##passClass##Pass(FPM);
 #endif
 #endif
 

@@ -12,15 +12,15 @@ void InitCustomPass(legacy::PassManager* passMgr, legacy::FunctionPassManager*& 
 #ifdef CUSTOM_PASS_OPR
 #if CUSTOM_PASS_OPR == 1
 	funPassMgr = new legacy::FunctionPassManager(&lm);
-	funPassMgr->add(createLeFunctionSymbolPass());
 #elif CUSTOM_PASS_OPR == 2
-	getFunctionSymbolPluginInfo().RegisterPassBuilderCallbacks(PB);
 	PB.registerLoopAnalyses(LAM);
 	PB.registerCGSCCAnalyses(CGAM);
 	PB.registerModuleAnalyses(MAM);
 	PB.registerFunctionAnalyses(FAM);
 	PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
 #endif
-
+	
+	//add pass
+	CUSTOM_ADD_PASS(FunctionSymbol);
 #endif
 }

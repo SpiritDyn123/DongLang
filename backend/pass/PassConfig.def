@@ -1,5 +1,5 @@
 #ifndef CUSTOM_PASS
-#  error Please define the macro CUSTOM_PASS(passPlugin)
+#  error Please define the macro CUSTOM_PASS(passClass)
 #endif
 
 CUSTOM_PASS(FunctionSymbol)

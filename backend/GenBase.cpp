@@ -285,7 +285,6 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 				if (fun.isDeclaration() || fun.isIntrinsic()) {
 					continue;
 				}
-				cout << "ccccccccccccccc:" << fun.getName().str() << endl;
 				FPM.run(fun, FAM);
 			}
 #endif

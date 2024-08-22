@@ -18,7 +18,7 @@ set(CMAKE_CXX_FLAGS "-g")
 #macro
 
 add_definitions(-DIN_DEV)
-add_definitions(-DCUSTOM_PASS_OPR=2) #pass操作0无pass 1使用legacy  2使用new
+add_definitions(-DCUSTOM_PASS_OPR=1) #pass操作0无pass 1使用legacy  2使用new
 
 #include
 include_directories(
