@@ -18,7 +18,9 @@ set(CMAKE_CXX_FLAGS "-g")
 #macro
 
 add_definitions(-DIN_DEV)
-add_definitions(-DCUSTOM_PASS_OPR=1) #pass操作0无pass 1使用legacy  2使用new
+
+ #pass操作0无pass 1使用legacy  2使用new
+add_definitions(-DCUSTOM_PASS_OPR=2)
 
 #include
 include_directories(
@@ -44,14 +46,20 @@ file(GLOB SRC_BK_FILES
 	${PROJECT_SOURCE_DIR}/backend/pass/FunctionSymbol/*.cpp
 )
 
-#llvm pass nortti需要单独设置编译选项
-set_source_files_properties(
-	${PROJECT_SOURCE_DIR}/backend/pass/FunctionSymbol/FunctionSymbolPass.cpp
-	${PROJECT_SOURCE_DIR}/backend/pass/CustomPass.cpp
-	PROPERTIES COMPILE_FLAGS "-fno-rtti"
+#llvm pass RTTI需要单独设置编译选项
+execute_process(COMMAND llvm-config --has-rtti
+	OUTPUT_VARIABLE LLVM_RTTI
+	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-
-#message(STATUS "SRC_FILES:${PROJECT_SOURCE_DIR} ${SRC_FILES}")
+string(TOLOWER ${LLVM_RTTI} LLVM_RTTI)
+message(STATUS "llvm rtti:${LLVM_RTTI}")
+if("${LLVM_RTTI}" STREQUAL "no")
+	set_source_files_properties(
+		${PROJECT_SOURCE_DIR}/backend/pass/FunctionSymbol/FunctionSymbolPass.cpp
+		${PROJECT_SOURCE_DIR}/backend/pass/CustomPass.cpp
+		PROPERTIES COMPILE_FLAGS "-fno-rtti"
+	)
+endif()
 
 add_executable(DongLang main.cpp ${SRC_FILES}
 	${SRC_BK_FILES}

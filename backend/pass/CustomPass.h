@@ -13,6 +13,7 @@ extern FunctionPassManager FPM;
 extern LoopAnalysisManager LAM;
 extern CGSCCAnalysisManager CGAM;
 extern ModuleAnalysisManager MAM;
+extern ModulePassManager MPM;
 
 void InitCustomPass(legacy::PassManager* passMgr, 
 	legacy::FunctionPassManager*& funPassMgr, Module& lm);
@@ -21,12 +22,9 @@ void InitCustomPass(legacy::PassManager* passMgr,
 #if CUSTOM_PASS_OPR == 1
 #define CUSTOM_PASS(passClass)     void addLe##passClass##Pass(legacy::FunctionPassManager*& funPassMgr);
 #include "backend/pass/PassConfig.def"
-#define CUSTOM_ADD_PASS(passClass) addLe##passClass##Pass(funPassMgr);
-
 #elif CUSTOM_PASS_OPR == 2
 #define CUSTOM_PASS(passClass)  	void add##passClass##Pass(FunctionPassManager& FPM);
 #include "backend/pass/PassConfig.def"
-#define CUSTOM_ADD_PASS(passClass) add##passClass##Pass(FPM);
 #endif
 #endif
 

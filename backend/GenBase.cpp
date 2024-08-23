@@ -280,13 +280,18 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 			}
 
 			funPassMgr->doFinalization();
+			passMgr.run(lM);
 #elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
-			for (Function& fun : lM) {
+			/*for (Function& fun : lM) {
 				if (fun.isDeclaration() || fun.isIntrinsic()) {
 					continue;
 				}
 				FPM.run(fun, FAM);
-			}
+			}*/
+
+			MPM.run(lM, MAM);
+#else  
+			passMgr.run(lM);
 #endif
 			passMgr.run(lM);
 			out.flush();

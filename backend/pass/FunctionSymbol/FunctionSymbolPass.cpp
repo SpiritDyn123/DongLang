@@ -90,11 +90,9 @@ static RegisterPass<LeFunctionSymbolPass> X("funsymbol", "function symbol",
 #endif
 
 #ifdef OPT_LOAD_PLUGIN
-/* New PM Registration */
 llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
 	return { LLVM_PLUGIN_API_VERSION, "functionSymbol", LLVM_VERSION_STRING,
 			[](PassBuilder& PB) {
-
 				PB.registerVectorizerStartEPCallback(
 					[](llvm::FunctionPassManager& PM, OptimizationLevel Level) {
 					PM.addPass(FunctionSymbolPass());
@@ -117,9 +115,8 @@ llvm::PassPluginLibraryInfo getFunctionSymbolPluginInfo() {
 			} };
 }
 
-
-extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo llvmGetPassPluginInfo() {
+//dynamic load must has this api from PassPlugin::Load(const std::string &Filename)
+extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo llvmGetPassPluginInfo() { 
 	return getFunctionSymbolPluginInfo();
 }
-
 #endif
