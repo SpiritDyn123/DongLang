@@ -43,6 +43,8 @@ Value* DongLangFunctionDefAST::genCode() {
 	auto fn = Function::Create(fnType, GlobalValue::ExternalLinkage, funcSymbol->ID(), &lM);
 
 	if (hasBody) {
+		//fn->addFnAttr(Attribute::NoInline); //attribute test
+
 		string& fnName = funcSymbol->Name();
 		auto entryBB = BasicBlock::Create(lC, "entry_" + fnName, fn);
 		lB.SetInsertPoint(entryBB);

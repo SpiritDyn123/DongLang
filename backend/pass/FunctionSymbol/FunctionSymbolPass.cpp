@@ -12,14 +12,15 @@
 #include <sstream>
 #include <map>
 #include <vector>
-
+#include "llvm/IR/Attributes.h"
 using namespace std;
+using namespace llvm;
 
 namespace {
 	
-	void runCustom(Function& F) {
-		if (F.isIntrinsic()) {
-			return;
+	bool runCustom(Function& F) {
+		if (F.isDeclaration() || F.isIntrinsic()) {
+			return false;
 		}
 
 		stringstream ss;
@@ -53,6 +54,7 @@ namespace {
 
 		ss << "\n\n";
 		cout << ss.str();
+		return true;
 	}
 
 	char LeFunctionSymbolPass::ID = 0;
@@ -66,7 +68,11 @@ namespace {
 	}
 
 	PreservedAnalyses FunctionSymbolPass::run(Function& F, FunctionAnalysisManager& AM) {
-		runCustom(F);
+		if (runCustom(F)) {
+			/*F.addFnAttr(Attribute::NoInline);
+			return PreservedAnalyses::none();*/
+		}
+
 		return PreservedAnalyses::all();
 	}
 }

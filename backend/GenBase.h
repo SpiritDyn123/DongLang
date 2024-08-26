@@ -40,6 +40,8 @@ public:
 
 	bool genWrap(GenBase*);
 	string getOutFileName();
+	void doMidPass(); 
+	void doGenCodePass();
 
 	static TargetMachine* getTargetMachine(llvm::Module& lModule, llvm::LLVMContext& lCtx);
 public:

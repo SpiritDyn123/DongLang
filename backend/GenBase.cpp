@@ -111,6 +111,7 @@ string GenBase::getOutFileName() {
 	return outFile;
 }
 
+
 bool GenBase::genWrap(GenBase* srcGen) {
 	auto srcGT = srcGen->genType();
 	auto dstGT = genType();
@@ -159,6 +160,36 @@ bool GenBase::genWrap(GenBase* srcGen) {
 	cout << "gen file:" << this->getOutFileName() << " success\n";
 
 	return true;
+}
+
+
+void GenBase::doMidPass() {
+#if defined(CUSTOM_PASS_OPR)
+#if CUSTOM_PASS_OPR == 1  //function pass
+	funPassMgr->doFinalization();
+	for (Function& fun : lM) {
+		if (fun.isDeclaration() || fun.isIntrinsic()) {
+			continue;
+		}
+		funPassMgr->run(fun);
+	}
+
+	funPassMgr->doFinalization();
+#elif CUSTOM_PASS_OPR == 2
+	/*for (Function& fun : lM) {
+		if (fun.isDeclaration() || fun.isIntrinsic()) {
+			continue;
+		}
+		FPM.run(fun, FAM);
+	}*/
+	
+	MPM.run(lM, MAM);
+#endif
+#endif
+}
+
+void GenBase::doGenCodePass() {
+	passMgr.run(lM);
 }
 
 bool LLGen::gen(GenBase* srcGen, bool final) {
@@ -213,30 +244,16 @@ bool AsmGen::gen(GenBase* srcGen, bool final) {
 			return false;
 		}
 
-		auto fileType = CGFT_AssemblyFile ;
+		//mid pass
+		doMidPass();
+		auto fileType = CGFT_AssemblyFile;
 		if (targetMachine->addPassesToEmitFile(passMgr, out, NULL, fileType)) {
 			errs() << "AsmGen " << "addPassesToEmitFile err error:" << EC.message();
 			return false;
 		}
-#if defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 1  //function pass
-		funPassMgr->doFinalization();
-		for (Function& fun : lM) {
-			if (fun.isDeclaration() || fun.isIntrinsic()) {
-				continue;
-			}
-			funPassMgr->run(fun);
-		}
 
-		funPassMgr->doFinalization();
-#elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
-		for (Function& fun : lM) {
-			if (fun.isDeclaration() || fun.isIntrinsic()) {
-				continue;
-			}
-			FPM.run(fun, FAM);
-		}
-#endif
-		passMgr.run(lM);
+		//code gen pass
+		doGenCodePass();
 		out.flush();
 	}
 
@@ -264,36 +281,16 @@ bool ObjGen::gen(GenBase* srcGen, bool final) {
 				return false;
 			}
 
+			//mid pass
+			doMidPass();
 			auto fileType = CGFT_ObjectFile;
 			if (targetMachine->addPassesToEmitFile(passMgr, out, NULL, fileType)) {
 				errs() << "ObjGen " << "addPassesToEmitFile err error:" << EC.message();
 				return false;
 			}
 
-#if defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 1  //function pass
-			funPassMgr->doFinalization();
-			for (Function& fun : lM) {
-				if (fun.isDeclaration() || fun.isIntrinsic()) {
-					continue;
-				}
-				funPassMgr->run(fun);
-			}
-
-			funPassMgr->doFinalization();
-			passMgr.run(lM);
-#elif defined(CUSTOM_PASS_OPR) && CUSTOM_PASS_OPR == 2
-			/*for (Function& fun : lM) {
-				if (fun.isDeclaration() || fun.isIntrinsic()) {
-					continue;
-				}
-				FPM.run(fun, FAM);
-			}*/
-
-			MPM.run(lM, MAM);
-#else  
-			passMgr.run(lM);
-#endif
-			passMgr.run(lM);
+			//code gen pass
+			doGenCodePass();
 			out.flush();
 		}
 	}

@@ -3,4 +3,4 @@ if [ ! -z "$1" ];then
 	cppFile=$1
 fi
 
-clang++ $cppFile `llvm-config --cxxflags --ldflags --system-libs --libs core` -g
+clang++ $cppFile `llvm-config --cxxflags --ldflags --system-libs --libs all`

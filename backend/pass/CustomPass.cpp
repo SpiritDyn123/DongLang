@@ -20,8 +20,10 @@ void InitCustomPass(legacy::PassManager* passMgr, legacy::FunctionPassManager*& 
 	PB.registerModuleAnalyses(MAM);
 	PB.registerFunctionAnalyses(FAM);
 	PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
-	MPM = PB.buildPerModuleDefaultPipeline(OptimizationLevel::O2);
 	#define CUSTOM_PASS(passClass) add##passClass##Pass(FPM);
+
+	//function pass ===> module pass
+	MPM.addPass(createModuleToFunctionPassAdaptor(std::move(FPM)));
 #endif
 	//add pass
 	#include "backend/pass/PassConfig.def"

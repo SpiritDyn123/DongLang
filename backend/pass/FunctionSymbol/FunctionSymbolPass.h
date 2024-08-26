@@ -7,7 +7,7 @@ using namespace std;
 using namespace llvm;
 
 namespace {
-	void runCustom(Function& F);
+	bool runCustom(Function& F);
 
 	class LeFunctionSymbolPass :  public FunctionPass {
 	public:
