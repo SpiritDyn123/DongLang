@@ -114,6 +114,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\dl_flag.cpp" />
     <ClCompile Include="test\eg\debug.cpp" />
+    <ClCompile Include="test\study\cfg_test.cpp" />
     <ClCompile Include="test\study\pass_test.cpp" />
   </ItemGroup>
   <ItemGroup>

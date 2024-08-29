@@ -1,34 +1,11 @@
-int g_a = 1;
-int g_b;
-
-int ff(int a, int b) {
-	int c =  a + b;
-	return c;
-}
-
 int main() {
-	int a = 1, b;
-
-
-	if (int ifa = 1; ifa > 0) {
-		int ifa1 = 1;
-
-
-	}
-
-	else if (int ifb = 1; ifb > 0) {
-		int ifb1 = 1;
-	}/*
-	else if(int ifc = 1; ifc > 0){
-		int ifc1 = 2;
-	}*/
-	else {
-		int ifz = 1;
-	}
-
-	for (int i = 0; i < 10; i++)
-	{
-		int j = 1;
+	int a = 0;
+	for(int i = 0;i < 10;i++) {
+		for(int j=0;j <10;j++) {
+			for(int k=0;k < 10;k++) {
+				a += i +j +k;
+			}
+		}
 	}
 
 	return 0;

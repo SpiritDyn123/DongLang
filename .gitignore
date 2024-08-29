@@ -372,3 +372,4 @@ DongLang
 *.ll
 *.out
 *.so
+*.bc
